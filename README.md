@@ -1,627 +1,162 @@
-# AI Dev Setup Wizard
+# agentsmd
 
-> One prompt. Any project. GitHub Copilot, OpenCode, and Claude Code — ready in minutes.
+> AI Agent Workflow Manager — eine CLI für Agents, Skills und Workflows.
 
-This repo contains a single file: `setup-wizard.md`.
+Self-contained Exe für Windows, Linux und macOS. Kein Runtime nötig.
 
-Run it once in any project (new or existing) and you get a complete AI-assisted development workflow with spec-driven development, TDD, automated code review, living documentation, and a structured task pipeline from idea to PR.
-
----
-
-## What it sets up
-
-```
-Your project after setup:
-
-.agents/                         ← canonical agent instructions (edit here)
-  ├── test-writer.md
-  ├── implementer.md
-  ├── reviewer-spec.md
-  ├── reviewer-quality.md
-  ├── docs-writer.md
-  └── management/
-      ├── create-agent.md
-      ├── update-agent.md
-      ├── delete-agent.md
-      ├── create-skill.md
-      ├── update-skill.md
-      ├── delete-skill.md
-      ├── backlog.md
-      └── status.md
-
-.claude/skills/                  ← skills (all three tools read this)
-  └── feature/
-      └── SKILL.md
-
-.github/                         ← Copilot agent wrappers (frontmatter only)
-  ├── copilot-instructions.md
-  └── agents/
-      ├── test-writer.agent.md
-      ├── implementer.agent.md
-      ├── reviewer-spec.agent.md
-      ├── reviewer-quality.agent.md
-      └── docs-writer.agent.md
-
-.opencode/agents/                ← OpenCode agent wrappers (frontmatter only)
-  ├── test-writer.md
-  ├── implementer.md
-  ├── reviewer-spec.md
-  ├── reviewer-quality.md
-  └── docs-writer.md
-
-.claude/agents/                  ← Claude Code agent wrappers (frontmatter only)
-  ├── test-writer.md
-  ├── implementer.md
-  ├── reviewer-spec.md
-  ├── reviewer-quality.md
-  └── docs-writer.md
-
-  NOTE: Three agent wrapper folders are unavoidable — each tool has its own
-  agent directory standard. However, the actual instructions live only in
-  .agents/ and are never edited in the wrappers directly.
-
-AGENTS.md                        ← build commands, conventions
-docs/
-  ├── ARCHITECTURE.md
-  ├── decisions/
-  ├── api/
-  └── internals/
-
-.tasks/
-  ├── backlog/
-  └── in-progress/
-
-logs/                            ← LLM-readable run logs
-opencode.json
-```
-
----
-
-## Installation
-
-### Step 1 — Download setup-wizard.md
-
-**Mac / Linux:**
-```bash
-curl -O https://raw.githubusercontent.com/Knaackee/agentsmd/main/setup-wizard.md
-```
-
-**Windows (PowerShell):**
-```powershell
-curl.exe -O https://raw.githubusercontent.com/Knaackee/agentsmd/main/setup-wizard.md
-# or:
-iwr "https://raw.githubusercontent.com/Knaackee/agentsmd/main/setup-wizard.md" -OutFile "setup-wizard.md"
-```
-
-**GitHub CLI:**
-```bash
-gh repo clone Knaackee/agentsmd tmp-setup && cp tmp-setup/setup-wizard.md . && rm -rf tmp-setup
-```
-
-### Step 2 — Run it in your project
-
-**GitHub Copilot (VS Code)**
-1. Open your project in VS Code
-2. Open Copilot Chat
-3. Click the paperclip icon → attach `setup-wizard.md`
-4. Send: `run this`
-
-**OpenCode**
-```bash
-cd your-project
-opencode
-# In the TUI: attach or paste setup-wizard.md, send: "run this"
-
-# Or install globally:
-mkdir -p ~/.config/opencode/commands
-cp setup-wizard.md ~/.config/opencode/commands/setup-wizard.md
-# Then: /setup-wizard
-```
-
-**Claude Code**
-```bash
-cd your-project
-claude
-# In the session:
-@setup-wizard.md
-run this
-
-# Or install globally:
-mkdir -p ~/.claude/commands
-cp setup-wizard.md ~/.claude/commands/setup-wizard.md
-# Then: /setup-wizard
-```
-
-### Step 3 — Answer the wizard's questions
-
-**New project** — the wizard asks:
-- What type? (Web API / Frontend / Desktop / Mobile / CLI / Library)
-- Language & Framework?
-- Project name?
-- Anything special?
-
-**Existing project** — the wizard scans first:
-```
-I scanned the project. Here's what I found:
-
-| Language        | TypeScript     |
-| Framework       | Next.js        |
-| Build command   | npm run build  |
-| Test command    | npm test       |
-| CI              | GitHub Actions |
-| Existing config | none           |
-
-Is this correct?
-```
-
-Correct anything, confirm, wizard creates all files.
-
-### Step 4 — Commit the setup
+## Quick Start
 
 ```bash
-git add .
-git commit -m "chore: add AI workflow config"
+# 1. Download (oder von GitHub Releases)
+# Windows:
+curl -Lo agentsmd.exe https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe
+
+# Linux:
+curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64 && chmod +x agentsmd
+
+# macOS:
+curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64 && chmod +x agentsmd
+
+# 2. In deinem Projekt:
+agentsmd init
+agentsmd workflow install sdd-tdd
+agentsmd sync
 ```
 
----
+## Was ist agentsmd?
 
-## Daily workflow
-
-### From idea to PR
+Ein Paketmanager für AI-Agent-Workflows. Installiere vorgefertigte Agents, Skills und Workflows aus einer zentralen Lib — und synchronisiere sie automatisch für GitHub Copilot, Claude Code und OpenCode.
 
 ```
-1. Create a backlog item
-2. Start the feature (autonomous or guided)
-3. Approve the SPEC
-4. Let it run — or guide it task by task
-5. Review and merge the PR
+Lib (dieses Repo)              Dein Projekt
+┌────────────────┐             ┌──────────────────┐
+│ lib/           │   install   │ .agentsmd/       │
+│   agents/      │ ──────────► │   agents/        │
+│   skills/      │             │   skills/        │
+│   workflows/   │             │   workflows/     │
+└────────────────┘             │   tasks/         │
+                               │   installed.json │
+                               └────────┬─────────┘
+                                  sync  │
+                                        ▼
+                               ┌──────────────────┐
+                               │ .github/agents/  │ Copilot
+                               │ .claude/agents/  │ Claude Code
+                               │ .claude/skills/  │ Claude Code
+                               │ .opencode/agents/│ OpenCode
+                               └──────────────────┘
 ```
 
----
-
-### 1. Create a backlog item
-
-**Create the file yourself:**
-```bash
-echo "Add Stripe checkout integration" > .tasks/backlog/stripe-checkout.md
-
-# With GitHub Issue:
-echo "Issue: #42" > .tasks/backlog/stripe-checkout.md
-
-# Both:
-cat > .tasks/backlog/stripe-checkout.md << EOF
-Issue: #42
-Add Stripe checkout with webhook support.
-EOF
-```
-
-**Via the backlog agent:**
-```
-"add to backlog: Stripe checkout with webhook support"
-```
-
-**Show backlog:**
-```
-"show backlog"
-```
-
----
-
-### 2. Start a feature
-
-**Autonomous mode (default) — runs until PR:**
-```
-"lets do this"
-"start stripe-checkout"
-```
-
-**Guided mode — you say "next task" between each task:**
-```
-"lets do this (guided)"
-"start stripe-checkout guided"
-```
-
----
-
-### 3. Approve the SPEC
-
-The agent always drafts the SPEC and waits for your approval — in both modes.
-
-```
-# SPEC: Stripe Checkout
-**Mode**: autonomous
-
-## Acceptance Criteria
-- [ ] User can complete a payment
-- [ ] Failed payment shows error with retry
-- [ ] Webhook processes status updates
-...
-
-Each criterion becomes a failing test. OK to proceed?
-```
-
-Say `ok`, correct it, or refine it. Then:
-
-**Autonomous:** runs all tasks without stopping — next stop is the PR.
-
-**Guided:** waits for `"next task"` between each task.
-
----
-
-### 4a. Autonomous mode — what happens
-
-You approved the SPEC. The agent runs on its own:
-
-```
-[Task 1/4] Stripe client setup
-  RED    → 3 failing tests written
-  GREEN  → tests passing
-  SPEC   → PASS
-  QUALITY → PASS
-  DOCS   → docs/internals/stripe-client.md updated
-  COMMIT → feat: add Stripe client
-
-[Task 2/4] Checkout endpoint
-  ...
-
-[Task 3/4] ...
-[Task 4/4] ...
-
-All 4 tasks complete. PR is open.
-Review: gh pr view --web
-```
-
-**The only things that stop it:**
-- Implementer blocked (no new hypothesis) → reports, waits for you
-- Spec review BLOCKER → reports, waits for you
-- Quality review BLOCKER → reports, waits for you
-
-Unambiguous warnings are applied automatically and logged.
-
----
-
-### 4b. Guided mode — what happens
-
-```
-"next task"
-
-[Task 1/4] Stripe client setup
-  RED    → 3 failing tests
-  GREEN  → passing
-  SPEC   → PASS
-  QUALITY → PASS (1 WARNING: consider extracting config)
-  → Apply warning? (y/n)
-  DOCS   → updated
-  COMMIT → committed
-
-Task 1 done. Say 'next task' to continue.
-
-"next task"
-...
-```
-
-You see every step. You decide on every warning.
-
----
-
-### 5. Review the PR
-
-```
-All 4 tasks complete. PR is open.
-
-Review:  gh pr view --web
-Merge:   gh pr merge  ← you do this
-
-Cleanup after merge:
-  git worktree remove .worktrees/stripe-checkout
-  git branch -d feature/stripe-checkout
-```
-
----
-
-## Check current status
-
-```
-"status"
-```
-
-```
-## Status
-
-In progress (2 features):
-
-### feature/stripe-checkout
-Mode:     autonomous
-Progress: 3/4 tasks
-Current:  Task 4 — Webhook handler
-Phase:    GREEN
-Last log: [2026-03-21T14:23:01Z] [TEST] Task 4 GREEN — 6/7 passing
-
-### feature/user-notifications
-Mode:     guided
-Progress: 1/3 tasks
-Current:  Task 2 — Notification preferences
-Phase:    waiting for "next task"
-
-Backlog (2 items): export-csv.md, dark-mode.md
-```
-
----
-
-## Managing agents
-
-Agents are defined once in `.agents/` and propagated to all tool wrappers.
-**Never edit `.github/agents/`, `.opencode/agents/`, or `.claude/agents/` directly.**
-
-### Update an agent
-
-```
-"update agent implementer"
-```
-Shows current instructions → asks what to change → updates `.agents/implementer.md`
-→ propagates to all three tool wrappers automatically.
-
-### Create a new agent
-
-```
-"create agent security-auditor"
-```
-
-### Delete an agent
-
-```
-"delete agent security-auditor"
-```
-
----
-
-## Managing skills
-
-Skills live in `.claude/skills/` — all three tools read this natively.
-
-### Create
-
-```
-"create skill systematic-debugging"
-```
-
-### Update
-
-```
-"update skill feature"
-```
-
-### Delete
-
-```
-"delete skill systematic-debugging"
-```
-
-### List
-
-```
-/skills list          ← Copilot
-"what skills are available?"  ← OpenCode / Claude Code
-```
-
----
-
-## Tool-specific commands
-
-### GitHub Copilot
-
-| What | How |
-|---|---|
-| Start (autonomous) | `lets do this` |
-| Start (guided) | `lets do this (guided)` |
-| Next task | `next task` (guided only) |
-| Invoke agent | `@test-writer`, `@implementer` |
-| List skills | `/skills list` |
-| Manage agents | `#.agents/management/update-agent.md` |
-
-### OpenCode
-
-| What | How |
-|---|---|
-| Start (autonomous) | `lets do this` |
-| Start (guided) | `lets do this (guided)` |
-| Next task | `next task` (guided only) |
-| Invoke agent | `@test-writer`, `@implementer` |
-| Plan mode | `Tab` |
-| File reference | `@filename` |
-| Manage | `update agent [name]` |
-
-### Claude Code
-
-| What | How |
-|---|---|
-| Start (autonomous) | `lets do this` |
-| Start (guided) | `lets do this (guided)` |
-| Next task | `next task` (guided only) |
-| Invoke agent | `@test-writer`, `@implementer` |
-| File reference | `@path/to/file` |
-| Compact context | `/compact` at ~80% |
-| Clear context | `/clear` |
-| Manage | `update agent [name]` |
-
----
-
-## File reference
-
-| File / Folder | Purpose | Edit when |
-|---|---|---|
-| `AGENTS.md` | Build commands, conventions | New convention discovered |
-| `docs/ARCHITECTURE.md` | System overview | Architecture changes |
-| `docs/decisions/` | Why decisions were made | Non-obvious decision |
-| `docs/api/` | Public API docs | API added or changed |
-| `docs/internals/` | Internal module docs | New module created |
-| `.agents/[name].md` | Agent instructions (canonical) | Via "update agent [name]" |
-| `.agents/management/` | Management agents | Never directly |
-| `.claude/skills/feature/SKILL.md` | Feature workflow | Via "update skill feature" |
-| `logs/run-YYYY-MM-DD.md` | LLM-readable run logs | Never (append-only) |
-| `.tasks/backlog/` | Ideas waiting to start | Drop files here |
-| `.tasks/in-progress/[name]/SPEC.md` | Feature spec | During SPEC review |
-| `.tasks/in-progress/[name]/TASKS.md` | Task checklist | Agent manages this |
-| `opencode.json` | OpenCode config | Model preferences |
-
----
-
-## Approach: SDD + TDD
-
-**Spec-Driven Development** — the SPEC is the source of truth. Code serves the spec.
-
-**Test-Driven Development** — every Acceptance Criterion becomes a failing test first.
-Red → Green → Refactor. No exceptions.
-
-**The loop per task:**
-```
-RED            test-writer → failing tests from criteria
-GREEN          implementer → minimal code to pass them
-SPEC-REVIEW    reviewer-spec → all criteria covered?
-QUALITY-REVIEW reviewer-quality → code quality + security
-DOCS           docs-writer → update relevant docs/
-COMMIT         lint + format + check off + git commit
-```
-
-**Self-healing:** every error and hypothesis is logged to `logs/run-YYYY-MM-DD.md`.
-The implementer reads logs before touching code. One hypothesis, one atomic fix,
-one verification. No new hypothesis → stop and report.
-
----
-
-## Agent roles
-
-| Agent | Phase | Job |
-|---|---|---|
-| `test-writer` | RED | Criteria → failing tests |
-| `implementer` | GREEN | Minimal code to pass tests |
-| `reviewer-spec` | SPEC-REVIEW | All criteria covered? |
-| `reviewer-quality` | QUALITY-REVIEW | Code quality + security |
-| `docs-writer` | DOCS | Update docs/ before commit |
-
----
-
-## Migration guide
-
-> Already ran the wizard before? Here's how to update an existing setup.
-
-### What changed
-
-| What | Old | New |
-|---|---|---|
-| Skill location | `.github/skills/` + wrappers | `.claude/skills/` only |
-| Commands | `.opencode/commands/` + `.claude/commands/` | removed — not needed |
-| Execution mode | always guided ("next task") | autonomous by default |
-| opencode.json | model config only | also loads AGENTS.md via `instructions` |
-| AGENTS.md | no mode section | new `Execution Modes` section |
-| SPEC.md | no Mode field | new `**Mode**` field |
-| status agent | no mode display | shows autonomous/guided |
-
-### Migration steps
-
-**1. Add the feature skill to `.claude/skills/`**
+## CLI Commands
 
 ```bash
-mkdir -p .claude/skills/feature
+# Global
+agentsmd init                        # Projekt initialisieren
+agentsmd search [query]              # Lib durchsuchen
+agentsmd list                        # Installierte Artefakte
+agentsmd sync                        # Tool-Wrappers generieren
+agentsmd status                      # Projekt-Überblick
+
+# Agents
+agentsmd agent install <name>        # Agent installieren
+agentsmd agent uninstall <name>      # Agent entfernen
+agentsmd agent list                  # Installierte Agents
+agentsmd agent search [query]        # Agents in Lib suchen
+agentsmd agent info <name>           # Details anzeigen
+
+# Skills (gleiche Verben)
+agentsmd skill install <name>
+agentsmd skill uninstall <name>
+agentsmd skill list
+agentsmd skill search [query]
+agentsmd skill info <name>
+
+# Workflows (gleiche Verben)
+agentsmd workflow install <name>     # + automatische Dependency Resolution
+agentsmd workflow uninstall <name>
+agentsmd workflow list
+agentsmd workflow search [query]
+agentsmd workflow info <name>
 ```
 
-Copy the SKILL.md from the new setup-wizard.md (Step 8) into `.claude/skills/feature/SKILL.md`.
+## Lib-Inhalte
 
-If you had `.github/skills/feature/SKILL.md`, you can delete it — or keep both during transition.
+### Agents
 
-**2. Remove old command wrappers (optional)**
+| Agent | Beschreibung |
+|-------|-------------|
+| `test-writer` | Schreibt Tests aus Spezifikationen (RED Phase) |
+| `implementer` | Minimaler Code bis Tests grün (GREEN Phase) |
+| `reviewer-spec` | Prüft ob alle Akzeptanzkriterien erfüllt sind |
+| `reviewer-quality` | Code-Qualität und Security Review |
+| `docs-writer` | Dokumentation aktualisieren |
 
-If you have these, they are no longer needed:
+### Skills
+
+| Skill | Beschreibung |
+|-------|-------------|
+| `task-management` | Backlog, Specs, Task-Tracking |
+| `feature` | Feature-Entwicklung mit SDD+TDD Workflow |
+| `debugging` | Systematisches Debugging mit Hypothesen-Tracking |
+| `refactoring` | Sicheres Refactoring mit Test-Absicherung |
+
+### Workflows
+
+| Workflow | Beschreibung |
+|----------|-------------|
+| `sdd-tdd` | Spec-Driven Development mit TDD Pipeline |
+| `content-review` | Content-Erstellung mit Review-Pipeline |
+
+## Wie funktioniert `agentsmd sync`?
+
+```
+.agentsmd/agents/test-writer.md
+  ├──► .github/agents/test-writer.agent.md   (+ Copilot Frontmatter)
+  ├──► .opencode/agents/test-writer.md        (+ OpenCode Frontmatter)
+  └──► .claude/agents/test-writer.md          (+ Claude Code Frontmatter)
+
+.agentsmd/skills/feature/
+  └──► .claude/skills/feature/                (Kopie — ganzer Ordner)
+```
+
+Agents werden als Tool-Wrappers für alle drei AI-Tools generiert.
+Skills werden nach `.claude/skills/` kopiert (alle drei Tools lesen diesen Pfad).
+
+## Projektstruktur nach `agentsmd init`
+
+```
+dein-projekt/
+├── .agentsmd/
+│   ├── agents/              # Installierte Agents
+│   ├── skills/              # Installierte Skills (Ordner)
+│   ├── workflows/           # Installierte Workflows
+│   ├── tasks/
+│   │   ├── backlog/         # Feature-Ideen
+│   │   └── in-progress/     # Aktive Features mit SPEC.md + TASKS.md
+│   └── installed.json       # Installationsstate
+├── .github/agents/          # Copilot Wrappers (generiert)
+├── .claude/agents/          # Claude Code Wrappers (generiert)
+├── .claude/skills/          # Skills für alle Tools (generiert)
+└── .opencode/agents/        # OpenCode Wrappers (generiert)
+```
+
+## Download
+
+Aktuelle Version: **v0.1.0**
+
+| Plattform | Download |
+|-----------|----------|
+| Windows | [agentsmd-win-x64.exe](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe) |
+| Linux | [agentsmd-linux-x64](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64) |
+| macOS | [agentsmd-osx-arm64](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64) |
+
+## Entwicklung
+
 ```bash
-rm -f .opencode/commands/feature.md
-rm -f .claude/commands/feature.md
-# and any other command wrappers
+dotnet build
+dotnet test          # 51 Tests (Unit + E2E)
 ```
 
-**3. Update opencode.json**
-
-Add the `instructions` field:
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "instructions": [
-    "AGENTS.md"
-  ],
-  "agent": {
-    "build": { "mode": "primary" },
-    "plan": {
-      "mode": "primary",
-      "permissions": {
-        "write": "deny",
-        "edit": "deny",
-        "bash": "ask"
-      }
-    }
-  }
-}
-```
-
-**4. Add Execution Modes section to AGENTS.md**
-
-Add after the `## Commits & PR` section:
-
-```markdown
-## Execution Modes
-autonomous: agent runs all tasks without pausing between them.
-            only stops on BLOCKER or when blocked with no hypothesis.
-guided:     agent waits for "next task" between each task.
-            user controls pace and can inspect after each step.
-
-Default: autonomous. Override per-feature: "lets do this (guided)"
-```
-
-**5. Update .github/copilot-instructions.md**
-
-Add after the `## Approach: SDD + TDD` section:
-
-```markdown
-## Execution Modes
-Default: autonomous — runs all tasks without pausing.
-Guided:  say "lets do this (guided)" — waits after each task.
-```
-
-**6. Update the status management agent**
-
-In `.agents/management/status.md`, add `Mode:` to the output format:
-
-```markdown
-  ### feature/[name]
-  Branch:   feature/[name]
-  Mode:     autonomous | guided       ← add this line
-  Progress: [X]/[Y] tasks
-```
-
-**7. Commit**
-
-```bash
-git add .
-git commit -m "chore: update AI workflow — autonomous mode + .claude/skills"
-```
-
-### What you do NOT need to change
-
-- `.agents/` — canonical agent instructions stay identical
-- `.github/agents/`, `.opencode/agents/`, `.claude/agents/` — wrappers stay identical
-- `AGENTS.md` build/run/logging sections — unchanged
-- `.tasks/` structure — unchanged
-- `docs/` structure — unchanged
-
----
-
-## Requirements
-
-- Git
-- `gh` CLI — [install](https://cli.github.com)
-- One of: GitHub Copilot, OpenCode, Claude Code
-- Testing / logging / tracing frameworks (wizard installs missing ones)
-
----
-
-## License
+## Lizenz
 
 MIT
