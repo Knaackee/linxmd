@@ -262,10 +262,18 @@ Loop per task:
   DOCS           → docs-writer updates relevant docs/
   COMMIT         → everything green → commit → next task
 
+## Execution Modes
+autonomous: agent runs all tasks without pausing between them.
+            only stops on BLOCKER or when blocked with no hypothesis.
+guided:     agent waits for "next task" between each task.
+            user controls pace and can inspect after each step.
+
+Default: autonomous. Override per-feature: "lets do this (guided)"
+
 ## Skills
 One location for all three tools: .claude/skills/
-- Copilot:    reads .claude/skills/ natively
-- OpenCode:   reads .claude/skills/ natively
+- Copilot:     reads .claude/skills/ natively
+- OpenCode:    reads .claude/skills/ natively
 - Claude Code: reads .claude/skills/ natively
 
 To add a skill: say "create skill [name]"
@@ -355,6 +363,10 @@ Cleanup after merge:
 Every feature starts with SPEC.md (what we build).
 Every task starts with a failing test (how we build it).
 Red → Green → Spec-Review → Quality-Review → Docs → Commit.
+
+## Execution Modes
+Default: autonomous — runs all tasks without pausing.
+Guided:  say "lets do this (guided)" — waits after each task.
 
 ## Rules
 - Read AGENTS.md before starting any task
@@ -728,6 +740,7 @@ Output:
 
   ### feature/[name]
   Branch:   feature/[name]
+  Mode:     autonomous | guided
   Progress: [X]/[Y] tasks
   Current:  Task [N] — [name]
   Phase:    [RED/GREEN/SPEC-REVIEW/QUALITY-REVIEW/DOCS/COMMIT]
@@ -813,9 +826,9 @@ No wrappers needed.
 ---
 name: feature
 description: Use when the user says "lets do this", "start", "begin", or names a
-  backlog item. Also triggers on "next task" to continue an in-progress feature.
-  Orchestrates the full SDD+TDD workflow: SPEC → TASKS → worktree →
-  Red/Green/Spec-Review/Quality-Review/Docs/Commit → PR.
+  backlog item. Append "(guided)" for guided mode. Triggers on "next task" to
+  continue a guided feature. Orchestrates the full SDD+TDD workflow:
+  SPEC → TASKS → worktree → Red/Green/Spec-Review/Quality-Review/Docs/Commit → PR.
 ---
 
 # Feature Skill
@@ -848,6 +861,7 @@ SPEC.md format:
 # SPEC: [Feature Name]
 **Branch**: feature/[name]
 **Worktree**: .worktrees/[name]
+**Mode**: [autonomous | guided]
 **Source**: [backlog file] [+ Issue #NNN if applicable]
 **Created**: [date]
 
@@ -874,7 +888,13 @@ Each criterion becomes a failing test. OK to proceed?"
 
 Wait for approval. Do not create TASKS.md or worktree yet.
 
-## 4 — Create TASKS.md and worktree — only after SPEC approval
+## 4 — Determine execution mode and set up worktree
+
+**Detect mode:**
+- User said "lets do this (guided)" or "start [name] guided" → MODE = guided
+- Default → MODE = autonomous
+
+Write **Mode** field into SPEC.md.
 
 Create `.tasks/in-progress/[name]/TASKS.md`:
 
@@ -903,11 +923,22 @@ Each task = RED → GREEN → SPEC-REVIEW → QUALITY-REVIEW → DOCS → COMMIT
 Set up worktree:
   git worktree add .worktrees/[name] -b feature/[name]
 
-Log: [TIMESTAMP] [TASK] feature/[name] started — [N] tasks
+Log: [TIMESTAMP] [TASK] feature/[name] started — [N] tasks — mode: [autonomous|guided]
 
-Output: "Worktree ready on feature/[name]. [N] tasks. Say 'next task' to begin."
+**If autonomous:**
+Output: "Worktree ready on feature/[name]. Running [N] tasks autonomously.
+I will only stop on BLOCKER or if I need guidance. Next stop: PR review."
+→ Proceed directly to Step 5 without waiting.
 
-## 5 — Task loop ("next task")
+**If guided:**
+Output: "Worktree ready on feature/[name]. [N] tasks ready.
+Say 'next task' to begin."
+→ Wait for "next task" before Step 5.
+
+## 5 — Task loop
+
+**In autonomous mode:** run all tasks in sequence without pausing.
+**In guided mode:** run one task, then wait for "next task".
 
 For each unchecked task in TASKS.md:
 
@@ -923,27 +954,36 @@ Pass: failing test files + task context
 Wait for: all target tests passing, zero regressions
 Log: [TIMESTAMP] [TEST] Task [N] GREEN — [X]/[Y] passing
 
-If implementer reports blocked:
+→ STOP (both modes): implementer reports blocked
   Show user: what was tried, what failed, options
-  Wait for guidance
+  Wait for guidance. Resume after user input.
 
 **SPEC-REVIEW — invoke reviewer-spec**
 Pass: SPEC.md + test files + implementation
-If BLOCKER: route to implementer or test-writer with exact requirement
-If PASS: continue
 Log: [TIMESTAMP] [TASK] Task [N] spec-review — [PASS/BLOCKER]
+
+→ STOP (both modes): BLOCKER
+  Show: which criterion is missing, what is needed
+  Wait for guidance. Resume after user input.
 
 **QUALITY-REVIEW — invoke reviewer-quality**
 Pass: git diff for this task
-If BLOCKER: route to implementer with exact fix
-If WARNING: show user, wait for decision
-Apply approved REFACTOR suggestions
-If PASS: continue
 Log: [TIMESTAMP] [TASK] Task [N] quality-review — [PASS/BLOCKER/WARNING]
+
+→ STOP (both modes): BLOCKER
+  Show: file, line, problem, fix required
+  Wait for guidance. Resume after user input.
+
+→ WARNING in autonomous mode:
+  Apply if unambiguous → log → continue automatically.
+  If ambiguous → show user → wait → continue.
+
+→ WARNING in guided mode:
+  Always show user → wait for decision → continue.
 
 **DOCS — invoke docs-writer**
 Pass: TASKS.md Docs field for this task
-Wait for: "Docs updated" or "No docs update needed"
+Continue after completion.
 
 **COMMIT**
 Run: [lint_command] and [format_command]
@@ -952,9 +992,13 @@ git add .
 git commit -m "[commit from TASKS.md]"
 Log: [TIMESTAMP] [TASK] Task [N] complete — committed
 
-Ask: "Task [N] done. Continue to task [N+1]?"
+→ Autonomous: proceed to next task immediately.
+→ Guided: output "Task [N] done. Say 'next task' to continue."
+          Wait for "next task".
 
 ---
+
+When all tasks checked off → go to Step 6 automatically (both modes).
 
 ## 6 — Open PR when all tasks done
 
@@ -985,9 +1029,6 @@ Cleanup after merge:
 ---
 
 ## Step 9 — Create opencode.json
-
-opencode.json can reference instruction files directly.
-This loads .agents/ context automatically into every OpenCode session.
 
 ```json
 {
@@ -1031,12 +1072,21 @@ Created:
 
 **Your workflow:**
 
-  Drop idea in `.tasks/backlog/`   →  say "lets do this"
-  SPEC drafted                     →  you approve
-  Worktree + branch + TASKS ready  →  say "next task"
-  RED → GREEN → SPEC → QUALITY → DOCS → COMMIT
-  Repeat until done                →  PR opened automatically
-  Review + merge                   →  you do this
+  Drop idea in `.tasks/backlog/`         →  say "lets do this"
+  SPEC drafted                           →  you approve
+  Autonomous: runs until PR              →  you review + merge
+  Guided:     say "next task" each step  →  you control pace
+
+**Execution modes:**
+
+  "lets do this"          →  autonomous (default)
+  "lets do this (guided)" →  guided, you say "next task" between tasks
+
+**Stop conditions (both modes):**
+
+  Implementer blocked     →  stops, reports, waits for you
+  Spec review BLOCKER     →  stops, reports, waits for you
+  Quality review BLOCKER  →  stops, reports, waits for you
 
 **Managing agents and skills:**
 
