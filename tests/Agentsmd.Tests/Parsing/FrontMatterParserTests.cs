@@ -39,6 +39,51 @@ public class FrontMatterParserTests
     }
 
     [Fact]
+    public void Parse_WithSupportedField_ParsesPlatforms()
+    {
+        var markdown = """
+            ---
+            name: build-tool
+            type: skill
+            version: 1.0.0
+            description: Build tool skill
+            supported:
+              - windows
+              - linux
+            tags:
+              - build
+            ---
+
+            # Build Tool
+            """;
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().NotBeNull();
+        result!.Supported.Should().BeEquivalentTo(["windows", "linux"]);
+    }
+
+    [Fact]
+    public void Parse_WithoutSupportedField_ReturnsEmptyList()
+    {
+        var markdown = """
+            ---
+            name: simple
+            type: agent
+            version: 1.0.0
+            description: No platform restriction
+            ---
+
+            Content.
+            """;
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().NotBeNull();
+        result!.Supported.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Parse_ValidSkillFrontMatter_ParsesTypeCorrectly()
     {
         var markdown = """

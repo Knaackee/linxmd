@@ -8,4 +8,5 @@ public sealed class FrontMatter
     public string Description { get; init; } = string.Empty;
     public List<string> Deps { get; init; } = [];
     public List<string> Tags { get; init; } = [];
+    public List<string> Supported { get; init; } = [];
 }

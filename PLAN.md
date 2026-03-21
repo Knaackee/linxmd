@@ -150,6 +150,10 @@ tags:                               # Für Search
   - testing
   - tdd
   - sdd
+supported:                          # Plattformen (optional, default = alle)
+  - windows                         # Skills mit Binaries/Scripts brauchen das
+  - linux
+  - macos
 ---
 
 # Test-Writer Agent

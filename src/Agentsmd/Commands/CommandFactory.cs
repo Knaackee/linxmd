@@ -405,6 +405,8 @@ public static class CommandFactory
             }
             if (artifact.Tags.Count > 0)
                 Console.WriteLine($"Tags:        {string.Join(", ", artifact.Tags)}");
+            if (artifact.Supported.Count > 0)
+                Console.WriteLine($"Supported:   {string.Join(", ", artifact.Supported)}");
 
             // Check if installed
             var state = new InstalledStateManager(project);

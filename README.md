@@ -6,18 +6,31 @@ Self-contained Exe für Windows, Linux und macOS. Kein Runtime nötig.
 
 ## Quick Start
 
+**Windows (PowerShell):**
+```powershell
+# Download
+Invoke-WebRequest -Uri https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe -OutFile agentsmd.exe
+
+# In PATH ablegen (einmalig)
+Move-Item agentsmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\agentsmd.exe"
+```
+
+**Linux:**
 ```bash
-# 1. Download (oder von GitHub Releases)
-# Windows:
-curl -Lo agentsmd.exe https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe
+curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64
+chmod +x agentsmd
+sudo mv agentsmd /usr/local/bin/
+```
 
-# Linux:
-curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64 && chmod +x agentsmd
+**macOS:**
+```bash
+curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64
+chmod +x agentsmd
+sudo mv agentsmd /usr/local/bin/
+```
 
-# macOS:
-curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64 && chmod +x agentsmd
-
-# 2. In deinem Projekt:
+**Dann in deinem Projekt:**
+```bash
 agentsmd init
 agentsmd workflow install sdd-tdd
 agentsmd sync

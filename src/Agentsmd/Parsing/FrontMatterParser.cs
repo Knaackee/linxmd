@@ -41,7 +41,8 @@ public static class FrontMatterParser
                 Version = raw.Version,
                 Description = raw.Description ?? string.Empty,
                 Deps = raw.Deps ?? [],
-                Tags = raw.Tags ?? []
+                Tags = raw.Tags ?? [],
+                Supported = raw.Supported ?? []
             };
         }
         catch
@@ -85,5 +86,6 @@ public static class FrontMatterParser
         public string? Description { get; set; }
         public List<string>? Deps { get; set; }
         public List<string>? Tags { get; set; }
+        public List<string>? Supported { get; set; }
     }
 }

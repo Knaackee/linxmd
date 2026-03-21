@@ -39,11 +39,12 @@ def main():
             desc = get_field(fm, "description")
             deps = get_list_field(fm, "deps")
             tags = get_list_field(fm, "tags")
+            supported = get_list_field(fm, "supported")
 
             rel = os.path.relpath(f, lib).replace("\\", "/")
             path = os.path.dirname(rel) + "/" if atype == "skill" else rel
 
-            artifacts.append({
+            entry = {
                 "name": name,
                 "type": atype,
                 "version": version,
@@ -51,7 +52,10 @@ def main():
                 "path": path,
                 "deps": deps,
                 "tags": tags,
-            })
+            }
+            if supported:
+                entry["supported"] = supported
+            artifacts.append(entry)
 
     index = {
         "version": 1,
