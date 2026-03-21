@@ -412,6 +412,48 @@ CLI Auto-Update:
   4. `agentsmd self-update` → Download + Replace der eigenen Exe
 ```
 
+### Versionierung & Changelog
+
+**Semantic Versioning** für die CLI (`MAJOR.MINOR.PATCH`):
+- **PATCH** — Bugfixes, Typos
+- **MINOR** — Neue Commands, neue Lib-Artefakte
+- **MAJOR** — Breaking Changes (`.agentsmd/` Format, Front Matter Spec, CLI Flags)
+
+**Version-Quelle:** Einzige Quelle ist das Git-Tag. GitHub Actions liest den Tag und baked die Version in die Exe.
+```
+git tag v1.2.0
+git push --tags
+→ GitHub Action: dotnet publish /p:Version=1.2.0 → Release v1.2.0
+```
+
+**CHANGELOG.md** im Repo-Root. Format: [Keep a Changelog](https://keepachangelog.com/).
+```markdown
+# Changelog
+
+## [1.2.0] - 2026-04-15
+### Added
+- `agentsmd workflow install` mit Dependency Resolution
+- Task-Management Skill in Lib
+
+### Fixed
+- Sync generiert keine leeren Wrapper-Ordner mehr
+
+## [1.1.0] - 2026-04-01
+### Added
+- `agentsmd search` — globale Suche über alle Artefakte
+- E2E Tests für alle Install/Uninstall Commands
+
+## [1.0.0] - 2026-03-28
+### Added
+- Erster Release: install, uninstall, list, sync, status
+```
+
+**Regeln:**
+- Jeder PR/Commit der Features oder Fixes enthält aktualisiert `CHANGELOG.md` unter `[Unreleased]`
+- Bei Release: `[Unreleased]` → `[x.y.z] - YYYY-MM-DD`
+- GitHub Release Notes = Changelog-Eintrag (automatisch aus CHANGELOG.md extrahiert)
+- `agentsmd --version` zeigt die gebaked Version
+
 ---
 
 ## Architektur-Entscheidungen
@@ -428,6 +470,9 @@ CLI Auto-Update:
 | Lib | **Dieses Repo** | `/lib/` Ordner = Source of Truth |
 | Config | **Convention over Configuration** | Keine Config-Datei — `.agentsmd/` + Front Matter = alles |
 | Skill-Standard | **[Agent Skills](https://agentskills.io/)** | Open Standard, Ordner mit SKILL.md + Scripts |
+| Testing | **xUnit + FluentAssertions** | Standard .NET Test-Stack, expressive Assertions |
+| E2E Testing | **CLI Process Tests** | Echte Exe starten, stdout/stderr/exitcode prüfen |
+| CI Verification | **`gh` (GitHub CLI)** | Workflow-Status prüfen, Releases verifizieren |
 
 ### Was du übernehmst:
 | Von | Pattern |
@@ -443,6 +488,74 @@ CLI Auto-Update:
 > **Triggers, Daemon, Heartbeat, Remote-Access, Chat-Bridges** — bewusst ausgeklammert.
 > Dafür gibt es OpenClaw, HandClaw, Trigger.dev etc. Kein Rad neu erfinden.
 
+### Entwicklungsweise: TDD
+
+Wir entwickeln die CLI selbst mit TDD — genau wie im setup-wizard.md beschrieben.
+Jeder Feature-Commit folgt dem RED → GREEN → REFACTOR Zyklus.
+
+**Test-Pyramide:**
+```
+┌─────────────────────────────────┐
+│         E2E Tests               │  Echte Exe, echte Dateien
+│   agentsmd.exe install ...      │  Prüft stdout, exitcode, Dateisystem
+├─────────────────────────────────┤
+│      Integration Tests          │  Mehrere Klassen zusammen
+│   IndexParser + GitHubClient    │  Mock-HTTP, echtes Dateisystem (temp)
+├─────────────────────────────────┤
+│         Unit Tests              │  Einzelne Klassen isoliert
+│   FrontMatterParser, DepResolver│  Schnell, kein I/O
+└─────────────────────────────────┘
+```
+
+**Unit Tests** (pro Klasse/Modul):
+- Front Matter Parser: YAML lesen, ungültige Formate, fehlende Felder
+- Dependency Resolver: Versionen auflösen, Zyklen erkennen, fehlende Deps
+- Index Parser: `index.json` lesen, suchen, filtern
+- Sync Engine: Wrapper-Generierung, Skill-Copy, Ordnerstruktur
+- Installed State: `installed.json` lesen/schreiben, Lock-File
+
+**Integration Tests** (Zusammenspiel):
+- Install → Datei in `.agentsmd/` → `installed.json` aktualisiert
+- Workflow Install → Deps aufgelöst → alles installiert
+- Sync → Wrappers in allen Tool-Ordnern korrekt
+- Init → Ordnerstruktur + Tasks-Ordner erstellt
+
+**E2E Tests** (echte CLI-Aufrufe):
+- `agentsmd init` → prüfe `.agentsmd/` Struktur existiert
+- `agentsmd agent install test-writer` → prüfe Datei + stdout
+- `agentsmd workflow install sdd-tdd` → prüfe alle Deps installiert
+- `agentsmd sync` → prüfe Wrapper-Dateien in `.github/agents/` etc.
+- `agentsmd search testing` → prüfe Ergebnis enthält test-writer
+- `agentsmd status` → prüfe Output-Format
+- `agentsmd uninstall` → prüfe Dateien entfernt + installed.json clean
+- Fehlerszenarien: ungültige Namen, fehlende Lib, korrupte Dateien
+
+**CI Pipeline (GitHub Actions):**
+```yaml
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - dotnet test              # Unit + Integration Tests
+      - dotnet publish           # Build Exe
+      - ./e2e/run.ps1            # E2E Tests gegen echte Exe
+      - gh run view --json       # Verify workflow status
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - dotnet publish (3 Targets)
+      - gh release create        # Upload Binaries
+```
+
+**Regeln:**
+- Kein Feature ohne Tests — RED zuerst
+- E2E Tests laufen auf allen 3 Plattformen (Win/Mac/Linux)
+- Agent pusht selbst und prüft CI-Status mit `gh run watch`
+- Failing CI = sofort fixen, nicht weitermachen
+
 ---
 
 ## Implementierungsplan
@@ -451,7 +564,10 @@ CLI Auto-Update:
 > Ziel: CLI baut, installiert in `.agentsmd/`, generiert Wrappers via sync
 
 - [ ] .NET 10 Projekt-Scaffold: `dotnet new console` + System.CommandLine
-- [ ] GitHub Actions: Build + Release für Win/Mac/Linux (self-contained)
+- [ ] Test-Projekt: `dotnet new xunit` + FluentAssertions
+- [ ] CHANGELOG.md anlegen (Keep a Changelog Format)
+- [ ] GitHub Actions: CI (test auf Win/Mac/Linux) + Release Pipeline (Version aus Git-Tag)
+- [ ] E2E Test-Harness: CLI-Exe starten, stdout/exitcode/Dateisystem prüfen
 - [ ] Front Matter Parser (YAML in Markdown-Dateien)
 - [ ] Lib-Index: `/lib/` Ordner scannen, Front Matter lesen → `index.json`
 - [ ] `agentsmd search` + `agentsmd agent|skill|workflow search` — Lib durchsuchen
@@ -467,6 +583,8 @@ CLI Auto-Update:
 - [ ] `.agentsmd/tasks/` — Task-Ordner bei init erstellen (backlog/ + in-progress/)
 - [ ] Tests
 - [ ] Lib befüllen: Agents/Skills/Workflows aus setup-wizard.md migrieren
+
+> **TDD für jedes Feature:** Unit Test → Failing → Implementieren → Green → Refactor → E2E Test → Commit → Push → `gh run watch`
 
 ### Phase 1 — Dependencies + Updates + Init
 > Ziel: Deps auflösen, Updates erkennen, Init-Wizard
