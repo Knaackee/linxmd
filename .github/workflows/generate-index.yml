@@ -5,6 +5,7 @@ on:
     paths:
       - 'lib/**'
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,60 +17,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Generate index.json
-        shell: bash
         run: |
-          python3 - <<'PYEOF'
-          import json, os, re, datetime
-
-          artifacts = []
-          lib = "lib"
-
-          for pattern in ["agents/*.md", "skills/*/SKILL.md", "workflows/*.md"]:
-              import glob
-              for f in sorted(glob.glob(os.path.join(lib, pattern))):
-                  with open(f) as fh:
-                      content = fh.read()
-                  m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
-                  if not m:
-                      continue
-                  fm = m.group(1)
-
-                  def get(key):
-                      match = re.search(rf'^{key}:\s*(.+)$', fm, re.MULTILINE)
-                      return match.group(1).strip() if match else ""
-
-                  def get_list(key):
-                      match = re.search(rf'^{key}:\s*\n((?:\s+-\s+.+\n?)*)', fm, re.MULTILINE)
-                      if not match:
-                          return []
-                      return [line.strip().lstrip("- ") for line in match.group(1).strip().split("\n")]
-
-                  name = get("name")
-                  atype = get("type")
-                  version = get("version")
-                  desc = get("description")
-                  deps = get_list("deps")
-                  tags = get_list("tags")
-
-                  rel = os.path.relpath(f, lib).replace("\\", "/")
-                  path = os.path.dirname(rel) + "/" if atype == "skill" else rel
-
-                  artifacts.append({
-                      "name": name, "type": atype, "version": version,
-                      "description": desc, "path": path,
-                      "deps": deps, "tags": tags
-                  })
-
-          index = {
-              "version": 1,
-              "generated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-              "artifacts": artifacts
-          }
-          with open(os.path.join(lib, "index.json"), "w") as fh:
-              json.dump(index, fh, indent=2, ensure_ascii=False)
-              fh.write("\n")
-          print(f"Generated index.json with {len(artifacts)} artifacts")
-          PYEOF
+          python3 .github/scripts/generate-index.py
 
       - name: Commit index.json
         run: |
