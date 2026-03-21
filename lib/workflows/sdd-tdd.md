@@ -2,7 +2,7 @@
 name: sdd-tdd
 type: workflow
 version: 1.0.0
-description: Spec-Driven Development mit TDD Pipeline
+description: Spec-Driven Development with TDD pipeline
 deps:
   - agent:test-writer@>=1.0
   - agent:implementer@>=1.0
@@ -31,24 +31,24 @@ No implementation exists before its test exists and fails.
 
 For each task in TASKS.md:
 
-1. **RED** → `test-writer` → Failing Tests schreiben
-2. **GREEN** → `implementer` → Minimaler Code bis Tests grün
-3. **SPEC-REVIEW** → `reviewer-spec` → Alle Kriterien erfüllt?
-4. **QUALITY-REVIEW** → `reviewer-quality` → Code-Qualität + Security
-5. **DOCS** → `docs-writer` → Dokumentation aktualisieren
-6. **COMMIT** → Alles grün → Commit
+1. **RED** → `test-writer` → Write failing tests
+2. **GREEN** → `implementer` → Minimal code until tests pass
+3. **SPEC-REVIEW** → `reviewer-spec` → All criteria met?
+4. **QUALITY-REVIEW** → `reviewer-quality` → Code quality + security
+5. **DOCS** → `docs-writer` → Update documentation
+6. **COMMIT** → All green → Commit
 
 ## Execution Modes
 
-- **autonomous**: Läuft alle Tasks durch ohne Pause. Stoppt nur bei BLOCKER.
-- **guided**: Wartet nach jedem Task auf "next task". User kontrolliert das Tempo.
+- **autonomous**: Runs all tasks without pausing. Only stops on BLOCKER.
+- **guided**: Waits after each task for "next task". User controls the pace.
 
 Default: autonomous. Override: "lets do this (guided)"
 
 ## Getting Started
 
-1. `agentsmd init` → Projekt initialisieren
-2. `agentsmd workflow install sdd-tdd` → Workflow + alle Dependencies installieren
-3. `agentsmd sync` → Tool-Wrappers generieren
-4. Idee in `.agentsmd/tasks/backlog/` ablegen
-5. Sag "lets do this" → der Workflow startet automatisch
+1. `agentsmd init` → Initialize project
+2. `agentsmd workflow install sdd-tdd` → Install workflow + all dependencies
+3. `agentsmd sync` → Generate tool wrappers
+4. Add an idea to `.agentsmd/tasks/backlog/`
+5. Say "lets do this" → the workflow starts automatically

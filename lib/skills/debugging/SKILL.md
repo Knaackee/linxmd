@@ -2,7 +2,7 @@
 name: debugging
 type: skill
 version: 1.0.0
-description: Systematisches Debugging mit Hypothesen-Tracking
+description: Systematic debugging with hypothesis tracking
 deps: []
 tags:
   - debugging

@@ -2,7 +2,7 @@
 name: content-review
 type: workflow
 version: 1.0.0
-description: Content-Erstellung mit Review-Pipeline
+description: Content creation with review pipeline
 deps:
   - skill:task-management@>=1.0
 tags:

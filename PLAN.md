@@ -2,9 +2,9 @@
 
 ### Vision
 
-Eine **self-contained .NET 10 Exe** (Win/Mac/Linux) — kein Runtime nötig, kein npm.
-Das **GitHub-Repo selbst ist die Lib**. Die CLI holt sich alles von dort:
-Agents, Skills, Workflows — und auch ihre eigenen Updates.
+A **self-contained .NET 10 executable** (Win/Mac/Linux) — no runtime required, no npm.
+The **GitHub repo itself is the lib**. The CLI fetches everything from there:
+Agents, Skills, Workflows — and its own updates.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -13,7 +13,7 @@ Agents, Skills, Workflows — und auch ihre eigenen Updates.
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
 │  Lib (GitHub Repo)                Local Project              │
-│  github.com/Knaackee/agentsmd     dein-projekt/              │
+│  github.com/Knaackee/agentsmd     your-project/              │
 │  ┌────────────────────┐           ┌──────────────────┐       │
 │  │ lib/               │           │ .agentsmd/        │       │
 │  │   agents/          │  install  │   agents/         │       │
@@ -37,57 +37,55 @@ Agents, Skills, Workflows — und auch ihre eigenen Updates.
 └──────────────────────────────────────────────────────────────┘
 ```
 
-**Kernprinzipien:**
-1. **Repo = Lib** — `Knaackee/agentsmd` enthält alle Agents/Skills/Workflows unter `/lib/`
-2. **Self-contained Exe** — .NET 10, keine Dependencies, GitHub Actions baut für Win/Mac/Linux
-3. **Auto-Updater** — CLI prüft bei Start ob neue Version im Repo vorhanden ist
-4. **Front Matter = Metadata** — jede Datei trägt Name, Version, Beschreibung, Deps
-5. **Dependency Resolution** — `agentsmd workflow install sdd-tdd` installiert automatisch benötigte Agents + Skills
-6. **Ein Ordner = alles** — `.agentsmd/` ist Source of Truth + CLI-State. Minimaler Footprint
-7. **Sync = Propagation** — `agentsmd sync` generiert Tool-Wrappers + kopiert Skills wohin Tools sie erwarten
-8. **Skills = Ordner** — ein Skill kann Scripts (`.sh`, `.ps1`, `.py`) enthalten, nicht nur Markdown
+**Core principles:**
+1. **Repo = Lib** — `Knaackee/agentsmd` contains all Agents/Skills/Workflows under `/lib/`
+2. **Self-contained Exe** — .NET 10, no dependencies, GitHub Actions builds for Win/Mac/Linux
+3. **Auto-Updater** — CLI checks on startup if a new version is available in the repo
+4. **Front Matter = Metadata** — each file carries name, version, description, deps
+5. **Dependency Resolution** — `agentsmd workflow install sdd-tdd` automatically installs required Agents + Skills
+6. **One folder = everything** — `.agentsmd/` is the source of truth + CLI state. Minimal footprint
+7. **Sync = Propagation** — `agentsmd sync` generates tool wrappers + copies skills where tools expect them
+8. **Skills = Folders** — a skill can contain scripts (`.sh`, `.ps1`, `.py`), not just markdown
 
-### Lib-Struktur (im Repo)
+### Lib Structure (in the repo)
 
 ```
-agentsmd/                              # Das GitHub Repo
+agentsmd/                              # The GitHub Repo
 ├── lib/
-│   ├── index.json                     # Generierter Index (GitHub Action)
+│   ├── index.json                     # Generated index (GitHub Action)
 │   ├── agents/
-│   │   ├── test-writer.md             # Agent = einzelne .md Datei
+│   │   ├── test-writer.md             # Agent = single .md file
 │   │   ├── implementer.md
 │   │   ├── reviewer-spec.md
 │   │   ├── reviewer-quality.md
 │   │   └── docs-writer.md
 │   ├── skills/
-│   │   ├── task-management/           # Task-Konventionen (Backlog, SPEC, TASKS, NOTES)
+│   │   ├── task-management/           # Task conventions (Backlog, SPEC, TASKS, NOTES)
 │   │   │   └── SKILL.md
-│   │   ├── feature/                   # Skill = Ordner (Agent Skills Standard)
-│   │   │   ├── SKILL.md              # Hauptdatei (required)
-│   │   │   └── scripts/             # Optionale Scripts
+│   │   ├── feature/                   # Skill = folder (Agent Skills Standard)
+│   │   │   ├── SKILL.md              # Main file (required)
+│   │   │   └── scripts/             # Optional scripts
 │   │   │       └── scaffold.sh
 │   │   ├── debugging/
 │   │   │   └── SKILL.md
 │   │   └── refactoring/
 │   │       └── SKILL.md
 │   └── workflows/
-│       ├── sdd-tdd.md                 # Workflow = einzelne .md Datei
+│       ├── sdd-tdd.md                 # Workflow = single .md file
 │       └── content-review.md
-├── src/                               # CLI Source Code (.NET 10)
-├── setup-wizard.md                    # ⚠️ ALTLAST — löschen wenn CLI fertig
-├── README.md                          # ⚠️ ALTLAST — wird komplett neu geschrieben
+├── src/                               # CLI source code (.NET 10)
 └── PLAN.md
 ```
 
-**Konventionen:**
-- **Agents** = einzelne `.md` Dateien (Prompt-Instruktionen für einen Agenten)
-- **Skills** = Ordner mit `SKILL.md` + optionale Scripts/Templates ([Agent Skills Standard](https://agentskills.io/))
-- **Workflows** = einzelne `.md` Dateien (Orchestrierung: welche Agents in welcher Reihenfolge)
-- **index.json** = generierter Index aller Artefakte (GitHub Action bei Push auf `/lib/`)
+**Conventions:**
+- **Agents** = single `.md` files (prompt instructions for one agent)
+- **Skills** = folders with `SKILL.md` + optional scripts/templates ([Agent Skills Standard](https://agentskills.io/))
+- **Workflows** = single `.md` files (orchestration: which agents in which order)
+- **index.json** = generated index of all artifacts (GitHub Action on push to `/lib/`)
 
-### Lib-Index (`index.json`)
+### Lib Index (`index.json`)
 
-Eine GitHub Action generiert bei jedem Push auf `/lib/` einen Index. Die CLI fetcht **eine Datei** statt dutzende API-Calls.
+A GitHub Action generates an index on every push to `/lib/`. The CLI fetches **one file** instead of dozens of API calls.
 
 ```json
 {
@@ -98,537 +96,159 @@ Eine GitHub Action generiert bei jedem Push auf `/lib/` einen Index. Die CLI fet
       "name": "test-writer",
       "type": "agent",
       "version": "1.2.0",
-      "description": "Schreibt Tests aus Spezifikationen",
+      "description": "Writes tests from specifications",
       "path": "agents/test-writer.md",
       "deps": [],
       "tags": ["testing", "tdd", "sdd"]
-    },
-    {
-      "name": "feature",
-      "type": "skill",
-      "version": "1.0.0",
-      "description": "Feature-Entwicklung mit SDD",
-      "path": "skills/feature/",
-      "deps": [],
-      "tags": ["feature", "sdd"]
-    },
-    {
-      "name": "sdd-tdd",
-      "type": "workflow",
-      "version": "2.0.0",
-      "description": "Spec-Driven Development mit TDD Pipeline",
-      "path": "workflows/sdd-tdd.md",
-      "deps": [
-        "agent:test-writer@>=1.0",
-        "agent:implementer@>=1.0",
-        "skill:feature@>=1.0",
-        "skill:task-management@>=1.0"
-      ],
-      "tags": ["development", "tdd", "sdd"]
     }
   ]
 }
 ```
 
-**Generierung:** GitHub Action bei Push auf `lib/**` → liest alle Front Matter → schreibt `lib/index.json`
-**CLI-Nutzung:** `agentsmd search` holt nur `index.json` (1 Request), durchsucht lokal
+**Generation:** GitHub Action on push to `lib/**` → reads all front matter → writes `lib/index.json`
+**CLI usage:** `agentsmd search` fetches only `index.json` (1 request), searches locally
 
 ### Front Matter Spec
 
-Jede Lib-Datei hat YAML Front Matter:
+Every lib file has YAML front matter:
 
 ```yaml
 ---
 name: test-writer
 type: agent                        # agent | skill | workflow
 version: 1.2.0
-description: Schreibt Tests aus Spezifikationen
+description: Writes tests from specifications
 deps:                               # Dependencies (optional)
   - agent:implementer@>=1.0
   - skill:feature@>=1.0
-tags:                               # Für Search
+tags:                               # For search
   - testing
   - tdd
   - sdd
-supported:                          # Plattformen (optional, default = alle)
-  - windows                         # Skills mit Binaries/Scripts brauchen das
+supported:                          # Platforms (optional, default = all)
+  - windows                         # Skills with binaries/scripts need this
   - linux
   - macos
 ---
 
 # Test-Writer Agent
-...eigentlicher Inhalt...
+...actual content...
 ```
 
-**Dependency-Syntax:**
-- `agent:name@version` — benötigt Agent
-- `skill:name@version` — benötigt Skill
-- `workflow:name@version` — benötigt Workflow
-- Version: `>=1.0`, `^2.0`, `1.2.0` (exakt), `latest`
+**Dependency syntax:**
+- `agent:name@version` — requires agent
+- `skill:name@version` — requires skill
+- `workflow:name@version` — requires workflow
+- Version: `>=1.0`, `^2.0`, `1.2.0` (exact), `latest`
 
 ### Workflows
 
-Ein Workflow ist eine Orchestrierungs-Datei: beschreibt **welche Agents in welcher Reihenfolge**
-mit welchen Ein-/Ausgaben laufen. Dependencies im Front Matter sorgen dafür, dass
-`agentsmd workflow install` automatisch alle benötigten Agents + Skills mitinstalliert.
-
-**Beispiel: SDD+TDD Workflow**
-```yaml
----
-name: sdd-tdd
-type: workflow
-version: 2.0.0
-description: Spec-Driven Development mit TDD Pipeline
-deps:
-  - agent:test-writer@>=1.0
-  - agent:implementer@>=1.0
-  - agent:reviewer-spec@>=1.0
-  - agent:reviewer-quality@>=1.0
-  - agent:docs-writer@>=1.0
-  - skill:feature@>=1.0
-  - skill:task-management@>=1.0
-tags:
-  - development
-  - tdd
-  - sdd
----
-
-# SDD+TDD Workflow
-
-## Pipeline
-Für jede Aufgabe in TASKS.md:
-
-1. **RED** → `test-writer` → Failing Tests schreiben
-2. **GREEN** → `implementer` → Minimaler Code bis Tests grün
-3. **SPEC-REVIEW** → `reviewer-spec` → Alle Kriterien erfüllt?
-4. **QUALITY-REVIEW** → `reviewer-quality` → Code-Qualität + Security
-5. **DOCS** → `docs-writer` → Dokumentation aktualisieren
-6. **COMMIT** → Alles grün → Commit
-
-## Execution Modes
-- **autonomous**: Läuft alle Tasks durch ohne Pause
-- **guided**: Wartet nach jedem Task auf "next task"
-```
-
-**Beispiel: Nicht-Programmierung**
-```yaml
----
-name: content-review
-type: workflow
-version: 1.0.0
-description: Content-Erstellung mit Review-Pipeline
-deps:
-  - agent:content-writer@>=1.0
-  - agent:editor@>=1.0
-  - agent:fact-checker@>=1.0
-  - skill:task-management@>=1.0
-tags:
-  - content
-  - writing
----
-
-# Content Review Workflow
-
-1. **DRAFT** → `content-writer` → Entwurf erstellen
-2. **FACT-CHECK** → `fact-checker` → Fakten verifizieren
-3. **EDIT** → `editor` → Sprache + Stil überarbeiten
-4. **PUBLISH** → Final
-```
-
-→ Workflows sind **nicht an Programmierung gebunden**. Jeder Anwendungsfall mit einer Pipeline aus Agents kann ein Workflow sein.
+A workflow is an orchestration file: describes **which agents in which order**
+with which inputs/outputs. Dependencies in the front matter ensure that
+`agentsmd workflow install` automatically installs all required agents + skills.
 
 ### CLI Commands
 
 ```bash
-# ──── Global ────
-agentsmd search [query]              # Alles durchsuchen (Agents, Skills, Workflows)
-agentsmd list                        # Alle installierten Artefakte anzeigen
-agentsmd outdated                    # Zeigt verfügbare Updates
-agentsmd update                      # Alles updaten
-agentsmd sync                        # Wrappers + Skills neu generieren/kopieren
-agentsmd status                      # Projekt-Überblick
-agentsmd init                        # Interaktiver Projekt-Setup
-agentsmd doctor                      # Gesundheitscheck
-agentsmd self-update                 # CLI selbst updaten
+# Global
+agentsmd search [query]              # Search everything (agents, skills, workflows)
+agentsmd list                        # List all installed artifacts
+agentsmd sync                        # Regenerate wrappers + copy skills
+agentsmd status                      # Project overview
+agentsmd init                        # Initialize project
 
-# ──── Agent ────
-agentsmd agent search [query]        # Agents in Lib suchen
-agentsmd agent install <name>        # Agent installieren (+ Deps)
-agentsmd agent install <name>@1.2.0  # Bestimmte Version
-agentsmd agent uninstall <name>      # Agent entfernen
-agentsmd agent update [name]         # Agent(s) updaten
-agentsmd agent list                  # Installierte Agents anzeigen
-agentsmd agent info <name>           # Details + Deps anzeigen
-
-# ──── Skill ────
-agentsmd skill search [query]        # Skills in Lib suchen
-agentsmd skill install <name>        # Skill installieren (ganzer Ordner + Deps)
-agentsmd skill uninstall <name>      # Skill entfernen
-agentsmd skill update [name]         # Skill(s) updaten
-agentsmd skill list                  # Installierte Skills anzeigen
-agentsmd skill info <name>           # Details anzeigen
-
-# ──── Workflow ────
-agentsmd workflow search [query]     # Workflows in Lib suchen
-agentsmd workflow install <name>     # Workflow installieren (+ alle Deps!)
-agentsmd workflow uninstall <name>   # Workflow entfernen
-agentsmd workflow update [name]      # Workflow(s) updaten
-agentsmd workflow list               # Installierte Workflows anzeigen
-agentsmd workflow info <name>        # Details + Deps anzeigen
+# Per type (agent | skill | workflow — same verbs)
+agentsmd agent search [query]        # Search agents in lib
+agentsmd agent install <name>        # Install agent (+ deps)
+agentsmd agent uninstall <name>      # Remove agent
+agentsmd agent list                  # List installed agents
+agentsmd agent info <name>           # Show details + deps
 ```
 
-**Jeder Typ hat die gleichen Verben:** `search · install · uninstall · update · list · info`
-**Plus globale Shortcuts:** `search` (alles), `list` (alles), `outdated`, `update`, `sync`, `status`
+**Every type has the same verbs:** `search · install · uninstall · list · info`
+**Plus global shortcuts:** `search` (all), `list` (all), `sync`, `status`
 
-### `.agentsmd/` — Ein Ordner für alles
+### `.agentsmd/` — One folder for everything
 
-Alles liegt in **einem** Ordner im Projekt-Root. Minimaler Footprint.
+Everything lives in **one** folder at the project root. Minimal footprint.
 
 ```
-Projekt/
-├── .agentsmd/                       # Source of Truth + CLI-State
-│   ├── agents/                      # Installierte Agents
-│   │   ├── test-writer.md
-│   │   ├── implementer.md
-│   │   ├── reviewer-spec.md
-│   │   ├── reviewer-quality.md
-│   │   └── docs-writer.md
-│   ├── skills/                      # Installierte Skills (Ordner!)
-│   │   └── feature/
-│   │       ├── SKILL.md
-│   │       └── scripts/
-│   │           └── scaffold.sh
-│   ├── workflows/                   # Installierte Workflows
-│   │   └── sdd-tdd.md
-│   ├── tasks/                       # Task-System (Core)
-│   │   ├── backlog/                 # Eine Datei pro Idee/Feature
-│   │   │   ├── auth-system.md
-│   │   │   └── dark-mode.md
-│   │   └── in-progress/             # Aktive Features
+project/
+├── .agentsmd/                       # Source of truth + CLI state
+│   ├── agents/                      # Installed agents
+│   ├── skills/                      # Installed skills (folders!)
+│   ├── workflows/                   # Installed workflows
+│   ├── tasks/                       # Task system (core)
+│   │   ├── backlog/                 # One file per idea/feature
+│   │   └── in-progress/             # Active features
 │   │       └── auth-system/
-│   │           ├── SPEC.md          # Akzeptanzkriterien
-│   │           ├── TASKS.md         # Checklist (ein Task = ein Commit)
-│   │           └── NOTES.md         # Agent-Notizen, Blocker
-│   ├── installed.json               # Was installiert ist + Versionen
-│   └── lock.json                    # Aufgelöster Dependency-Tree
+│   │           ├── SPEC.md          # Acceptance criteria
+│   │           ├── TASKS.md         # Checklist (one task = one commit)
+│   │           └── NOTES.md         # Agent notes, blockers
+│   └── installed.json               # What is installed + versions
 │
-├── AGENTS.md                        # Generiert von sync (Build/Test/Conventions)
-│
-│   # ──── Generiert von `agentsmd sync` ────
-├── .github/agents/                  # Copilot-Wrappers
-├── .opencode/agents/                # OpenCode-Wrappers
-├── .claude/agents/                  # Claude Code-Wrappers
-└── .claude/skills/                  # Claude Code Skills (Copy aus .agentsmd/skills/)
+├── .github/agents/                  # Copilot wrappers (generated by sync)
+├── .opencode/agents/                # OpenCode wrappers (generated by sync)
+├── .claude/agents/                  # Claude Code wrappers (generated by sync)
+└── .claude/skills/                  # Claude Code skills (copied from .agentsmd/skills/)
 ```
 
-### `agentsmd sync` — was passiert
+### `agentsmd sync` — what happens
 
 ```
 .agentsmd/agents/test-writer.md
         │
-        ├──► .github/agents/test-writer.agent.md   (+ Copilot Frontmatter)
-        ├──► .opencode/agents/test-writer.md        (+ OpenCode Frontmatter)
-        └──► .claude/agents/test-writer.md          (+ Claude Code Frontmatter)
+        ├──► .github/agents/test-writer.agent.md   (+ Copilot front matter)
+        ├──► .opencode/agents/test-writer.md        (+ OpenCode front matter)
+        └──► .claude/agents/test-writer.md          (+ Claude Code front matter)
 
 .agentsmd/skills/feature/
         │
-        └──► .claude/skills/feature/                (Copy — ganzer Ordner inkl. Scripts)
+        └──► .claude/skills/feature/                (copy — entire folder incl. scripts)
 
 .agentsmd/workflows/sdd-tdd.md
         │
-        └──► (nicht kopiert — Workflows sind tool-agnostisch,
-              werden direkt aus .agentsmd/ gelesen)
-
-.agentsmd/tasks/
-        │
-        └──► (nicht kopiert — Tasks werden direkt aus .agentsmd/tasks/ gelesen,
-              Agents/Workflows greifen dort zu)
+        └──► (not copied — workflows are tool-agnostic,
+              read directly from .agentsmd/)
 ```
 
-**Regeln:**
-- Projekt initialisiert? → `.agentsmd/` existiert
-- Was installiert? → `.agentsmd/installed.json`
-- Welche Tools aktiv? → Wrapper-Ordner vorhanden (`.github/agents/`, `.opencode/agents/`, `.claude/agents/`)
-- Skills für Claude Code? → Copy von `.agentsmd/skills/` → `.claude/skills/`
-- Workflows? → direkt aus `.agentsmd/workflows/` (kein Copy nötig)
-- Tasks? → direkt aus `.agentsmd/tasks/` (backlog + in-progress)
-- Lib-URL? → hardcoded: `github.com/Knaackee/agentsmd` (das Repo selbst, `/lib/` Ordner)
-
-### `agentsmd init` — Onboarding
-
-```
-$ agentsmd init
-
-  ┌─ agentsmd init ──────────────────────────────────────────┐
-  │                                                          │
-  │  1. Fragen                                               │
-  │     → Welche Tools? [copilot, claude-code, opencode]     │
-  │     → Welche Workflows? [sdd-tdd, content-review, ...]   │
-  │                                                          │
-  │  2. Installieren                                         │
-  │     → Workflow + alle Dependencies aus Lib holen          │
-  │     → .agentsmd/ Ordner erstellen (inkl. tasks/)         │
-  │                                                          │
-  │  3. Sync                                                 │
-  │     → Wrappers generieren                                │
-  │     → Skills nach .claude/skills/ kopieren               │
-  │                                                          │
-  │  4. Kick-off Prompt                                      │
-  │     → Prompt ausgeben für den ersten Agent-Aufruf        │
-  │     → Agent erstellt AGENTS.md (Build/Test/Conventions)  │
-  │     → Agent füllt tasks/backlog/ mit ersten Tasks        │
-  │                                                          │
-  │  ✓ Fertig. Starte deinen AI-Agent mit dem Kick-off.      │
-  └──────────────────────────────────────────────────────────┘
-```
-
-**Kein Projekt-Scanning.** Die CLI erstellt die Struktur und gibt einen Kick-off Prompt aus.
-Der AI-Agent (Copilot, Claude Code, OpenCode) erledigt den Rest:
-- Erkennt Sprache, Framework, Build/Test Commands
-- Erstellt `AGENTS.md` mit projektspezifischen Infos
-- Füllt `tasks/backlog/` mit ersten Aufgaben aus dem Kontext
-
-**Was passiert mit setup-wizard.md und README.md?**
-- Beide sind **Altlasten** — dienen nur als Anschauung während der Entwicklung
-- Werden **gelöscht** sobald das neue System fertig ist
-- `README.md` entsteht komplett neu (Vision, Download, Quick Start, CLI Reference)
-- Das Wissen aus dem Setup-Wizard fließt in:
-  - Die **Agents** im Lib (`lib/agents/test-writer.md` etc.)
-  - Den **SDD+TDD Workflow** (`lib/workflows/sdd-tdd.md`)
-  - Den **Feature Skill** (`lib/skills/feature/SKILL.md`)
-  - Die **Init-Logik** der CLI (Kick-off Prompt, Struktur-Setup)
-- Nach Migration: `setup-wizard.md` und alte `README.md` löschen
+**Rules:**
+- Project initialized? → `.agentsmd/` exists
+- What's installed? → `.agentsmd/installed.json`
+- Which tools active? → Wrapper folders present (`.github/agents/`, `.opencode/agents/`, `.claude/agents/`)
+- Skills for Claude Code? → Copy from `.agentsmd/skills/` → `.claude/skills/`
+- Workflows? → Read directly from `.agentsmd/workflows/` (no copy needed)
+- Tasks? → Read directly from `.agentsmd/tasks/` (backlog + in-progress)
+- Lib URL? → Hardcoded: `github.com/Knaackee/agentsmd` (this repo, `/lib/` folder)
 
 ### Self-Update & Distribution
 
 ```
 GitHub Actions Workflow:
-  on push to main → dotnet publish für 3 Targets:
+  on push to main → dotnet publish for 3 targets:
     - win-x64   → agentsmd.exe
     - linux-x64 → agentsmd
     - osx-arm64 → agentsmd-macos
-  → GitHub Release mit allen 3 Binaries + Version-Tag
+  → GitHub Release with all 3 binaries + version tag
 
 CLI Auto-Update:
-  1. Bei Start: GET github.com/Knaackee/agentsmd/releases/latest
-  2. Vergleicht mit eigener Version
-  3. Wenn neuer: "Update verfügbar: 1.2.0 → 1.3.0. `agentsmd self-update` zum Aktualisieren"
-  4. `agentsmd self-update` → Download + Replace der eigenen Exe
+  1. On startup: GET github.com/Knaackee/agentsmd/releases/latest
+  2. Compare with own version
+  3. If newer: "Update available: 1.2.0 → 1.3.0. Run `agentsmd self-update`"
+  4. `agentsmd self-update` → download + replace own exe
 ```
 
-### Versionierung & Changelog
+### Versioning & Changelog
 
-**Semantic Versioning** für die CLI (`MAJOR.MINOR.PATCH`):
-- **PATCH** — Bugfixes, Typos
-- **MINOR** — Neue Commands, neue Lib-Artefakte
-- **MAJOR** — Breaking Changes (`.agentsmd/` Format, Front Matter Spec, CLI Flags)
+**Semantic Versioning** for the CLI (`MAJOR.MINOR.PATCH`):
+- **PATCH** — Bug fixes, typos
+- **MINOR** — New commands, new lib artifacts
+- **MAJOR** — Breaking changes (`.agentsmd/` format, front matter spec, CLI flags)
 
-**Version-Quelle:** Einzige Quelle ist das Git-Tag. GitHub Actions liest den Tag und baked die Version in die Exe.
+**Version source:** Single source is the Git tag. GitHub Actions reads the tag and bakes the version into the exe.
 ```
 git tag v1.2.0
 git push --tags
 → GitHub Action: dotnet publish /p:Version=1.2.0 → Release v1.2.0
 ```
 
-**CHANGELOG.md** im Repo-Root. Format: [Keep a Changelog](https://keepachangelog.com/).
-```markdown
-# Changelog
-
-## [1.2.0] - 2026-04-15
-### Added
-- `agentsmd workflow install` mit Dependency Resolution
-- Task-Management Skill in Lib
-
-### Fixed
-- Sync generiert keine leeren Wrapper-Ordner mehr
-
-## [1.1.0] - 2026-04-01
-### Added
-- `agentsmd search` — globale Suche über alle Artefakte
-- E2E Tests für alle Install/Uninstall Commands
-
-## [1.0.0] - 2026-03-28
-### Added
-- Erster Release: install, uninstall, list, sync, status
-```
-
-**Regeln:**
-- Jeder PR/Commit der Features oder Fixes enthält aktualisiert `CHANGELOG.md` unter `[Unreleased]`
-- Bei Release: `[Unreleased]` → `[x.y.z] - YYYY-MM-DD`
-- GitHub Release Notes = Changelog-Eintrag (automatisch aus CHANGELOG.md extrahiert)
-- `agentsmd --version` zeigt die gebaked Version
-
----
-
-## Architektur-Entscheidungen
-
-### Tech Stack
-
-| Komponente | Wahl | Begründung |
-|-----------|------|------------|
-| Sprache | **.NET 10 / C#** | Self-contained Exe, keine Runtime nötig, cross-platform |
-| CLI Framework | **System.CommandLine** | Microsoft-eigenes CLI Framework, robust |
-| Build | **dotnet publish** | Single-file, self-contained, trimmed |
-| CI/CD | **GitHub Actions** | Build → Release für Win/Mac/Linux |
-| Distribution | **GitHub Releases** | Download-Link, auto-update Quelle |
-| Lib | **Dieses Repo** | `/lib/` Ordner = Source of Truth |
-| Config | **Convention over Configuration** | Keine Config-Datei — `.agentsmd/` + Front Matter = alles |
-| Skill-Standard | **[Agent Skills](https://agentskills.io/)** | Open Standard, Ordner mit SKILL.md + Scripts |
-| Testing | **xUnit + FluentAssertions** | Standard .NET Test-Stack, expressive Assertions |
-| E2E Testing | **CLI Process Tests** | Echte Exe starten, stdout/stderr/exitcode prüfen |
-| CI Verification | **`gh` (GitHub CLI)** | Workflow-Status prüfen, Releases verifizieren |
-
-### Was du übernehmst:
-| Von | Pattern |
-|-----|---------|
-| skill-fetch | Search + Install UX |
-| npm/brew/dotnet | `install`, `update`, `list` — bekannte Verben, Typ als Subcommand |
-| Claude Code Skills | Ordner-Struktur, Scripts, `${CLAUDE_SKILL_DIR}` |
-| Dein setup-wizard.md | Agent-Definitionen, SDD+TDD Workflow, Feature Skill |
-
-> **Kein Publish aus der CLI.** Neue Agents/Skills/Workflows werden per PR ins Repo gemerged.
-> Community-Beiträge = GitHub Pull Requests. Kein separater Publish-Mechanismus.
-
-> **Triggers, Daemon, Heartbeat, Remote-Access, Chat-Bridges** — bewusst ausgeklammert.
-> Dafür gibt es OpenClaw, HandClaw, Trigger.dev etc. Kein Rad neu erfinden.
-
-### Entwicklungsweise: TDD
-
-Wir entwickeln die CLI selbst mit TDD — genau wie im setup-wizard.md beschrieben.
-Jeder Feature-Commit folgt dem RED → GREEN → REFACTOR Zyklus.
-
-**Test-Pyramide:**
-```
-┌─────────────────────────────────┐
-│         E2E Tests               │  Echte Exe, echte Dateien
-│   agentsmd.exe install ...      │  Prüft stdout, exitcode, Dateisystem
-├─────────────────────────────────┤
-│      Integration Tests          │  Mehrere Klassen zusammen
-│   IndexParser + GitHubClient    │  Mock-HTTP, echtes Dateisystem (temp)
-├─────────────────────────────────┤
-│         Unit Tests              │  Einzelne Klassen isoliert
-│   FrontMatterParser, DepResolver│  Schnell, kein I/O
-└─────────────────────────────────┘
-```
-
-**Unit Tests** (pro Klasse/Modul):
-- Front Matter Parser: YAML lesen, ungültige Formate, fehlende Felder
-- Dependency Resolver: Versionen auflösen, Zyklen erkennen, fehlende Deps
-- Index Parser: `index.json` lesen, suchen, filtern
-- Sync Engine: Wrapper-Generierung, Skill-Copy, Ordnerstruktur
-- Installed State: `installed.json` lesen/schreiben, Lock-File
-
-**Integration Tests** (Zusammenspiel):
-- Install → Datei in `.agentsmd/` → `installed.json` aktualisiert
-- Workflow Install → Deps aufgelöst → alles installiert
-- Sync → Wrappers in allen Tool-Ordnern korrekt
-- Init → Ordnerstruktur + Tasks-Ordner erstellt
-
-**E2E Tests** (echte CLI-Aufrufe):
-- `agentsmd init` → prüfe `.agentsmd/` Struktur existiert
-- `agentsmd agent install test-writer` → prüfe Datei + stdout
-- `agentsmd workflow install sdd-tdd` → prüfe alle Deps installiert
-- `agentsmd sync` → prüfe Wrapper-Dateien in `.github/agents/` etc.
-- `agentsmd search testing` → prüfe Ergebnis enthält test-writer
-- `agentsmd status` → prüfe Output-Format
-- `agentsmd uninstall` → prüfe Dateien entfernt + installed.json clean
-- Fehlerszenarien: ungültige Namen, fehlende Lib, korrupte Dateien
-
-**CI Pipeline (GitHub Actions):**
-```yaml
-on: [push, pull_request]
-jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - dotnet test              # Unit + Integration Tests
-      - dotnet publish           # Build Exe
-      - ./e2e/run.ps1            # E2E Tests gegen echte Exe
-      - gh run view --json       # Verify workflow status
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
-    steps:
-      - dotnet publish (3 Targets)
-      - gh release create        # Upload Binaries
-```
-
-**Regeln:**
-- Kein Feature ohne Tests — RED zuerst
-- E2E Tests laufen auf allen 3 Plattformen (Win/Mac/Linux)
-- Agent pusht selbst und prüft CI-Status mit `gh run watch`
-- Failing CI = sofort fixen, nicht weitermachen
-
----
-
-## Implementierungsplan
-
-### Phase 0 — Foundation (MVP)
-> Ziel: CLI baut, installiert in `.agentsmd/`, generiert Wrappers via sync
-
-- [ ] .NET 10 Projekt-Scaffold: `dotnet new console` + System.CommandLine
-- [ ] Test-Projekt: `dotnet new xunit` + FluentAssertions
-- [ ] CHANGELOG.md anlegen (Keep a Changelog Format)
-- [ ] GitHub Actions: CI (test auf Win/Mac/Linux) + Release Pipeline (Version aus Git-Tag)
-- [ ] E2E Test-Harness: CLI-Exe starten, stdout/exitcode/Dateisystem prüfen
-- [ ] Front Matter Parser (YAML in Markdown-Dateien)
-- [ ] Lib-Index: `/lib/` Ordner scannen, Front Matter lesen → `index.json`
-- [ ] `agentsmd search` + `agentsmd agent|skill|workflow search` — Lib durchsuchen
-- [ ] `agentsmd agent install` — Datei aus Lib → `.agentsmd/agents/`
-- [ ] `agentsmd skill install` — Ordner aus Lib → `.agentsmd/skills/`
-- [ ] `agentsmd workflow install` — Datei aus Lib → `.agentsmd/workflows/`
-- [ ] `agentsmd agent|skill|workflow uninstall` — Entfernen
-- [ ] `agentsmd list` + `agentsmd agent|skill|workflow list` — Installierte anzeigen
-- [ ] `agentsmd agent|skill|workflow info` — Details aus Lib anzeigen
-- [ ] `agentsmd sync` — Wrappers generieren + Skills nach `.claude/skills/` kopieren
-- [ ] `agentsmd status` — Projekt-Überblick (inkl. Tasks: backlog/in-progress)
-- [ ] `.agentsmd/installed.json` — Tracking was installiert ist
-- [ ] `.agentsmd/tasks/` — Task-Ordner bei init erstellen (backlog/ + in-progress/)
-- [ ] Tests
-- [ ] Lib befüllen: Agents/Skills/Workflows aus setup-wizard.md migrieren
-
-> **TDD für jedes Feature:** Unit Test → Failing → Implementieren → Green → Refactor → E2E Test → Commit → Push → `gh run watch`
-
-### Phase 1 — Dependencies + Updates + Init
-> Ziel: Deps auflösen, Updates erkennen, Init-Wizard
-
-- [ ] Dependency Resolution: `workflow install sdd-tdd` → installiert alle Deps
-- [ ] `.agentsmd/lock.json` — aufgelöster Dependency-Tree
-- [ ] `agentsmd init` — Fragen, Installieren, Sync, Kick-off Prompt ausgeben
-- [ ] `agentsmd agent|skill|workflow update` + `agentsmd update` — Updates holen
-- [ ] `agentsmd outdated` — verfügbare Updates anzeigen
-- [ ] `agentsmd diff` — lokale Änderungen vs. Lib
-- [ ] `agentsmd self-update` — CLI-Binary von GitHub Release updaten
-- [ ] Version-Check bei CLI-Start (non-blocking Hinweis)
-
-
-### Phase 2 — Polish
-> Ziel: Doctor, AGENTS.md-Generierung, UX
-
-- [ ] `agentsmd doctor` — Gesundheitscheck (fehlende Deps, veraltete Wrappers, Drift)
-- [ ] AGENTS.md Template für Kick-off Prompt (Agent generiert projektspezifisch)
-- [ ] `agentsmd create <type> <name>` — neues Artefakt scaffolden (lokal)
-- [ ] `agentsmd config` — erkannte Conventions + Projekt-Infos anzeigen
-
----
-
-## Offene Entscheidungen
-
-| # | Frage | Optionen | Empfehlung |
-|---|-------|----------|------------|
-| 1 | .NET Version | .NET 9 / .NET 10 | **.NET 10** — aktuellste LTS |
-| 2 | Lib-Zugriff | GitHub API / Raw-Files / Git Clone | **GitHub API** — kein lokaler Clone nötig, Rate-Limits reichen |
-| 3 | CLI Framework | System.CommandLine / Spectre.Console.Cli / Cocona | **System.CommandLine** — MS-Standard, gute Auto-Complete |
-| 4 | Index | Generierter `index.json` im Repo / Dynamisch scannen | **`index.json`** — schneller, GitHub Action generiert bei Push |
-| 5 | `.agentsmd/` committen? | Ja / Nein (gitignore) | **Ja** — Source of Truth muss im Repo sein |
-| 6 | `.claude/skills/` | Copy bei sync / Symlink | **Copy** — Konsistenz > Cleverness, Windows-kompatibel |
-
----
-
-## Nächste Schritte
-
-1. **Plan reviewen** — offene Entscheidungen klären
-2. **Phase 0 starten** — .NET Scaffold + GitHub Actions + erste Commands
-3. **Lib befüllen** — Agents/Skills/Workflows aus setup-wizard.md extrahieren
-4. **README updaten** — Vision + Download + Quick Start

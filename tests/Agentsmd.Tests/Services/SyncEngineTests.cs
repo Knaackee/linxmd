@@ -101,6 +101,100 @@ public class SyncEngineTests : IDisposable
         File.ReadAllText(targetScript).Should().Be("echo hello");
     }
 
+    [Fact]
+    public void Sync_NoTools_NoOutput()
+    {
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 1.0.0\n---\n\nContent.");
+
+        var result = _engine.Sync(new SyncOptions { Copilot = false, ClaudeCode = false, OpenCode = false });
+
+        result.GeneratedFiles.Should().BeEmpty();
+        result.CopiedSkills.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Sync_MultipleAgents_GeneratesAllWrappers()
+    {
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 1.0.0\n---\n\nWrite tests.");
+        WriteAgent("implementer", "---\nname: implementer\ntype: agent\nversion: 1.0.0\n---\n\nImplement code.");
+        WriteAgent("reviewer", "---\nname: reviewer\ntype: agent\nversion: 1.0.0\n---\n\nReview code.");
+
+        var result = _engine.Sync(new SyncOptions { Copilot = true });
+
+        result.GeneratedFiles.Should().HaveCount(3);
+        File.Exists(Path.Combine(_tempDir, ".github", "agents", "test-writer.agent.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".github", "agents", "implementer.agent.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".github", "agents", "reviewer.agent.md")).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Sync_MultipleSkills_CopiesAll()
+    {
+        WriteSkill("feature", "# Feature Skill");
+        WriteSkill("debugging", "# Debugging Skill");
+
+        var result = _engine.Sync(new SyncOptions { ClaudeCode = true });
+
+        result.CopiedSkills.Should().HaveCount(2);
+        result.CopiedSkills.Should().Contain("feature");
+        result.CopiedSkills.Should().Contain("debugging");
+    }
+
+    [Fact]
+    public void Sync_CopilotWrapper_HasCorrectFrontMatter()
+    {
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 1.0.0\n---\n\n# Test Writer\nWrite tests.");
+
+        _engine.Sync(new SyncOptions { Copilot = true });
+
+        var content = File.ReadAllText(Path.Combine(_tempDir, ".github", "agents", "test-writer.agent.md"));
+        content.Should().Contain("name: test-writer");
+        content.Should().Contain("description: Agent test-writer");
+        content.Should().Contain("# Test Writer");
+        content.Should().Contain("Write tests.");
+    }
+
+    [Fact]
+    public void Sync_ClaudeWrapper_HasCorrectFormat()
+    {
+        WriteAgent("implementer", "---\nname: implementer\ntype: agent\nversion: 1.0.0\n---\n\n# Implementer\nImplement code.");
+
+        _engine.Sync(new SyncOptions { ClaudeCode = true });
+
+        var content = File.ReadAllText(Path.Combine(_tempDir, ".claude", "agents", "implementer.md"));
+        content.Should().Contain("# implementer");
+        content.Should().Contain("# Implementer");
+        content.Should().Contain("Implement code.");
+    }
+
+    [Fact]
+    public void Sync_OpenCodeWrapper_HasCorrectFormat()
+    {
+        WriteAgent("reviewer", "---\nname: reviewer\ntype: agent\nversion: 1.0.0\n---\n\n# Reviewer\nReview code.");
+
+        _engine.Sync(new SyncOptions { OpenCode = true });
+
+        var content = File.ReadAllText(Path.Combine(_tempDir, ".opencode", "agents", "reviewer.md"));
+        content.Should().Contain("# reviewer");
+        content.Should().Contain("# Reviewer");
+    }
+
+    [Fact]
+    public void Sync_RerunOverwritesPreviousOutput()
+    {
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 1.0.0\n---\n\nOld content.");
+        _engine.Sync(new SyncOptions { Copilot = true });
+
+        // Update agent and sync again
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 2.0.0\n---\n\nNew content.");
+        var result = _engine.Sync(new SyncOptions { Copilot = true });
+
+        result.GeneratedFiles.Should().HaveCount(1);
+        var content = File.ReadAllText(Path.Combine(_tempDir, ".github", "agents", "test-writer.agent.md"));
+        content.Should().Contain("New content.");
+        content.Should().NotContain("Old content.");
+    }
+
     private void WriteAgent(string name, string content)
     {
         File.WriteAllText(Path.Combine(_state.AgentsDir, $"{name}.md"), content);

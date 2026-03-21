@@ -1,47 +1,39 @@
 # agentsmd
 
-> AI Agent Workflow Manager — eine CLI für Agents, Skills und Workflows.
+> AI Agent Workflow Manager — a CLI for Agents, Skills, and Workflows.
 
-Self-contained Exe für Windows, Linux und macOS. Kein Runtime nötig.
+Self-contained executable for Windows, Linux, and macOS. No runtime required.
 
 ## Quick Start
 
 **Windows (PowerShell):**
 ```powershell
-# Download
-Invoke-WebRequest -Uri https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe -OutFile agentsmd.exe
-
-# In PATH ablegen (einmalig)
-Move-Item agentsmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\agentsmd.exe"
+Invoke-WebRequest -Uri https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe -OutFile agentsmd.exe; Move-Item agentsmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\agentsmd.exe" -Force
 ```
 
 **Linux:**
 ```bash
-curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64
-chmod +x agentsmd
-sudo mv agentsmd /usr/local/bin/
+curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
 ```
 
 **macOS:**
 ```bash
-curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64
-chmod +x agentsmd
-sudo mv agentsmd /usr/local/bin/
+curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
 ```
 
-**Dann in deinem Projekt:**
+**Then in your project:**
 ```bash
 agentsmd init
 agentsmd workflow install sdd-tdd
 agentsmd sync
 ```
 
-## Was ist agentsmd?
+## What is agentsmd?
 
-Ein Paketmanager für AI-Agent-Workflows. Installiere vorgefertigte Agents, Skills und Workflows aus einer zentralen Lib — und synchronisiere sie automatisch für GitHub Copilot, Claude Code und OpenCode.
+A package manager for AI agent workflows. Install pre-built Agents, Skills, and Workflows from a central lib — and sync them automatically for GitHub Copilot, Claude Code, and OpenCode.
 
 ```
-Lib (dieses Repo)              Dein Projekt
+Lib (this repo)                Your Project
 ┌────────────────┐             ┌──────────────────┐
 │ lib/           │   install   │ .agentsmd/       │
 │   agents/      │ ──────────► │   agents/        │
@@ -64,112 +56,113 @@ Lib (dieses Repo)              Dein Projekt
 
 ```bash
 # Global
-agentsmd init                        # Projekt initialisieren
-agentsmd search [query]              # Lib durchsuchen
-agentsmd list                        # Installierte Artefakte
-agentsmd sync                        # Tool-Wrappers generieren
-agentsmd status                      # Projekt-Überblick
+agentsmd init                        # Initialize project
+agentsmd search [query]              # Search the lib
+agentsmd list                        # List installed artifacts
+agentsmd sync                        # Generate tool wrappers
+agentsmd status                      # Project overview
 
 # Agents
-agentsmd agent install <name>        # Agent installieren
-agentsmd agent uninstall <name>      # Agent entfernen
-agentsmd agent list                  # Installierte Agents
-agentsmd agent search [query]        # Agents in Lib suchen
-agentsmd agent info <name>           # Details anzeigen
+agentsmd agent install <name>        # Install an agent
+agentsmd agent uninstall <name>      # Remove an agent
+agentsmd agent list                  # List installed agents
+agentsmd agent search [query]        # Search agents in lib
+agentsmd agent info <name>           # Show agent details
 
-# Skills (gleiche Verben)
+# Skills (same verbs)
 agentsmd skill install <name>
 agentsmd skill uninstall <name>
 agentsmd skill list
 agentsmd skill search [query]
 agentsmd skill info <name>
 
-# Workflows (gleiche Verben)
-agentsmd workflow install <name>     # + automatische Dependency Resolution
+# Workflows (same verbs)
+agentsmd workflow install <name>     # + automatic dependency resolution
 agentsmd workflow uninstall <name>
 agentsmd workflow list
 agentsmd workflow search [query]
 agentsmd workflow info <name>
 ```
 
-## Lib-Inhalte
+## Lib Contents
 
 ### Agents
 
-| Agent | Beschreibung |
+| Agent | Description |
 |-------|-------------|
-| `test-writer` | Schreibt Tests aus Spezifikationen (RED Phase) |
-| `implementer` | Minimaler Code bis Tests grün (GREEN Phase) |
-| `reviewer-spec` | Prüft ob alle Akzeptanzkriterien erfüllt sind |
-| `reviewer-quality` | Code-Qualität und Security Review |
-| `docs-writer` | Dokumentation aktualisieren |
+| `test-writer` | Writes tests from specifications (RED phase) |
+| `implementer` | Minimal code until tests pass (GREEN phase) |
+| `reviewer-spec` | Verifies all acceptance criteria are met |
+| `reviewer-quality` | Code quality and security review |
+| `docs-writer` | Updates documentation after reviews pass |
 
 ### Skills
 
-| Skill | Beschreibung |
+| Skill | Description |
 |-------|-------------|
-| `task-management` | Backlog, Specs, Task-Tracking |
-| `feature` | Feature-Entwicklung mit SDD+TDD Workflow |
-| `debugging` | Systematisches Debugging mit Hypothesen-Tracking |
-| `refactoring` | Sicheres Refactoring mit Test-Absicherung |
+| `task-management` | Backlog, specs, and task tracking |
+| `feature` | Feature development with SDD+TDD workflow |
+| `debugging` | Systematic debugging with hypothesis tracking |
+| `refactoring` | Safe refactoring with test coverage |
 
 ### Workflows
 
-| Workflow | Beschreibung |
+| Workflow | Description |
 |----------|-------------|
-| `sdd-tdd` | Spec-Driven Development mit TDD Pipeline |
-| `content-review` | Content-Erstellung mit Review-Pipeline |
+| `sdd-tdd` | Spec-Driven Development with TDD pipeline |
+| `content-review` | Content creation with review pipeline |
 
-## Wie funktioniert `agentsmd sync`?
+## How `agentsmd sync` works
 
 ```
 .agentsmd/agents/test-writer.md
-  ├──► .github/agents/test-writer.agent.md   (+ Copilot Frontmatter)
-  ├──► .opencode/agents/test-writer.md        (+ OpenCode Frontmatter)
-  └──► .claude/agents/test-writer.md          (+ Claude Code Frontmatter)
+  ├──► .github/agents/test-writer.agent.md   (+ Copilot front matter)
+  ├──► .opencode/agents/test-writer.md        (+ OpenCode front matter)
+  └──► .claude/agents/test-writer.md          (+ Claude Code front matter)
 
 .agentsmd/skills/feature/
-  └──► .claude/skills/feature/                (Kopie — ganzer Ordner)
+  └──► .claude/skills/feature/                (copy — entire folder)
 ```
 
-Agents werden als Tool-Wrappers für alle drei AI-Tools generiert.
-Skills werden nach `.claude/skills/` kopiert (alle drei Tools lesen diesen Pfad).
+Agents are generated as tool wrappers for all three AI tools.
+Skills are copied to `.claude/skills/` (all three tools read this path).
 
-## Projektstruktur nach `agentsmd init`
+## Project structure after `agentsmd init`
 
 ```
-dein-projekt/
+your-project/
 ├── .agentsmd/
-│   ├── agents/              # Installierte Agents
-│   ├── skills/              # Installierte Skills (Ordner)
-│   ├── workflows/           # Installierte Workflows
+│   ├── agents/              # Installed agents
+│   ├── skills/              # Installed skills (folders)
+│   ├── workflows/           # Installed workflows
 │   ├── tasks/
-│   │   ├── backlog/         # Feature-Ideen
-│   │   └── in-progress/     # Aktive Features mit SPEC.md + TASKS.md
-│   └── installed.json       # Installationsstate
-├── .github/agents/          # Copilot Wrappers (generiert)
-├── .claude/agents/          # Claude Code Wrappers (generiert)
-├── .claude/skills/          # Skills für alle Tools (generiert)
-└── .opencode/agents/        # OpenCode Wrappers (generiert)
+│   │   ├── backlog/         # Feature ideas
+│   │   └── in-progress/     # Active features with SPEC.md + TASKS.md
+│   └── installed.json       # Installation state
+├── .github/agents/          # Copilot wrappers (generated)
+├── .claude/agents/          # Claude Code wrappers (generated)
+├── .claude/skills/          # Skills for all tools (generated)
+└── .opencode/agents/        # OpenCode wrappers (generated)
 ```
 
 ## Download
 
-Aktuelle Version: **v0.1.0**
+Current version: **v0.1.0**
 
-| Plattform | Download |
-|-----------|----------|
+| Platform | Download |
+|----------|----------|
 | Windows | [agentsmd-win-x64.exe](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe) |
 | Linux | [agentsmd-linux-x64](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64) |
 | macOS | [agentsmd-osx-arm64](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64) |
 
-## Entwicklung
+## Development
 
 ```bash
 dotnet build
-dotnet test          # 51 Tests (Unit + E2E)
+dotnet test
 ```
 
-## Lizenz
+## License
 
 MIT
+

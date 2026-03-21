@@ -2,7 +2,7 @@
 name: docs-writer
 type: agent
 version: 1.0.0
-description: Aktualisiert Dokumentation nach bestandenen Reviews
+description: Updates documentation after reviews pass
 deps: []
 tags:
   - documentation

@@ -2,7 +2,7 @@
 name: refactoring
 type: skill
 version: 1.0.0
-description: Sicheres Refactoring mit Test-Absicherung
+description: Safe refactoring with test coverage
 deps: []
 tags:
   - refactoring

@@ -26,7 +26,7 @@ def main():
 
     for pattern in ["agents/*.md", "skills/*/SKILL.md", "workflows/*.md"]:
         for f in sorted(glob.glob(os.path.join(lib, pattern))):
-            with open(f) as fh:
+            with open(f, encoding="utf-8") as fh:
                 content = fh.read()
             m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
             if not m:
@@ -62,7 +62,7 @@ def main():
         "generated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
         "artifacts": artifacts,
     }
-    with open(os.path.join(lib, "index.json"), "w") as fh:
+    with open(os.path.join(lib, "index.json"), "w", encoding="utf-8") as fh:
         json.dump(index, fh, indent=2, ensure_ascii=False)
         fh.write("\n")
     print(f"Generated index.json with {len(artifacts)} artifacts")

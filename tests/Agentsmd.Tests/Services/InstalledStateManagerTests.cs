@@ -132,4 +132,79 @@ public class InstalledStateManagerTests : IDisposable
         var act = () => _manager.GetArtifactDir("unknown");
         act.Should().Throw<ArgumentException>();
     }
+
+    [Fact]
+    public void AddMultipleTypes_PersistsAll()
+    {
+        _manager.EnsureDirectories();
+
+        _manager.AddArtifact("test-writer", "agent", "1.0.0");
+        _manager.AddArtifact("feature", "skill", "1.0.0");
+        _manager.AddArtifact("sdd-tdd", "workflow", "1.0.0");
+
+        var state = _manager.Load();
+        state.Artifacts.Should().HaveCount(3);
+        state.Artifacts.Should().Contain(a => a.Type == "agent");
+        state.Artifacts.Should().Contain(a => a.Type == "skill");
+        state.Artifacts.Should().Contain(a => a.Type == "workflow");
+    }
+
+    [Fact]
+    public void RemoveArtifact_NotExisting_DoesNotThrow()
+    {
+        _manager.EnsureDirectories();
+
+        var act = () => _manager.RemoveArtifact("nonexistent", "agent");
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void RemoveArtifact_LeavesOtherArtifacts()
+    {
+        _manager.EnsureDirectories();
+        _manager.AddArtifact("test-writer", "agent", "1.0.0");
+        _manager.AddArtifact("implementer", "agent", "1.0.0");
+
+        _manager.RemoveArtifact("test-writer", "agent");
+
+        var state = _manager.Load();
+        state.Artifacts.Should().HaveCount(1);
+        state.Artifacts[0].Name.Should().Be("implementer");
+    }
+
+    [Fact]
+    public void AddArtifact_SetsInstalledAtTimestamp()
+    {
+        _manager.EnsureDirectories();
+        var before = DateTimeOffset.UtcNow;
+
+        _manager.AddArtifact("test-writer", "agent", "1.0.0");
+
+        var artifact = _manager.GetArtifact("test-writer", "agent");
+        artifact.Should().NotBeNull();
+        artifact!.InstalledAt.Should().BeOnOrAfter(before);
+        artifact.InstalledAt.Should().BeOnOrBefore(DateTimeOffset.UtcNow);
+    }
+
+    [Fact]
+    public void Load_CorruptedJson_ReturnsEmptyState()
+    {
+        _manager.EnsureDirectories();
+        File.WriteAllText(_manager.InstalledJsonPath, "not valid json {{{");
+
+        var state = _manager.Load();
+
+        state.Artifacts.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EnsureDirectories_Idempotent()
+    {
+        _manager.EnsureDirectories();
+        _manager.EnsureDirectories(); // Call again
+
+        _manager.IsInitialized.Should().BeTrue();
+        Directory.Exists(_manager.AgentsDir).Should().BeTrue();
+    }
 }

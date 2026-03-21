@@ -269,4 +269,102 @@ public class FrontMatterParserTests
 
         body.Should().Be(markdown);
     }
+
+    [Fact]
+    public void Parse_OnlyOpeningDelimiter_ReturnsNull()
+    {
+        var markdown = "---\nname: test\ntype: agent\nversion: 1.0.0\n";
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_NullInput_ReturnsNull()
+    {
+        var result = FrontMatterParser.Parse(null!);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_WhitespaceOnlyInput_ReturnsNull()
+    {
+        var result = FrontMatterParser.Parse("   \n  \n  ");
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_MissingType_ReturnsNull()
+    {
+        var markdown = """
+            ---
+            name: test
+            version: 1.0.0
+            description: Missing type field
+            ---
+
+            Content.
+            """;
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_EmptyDescription_UsesEmptyString()
+    {
+        var markdown = """
+            ---
+            name: minimal
+            type: agent
+            version: 1.0.0
+            ---
+
+            Content.
+            """;
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().NotBeNull();
+        result!.Description.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_AllArtifactTypes_HandledCorrectly()
+    {
+        var types = new[] { ("agent", ArtifactType.Agent), ("skill", ArtifactType.Skill), ("workflow", ArtifactType.Workflow) };
+
+        foreach (var (typeStr, expected) in types)
+        {
+            var markdown = $"---\nname: test\ntype: {typeStr}\nversion: 1.0.0\n---\nContent.";
+            var result = FrontMatterParser.Parse(markdown);
+            result.Should().NotBeNull($"type '{typeStr}' should parse");
+            result!.Type.Should().Be(expected);
+        }
+    }
+
+    [Fact]
+    public void ExtractBody_EmptyBody_ReturnsEmpty()
+    {
+        var markdown = "---\nname: test\ntype: agent\nversion: 1.0.0\n---\n";
+
+        var body = FrontMatterParser.ExtractBody(markdown);
+
+        body.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Parse_LeadingWhitespace_StillParses()
+    {
+        var markdown = "   \n---\nname: test\ntype: agent\nversion: 1.0.0\n---\nContent.";
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().NotBeNull();
+        result!.Name.Should().Be("test");
+    }
 }

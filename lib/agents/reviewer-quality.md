@@ -2,7 +2,7 @@
 name: reviewer-quality
 type: agent
 version: 1.0.0
-description: Prüft Code-Qualität und Security
+description: Reviews code quality and security
 deps: []
 tags:
   - review

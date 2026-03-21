@@ -2,7 +2,7 @@
 name: task-management
 type: skill
 version: 1.0.0
-description: Task-System mit Backlog, Specs, und Task-Tracking
+description: Task system with backlog, specs, and task tracking
 deps: []
 tags:
   - tasks

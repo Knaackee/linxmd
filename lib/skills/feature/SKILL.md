@@ -2,7 +2,7 @@
 name: feature
 type: skill
 version: 1.0.0
-description: Feature-Entwicklung mit SDD+TDD Workflow
+description: Feature development with SDD+TDD workflow
 deps:
   - skill:task-management@>=1.0
 tags:

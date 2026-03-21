@@ -274,6 +274,9 @@ public static class CommandFactory
                     Console.WriteLine($"  Installed {depEntry.Type} '{depEntry.Name}' v{depEntry.Version}.");
                 }
             }
+
+            // Auto-sync
+            AutoSync(state, project);
         }, nameArg, ProjectOption);
         return cmd;
     }
@@ -326,6 +329,9 @@ public static class CommandFactory
 
             state.RemoveArtifact(name, type);
             Console.WriteLine($"Uninstalled {type} '{name}'.");
+
+            // Auto-sync
+            AutoSync(state, project);
         }, nameArg, ProjectOption);
         return cmd;
     }
@@ -405,7 +411,7 @@ public static class CommandFactory
             }
             if (artifact.Tags.Count > 0)
                 Console.WriteLine($"Tags:        {string.Join(", ", artifact.Tags)}");
-            if (artifact.Supported.Count > 0)
+            if (artifact.Supported is { Count: > 0 })
                 Console.WriteLine($"Supported:   {string.Join(", ", artifact.Supported)}");
 
             // Check if installed
@@ -422,6 +428,14 @@ public static class CommandFactory
     }
 
     // ──── Helpers ────
+
+    private static void AutoSync(InstalledStateManager state, string project)
+    {
+        var options = DetectTools(project);
+        var engine = new SyncEngine(state, project);
+        var result = engine.Sync(options);
+        Console.WriteLine($"Synced: {result.GeneratedFiles.Count} wrapper(s), {result.CopiedSkills.Count} skill(s) copied.");
+    }
 
     private static (string type, string name)? ParseDep(string dep)
     {

@@ -2,7 +2,7 @@
 name: reviewer-spec
 type: agent
 version: 1.0.0
-description: Prüft ob Implementierung alle Akzeptanzkriterien erfüllt
+description: Verifies that implementation meets all acceptance criteria
 deps: []
 tags:
   - review

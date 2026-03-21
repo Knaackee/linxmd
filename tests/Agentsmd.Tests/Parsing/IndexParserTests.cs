@@ -132,6 +132,103 @@ public class IndexParserTests
         result.Should().BeNull();
     }
 
+    [Fact]
+    public void Serialize_RoundTrip_PreservesData()
+    {
+        var index = CreateTestIndex();
+
+        var json = IndexParser.Serialize(index);
+        var parsed = IndexParser.Parse(json);
+
+        parsed.Should().NotBeNull();
+        parsed!.Version.Should().Be(index.Version);
+        parsed.Artifacts.Should().HaveCount(index.Artifacts.Count);
+        parsed.Artifacts[0].Name.Should().Be(index.Artifacts[0].Name);
+        parsed.Artifacts[0].Type.Should().Be(index.Artifacts[0].Type);
+        parsed.Artifacts[0].Version.Should().Be(index.Artifacts[0].Version);
+        parsed.Artifacts[0].Description.Should().Be(index.Artifacts[0].Description);
+    }
+
+    [Fact]
+    public void Serialize_PreservesDepsAndTags()
+    {
+        var index = CreateTestIndex();
+
+        var json = IndexParser.Serialize(index);
+        var parsed = IndexParser.Parse(json);
+
+        var workflow = parsed!.Artifacts.First(a => a.Type == "workflow");
+        workflow.Deps.Should().BeEquivalentTo(["agent:test-writer@>=1.0", "skill:feature@>=1.0"]);
+        workflow.Tags.Should().Contain("tdd");
+    }
+
+    [Fact]
+    public void Serialize_PreservesSupportedField()
+    {
+        var index = new LibIndex
+        {
+            Version = 1,
+            Generated = DateTimeOffset.UtcNow,
+            Artifacts =
+            [
+                new ArtifactEntry
+                {
+                    Name = "build-tool",
+                    Type = "skill",
+                    Version = "1.0.0",
+                    Description = "Build tool",
+                    Path = "skills/build-tool/",
+                    Supported = ["windows", "linux"]
+                }
+            ]
+        };
+
+        var json = IndexParser.Serialize(index);
+        var parsed = IndexParser.Parse(json);
+
+        parsed!.Artifacts[0].Supported.Should().BeEquivalentTo(["windows", "linux"]);
+    }
+
+    [Fact]
+    public void Search_ByDeps_DoesNotMatchDepsField()
+    {
+        var index = CreateTestIndex();
+
+        // Search query should NOT match inside deps strings
+        var results = IndexParser.Search(index, "agent:test-writer@>=1.0");
+
+        // Should not match the workflow's dep string (only name/description/tags)
+        results.Should().NotContain(a => a.Name == "sdd-tdd");
+    }
+
+    [Fact]
+    public void Search_MultipleTypes_FiltersCorrectly()
+    {
+        var index = CreateTestIndex();
+
+        var skills = IndexParser.Search(index, "", filterType: "skill");
+        var workflows = IndexParser.Search(index, "", filterType: "workflow");
+
+        skills.Should().OnlyContain(a => a.Type == "skill");
+        workflows.Should().OnlyContain(a => a.Type == "workflow");
+    }
+
+    [Fact]
+    public void Parse_NullJson_ReturnsNull()
+    {
+        var result = IndexParser.Parse(null!);
+
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void Parse_WhitespaceOnly_ReturnsNull()
+    {
+        var result = IndexParser.Parse("   ");
+
+        result.Should().BeNull();
+    }
+
     private static LibIndex CreateTestIndex() => new()
     {
         Version = 1,

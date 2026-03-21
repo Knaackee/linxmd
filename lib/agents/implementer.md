@@ -2,7 +2,7 @@
 name: implementer
 type: agent
 version: 1.0.0
-description: Implementiert minimalen Code bis Tests grün (GREEN Phase)
+description: Implements minimal code until tests pass (GREEN phase)
 deps: []
 tags:
   - implementation

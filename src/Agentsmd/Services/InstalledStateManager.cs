@@ -37,9 +37,16 @@ public sealed class InstalledStateManager
         if (!File.Exists(InstalledJsonPath))
             return new InstalledState();
 
-        var json = File.ReadAllText(InstalledJsonPath);
-        return JsonSerializer.Deserialize(json, AppJsonContext.Default.InstalledState)
-               ?? new InstalledState();
+        try
+        {
+            var json = File.ReadAllText(InstalledJsonPath);
+            return JsonSerializer.Deserialize(json, AppJsonContext.Default.InstalledState)
+                   ?? new InstalledState();
+        }
+        catch
+        {
+            return new InstalledState();
+        }
     }
 
     public void Save(InstalledState state)

@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generated": "2026-03-21T18:17:11Z",
+  "generated": "2026-03-21T18:39:24Z",
   "artifacts": [
     {
       "name": "docs-writer",
       "type": "agent",
       "version": "1.0.0",
-      "description": "Aktualisiert Dokumentation nach bestandenen Reviews",
+      "description": "Updates documentation after reviews pass",
       "path": "agents/docs-writer.md",
       "deps": [],
       "tags": [
@@ -18,7 +18,7 @@
       "name": "implementer",
       "type": "agent",
       "version": "1.0.0",
-      "description": "Implementiert minimalen Code bis Tests grün (GREEN Phase)",
+      "description": "Implements minimal code until tests pass (GREEN phase)",
       "path": "agents/implementer.md",
       "deps": [],
       "tags": [
@@ -31,7 +31,7 @@
       "name": "reviewer-quality",
       "type": "agent",
       "version": "1.0.0",
-      "description": "Prüft Code-Qualität und Security",
+      "description": "Reviews code quality and security",
       "path": "agents/reviewer-quality.md",
       "deps": [],
       "tags": [
@@ -44,7 +44,7 @@
       "name": "reviewer-spec",
       "type": "agent",
       "version": "1.0.0",
-      "description": "Prüft ob Implementierung alle Akzeptanzkriterien erfüllt",
+      "description": "Verifies that implementation meets all acceptance criteria",
       "path": "agents/reviewer-spec.md",
       "deps": [],
       "tags": [
@@ -57,7 +57,7 @@
       "name": "test-writer",
       "type": "agent",
       "version": "1.0.0",
-      "description": "Schreibt Tests aus Spezifikationen (RED Phase)",
+      "description": "Writes tests from specifications (RED phase)",
       "path": "agents/test-writer.md",
       "deps": [],
       "tags": [
@@ -70,7 +70,7 @@
       "name": "debugging",
       "type": "skill",
       "version": "1.0.0",
-      "description": "Systematisches Debugging mit Hypothesen-Tracking",
+      "description": "Systematic debugging with hypothesis tracking",
       "path": "skills/debugging/",
       "deps": [],
       "tags": [
@@ -82,7 +82,7 @@
       "name": "feature",
       "type": "skill",
       "version": "1.0.0",
-      "description": "Feature-Entwicklung mit SDD+TDD Workflow",
+      "description": "Feature development with SDD+TDD workflow",
       "path": "skills/feature/",
       "deps": [
         "skill:task-management@>=1.0"
@@ -97,7 +97,7 @@
       "name": "refactoring",
       "type": "skill",
       "version": "1.0.0",
-      "description": "Sicheres Refactoring mit Test-Absicherung",
+      "description": "Safe refactoring with test coverage",
       "path": "skills/refactoring/",
       "deps": [],
       "tags": [
@@ -109,7 +109,7 @@
       "name": "task-management",
       "type": "skill",
       "version": "1.0.0",
-      "description": "Task-System mit Backlog, Specs, und Task-Tracking",
+      "description": "Task system with backlog, specs, and task tracking",
       "path": "skills/task-management/",
       "deps": [],
       "tags": [
@@ -122,7 +122,7 @@
       "name": "content-review",
       "type": "workflow",
       "version": "1.0.0",
-      "description": "Content-Erstellung mit Review-Pipeline",
+      "description": "Content creation with review pipeline",
       "path": "workflows/content-review.md",
       "deps": [
         "skill:task-management@>=1.0"
@@ -137,7 +137,7 @@
       "name": "sdd-tdd",
       "type": "workflow",
       "version": "1.0.0",
-      "description": "Spec-Driven Development mit TDD Pipeline",
+      "description": "Spec-Driven Development with TDD pipeline",
       "path": "workflows/sdd-tdd.md",
       "deps": [
         "agent:test-writer@>=1.0",
