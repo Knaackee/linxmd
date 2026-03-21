@@ -18,58 +18,58 @@ jobs:
       - name: Generate index.json
         shell: bash
         run: |
-          cd lib
-          echo '{"version":1,"generated":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","artifacts":[' > index.json.tmp
+          python3 - <<'PYEOF'
+          import json, os, re, datetime
 
-          first=true
-          for f in agents/*.md skills/*/SKILL.md workflows/*.md; do
-            [ -f "$f" ] || continue
+          artifacts = []
+          lib = "lib"
 
-            # Extract front matter between --- delimiters
-            fm=$(sed -n '/^---$/,/^---$/p' "$f" | sed '1d;$d')
-            [ -z "$fm" ] && continue
+          for pattern in ["agents/*.md", "skills/*/SKILL.md", "workflows/*.md"]:
+              import glob
+              for f in sorted(glob.glob(os.path.join(lib, pattern))):
+                  with open(f) as fh:
+                      content = fh.read()
+                  m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+                  if not m:
+                      continue
+                  fm = m.group(1)
 
-            name=$(echo "$fm" | grep '^name:' | sed 's/^name: *//')
-            type=$(echo "$fm" | grep '^type:' | sed 's/^type: *//')
-            version=$(echo "$fm" | grep '^version:' | sed 's/^version: *//')
-            description=$(echo "$fm" | grep '^description:' | sed 's/^description: *//')
+                  def get(key):
+                      match = re.search(rf'^{key}:\s*(.+)$', fm, re.MULTILINE)
+                      return match.group(1).strip() if match else ""
 
-            # Determine path
-            if [ "$type" = "skill" ]; then
-              path="$(dirname "$f")/"
-            else
-              path="$f"
-            fi
+                  def get_list(key):
+                      match = re.search(rf'^{key}:\s*\n((?:\s+-\s+.+\n?)*)', fm, re.MULTILINE)
+                      if not match:
+                          return []
+                      return [line.strip().lstrip("- ") for line in match.group(1).strip().split("\n")]
 
-            # Extract deps as JSON array
-            deps="[]"
-            if echo "$fm" | grep -q '^deps:'; then
-              dep_lines=$(echo "$fm" | sed -n '/^deps:/,/^[^ ]/p' | grep '^ *-' | sed 's/^ *- *//')
-              if [ -n "$dep_lines" ]; then
-                deps=$(echo "$dep_lines" | awk 'BEGIN{printf "["} NR>1{printf ","} {printf "\"%s\"",$0} END{printf "]"}')
-              fi
-            fi
+                  name = get("name")
+                  atype = get("type")
+                  version = get("version")
+                  desc = get("description")
+                  deps = get_list("deps")
+                  tags = get_list("tags")
 
-            # Extract tags as JSON array
-            tags="[]"
-            if echo "$fm" | grep -q '^tags:'; then
-              tag_lines=$(echo "$fm" | sed -n '/^tags:/,/^[^ ]/p' | grep '^ *-' | sed 's/^ *- *//')
-              if [ -n "$tag_lines" ]; then
-                tags=$(echo "$tag_lines" | awk 'BEGIN{printf "["} NR>1{printf ","} {printf "\"%s\"",$0} END{printf "]"}')
-              fi
-            fi
+                  rel = os.path.relpath(f, lib).replace("\\", "/")
+                  path = os.path.dirname(rel) + "/" if atype == "skill" else rel
 
-            [ "$first" = true ] && first=false || echo ',' >> index.json.tmp
+                  artifacts.append({
+                      "name": name, "type": atype, "version": version,
+                      "description": desc, "path": path,
+                      "deps": deps, "tags": tags
+                  })
 
-            cat >> index.json.tmp <<EOF
-          {"name":"$name","type":"$type","version":"$version","description":"$description","path":"$path","deps":$deps,"tags":$tags}
-          EOF
-          done
-
-          echo ']}' >> index.json.tmp
-          # Pretty-print with python
-          python3 -m json.tool index.json.tmp > index.json
-          rm index.json.tmp
+          index = {
+              "version": 1,
+              "generated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "artifacts": artifacts
+          }
+          with open(os.path.join(lib, "index.json"), "w") as fh:
+              json.dump(index, fh, indent=2, ensure_ascii=False)
+              fh.write("\n")
+          print(f"Generated index.json with {len(artifacts)} artifacts")
+          PYEOF
 
       - name: Commit index.json
         run: |
