@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-21T19:08:16Z",
+  "generated": "2026-03-21T19:20:10Z",
   "artifacts": [
     {
       "name": "docs-writer",
@@ -12,6 +12,23 @@
       "tags": [
         "documentation",
         "docs"
+      ]
+    },
+    {
+      "name": "echo-test",
+      "type": "agent",
+      "version": "0.0.1",
+      "description": "Test-only agent for smoke tests — safe to delete",
+      "path": "agents/echo-test.md",
+      "deps": [],
+      "tags": [
+        "test",
+        "smoke"
+      ],
+      "supported": [
+        "windows",
+        "linux",
+        "macos"
       ]
     },
     {
@@ -79,6 +96,18 @@
       ]
     },
     {
+      "name": "echo-test",
+      "type": "skill",
+      "version": "0.0.1",
+      "description": "Test-only skill for smoke tests — safe to delete",
+      "path": "skills/echo-test/",
+      "deps": [],
+      "tags": [
+        "test",
+        "smoke"
+      ]
+    },
+    {
       "name": "feature",
       "type": "skill",
       "version": "1.0.0",
@@ -131,6 +160,21 @@
         "content",
         "writing",
         "review"
+      ]
+    },
+    {
+      "name": "echo-test",
+      "type": "workflow",
+      "version": "0.0.1",
+      "description": "Test-only workflow for smoke tests — safe to delete",
+      "path": "workflows/echo-test.md",
+      "deps": [
+        "agent:echo-test@>=0.0.1",
+        "skill:echo-test@>=0.0.1"
+      ],
+      "tags": [
+        "test",
+        "smoke"
       ]
     },
     {
