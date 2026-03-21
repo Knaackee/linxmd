@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "generated": "2026-03-21T12:00:00Z",
+  "artifacts": [
+    {
+      "name": "test-writer",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Schreibt Tests aus Spezifikationen (RED Phase)",
+      "path": "agents/test-writer.md",
+      "deps": [],
+      "tags": ["testing", "tdd", "sdd"]
+    },
+    {
+      "name": "implementer",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Implementiert minimalen Code bis Tests grün (GREEN Phase)",
+      "path": "agents/implementer.md",
+      "deps": [],
+      "tags": ["implementation", "tdd", "sdd"]
+    },
+    {
+      "name": "reviewer-spec",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Prüft ob Implementierung alle Akzeptanzkriterien erfüllt",
+      "path": "agents/reviewer-spec.md",
+      "deps": [],
+      "tags": ["review", "spec", "sdd"]
+    },
+    {
+      "name": "reviewer-quality",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Prüft Code-Qualität und Security",
+      "path": "agents/reviewer-quality.md",
+      "deps": [],
+      "tags": ["review", "quality", "security"]
+    },
+    {
+      "name": "docs-writer",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Aktualisiert Dokumentation nach bestandenen Reviews",
+      "path": "agents/docs-writer.md",
+      "deps": [],
+      "tags": ["documentation", "docs"]
+    },
+    {
+      "name": "task-management",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Task-System mit Backlog, Specs, und Task-Tracking",
+      "path": "skills/task-management/",
+      "deps": [],
+      "tags": ["tasks", "backlog", "management"]
+    },
+    {
+      "name": "feature",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Feature-Entwicklung mit SDD+TDD Workflow",
+      "path": "skills/feature/",
+      "deps": ["skill:task-management@>=1.0"],
+      "tags": ["feature", "sdd", "tdd"]
+    },
+    {
+      "name": "debugging",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Systematisches Debugging mit Hypothesen-Tracking",
+      "path": "skills/debugging/",
+      "deps": [],
+      "tags": ["debugging", "troubleshooting"]
+    },
+    {
+      "name": "refactoring",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Sicheres Refactoring mit Test-Absicherung",
+      "path": "skills/refactoring/",
+      "deps": [],
+      "tags": ["refactoring", "cleanup"]
+    },
+    {
+      "name": "sdd-tdd",
+      "type": "workflow",
+      "version": "1.0.0",
+      "description": "Spec-Driven Development mit TDD Pipeline",
+      "path": "workflows/sdd-tdd.md",
+      "deps": [
+        "agent:test-writer@>=1.0",
+        "agent:implementer@>=1.0",
+        "agent:reviewer-spec@>=1.0",
+        "agent:reviewer-quality@>=1.0",
+        "agent:docs-writer@>=1.0",
+        "skill:feature@>=1.0",
+        "skill:task-management@>=1.0"
+      ],
+      "tags": ["development", "tdd", "sdd"]
+    },
+    {
+      "name": "content-review",
+      "type": "workflow",
+      "version": "1.0.0",
+      "description": "Content-Erstellung mit Review-Pipeline",
+      "path": "workflows/content-review.md",
+      "deps": ["skill:task-management@>=1.0"],
+      "tags": ["content", "writing", "review"]
+    }
+  ]
+}

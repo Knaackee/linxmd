@@ -1,0 +1,109 @@
+---
+name: task-management
+type: skill
+version: 1.0.0
+description: Task-System mit Backlog, Specs, und Task-Tracking
+deps: []
+tags:
+  - tasks
+  - backlog
+  - management
+---
+
+# Task Management Skill
+
+## Structure
+
+```
+.agentsmd/tasks/
+├── backlog/              ← one file per idea (free text or Issue: #NNN)
+└── in-progress/
+    └── [name]/
+        ├── SPEC.md       ← acceptance criteria, edge cases, non-goals
+        ├── TASKS.md      ← checklist — one task = one commit
+        └── NOTES.md      ← agent notes, blockers, open decisions
+```
+
+## Show Backlog
+
+Triggered by: "backlog", "show backlog", "what's in the backlog"
+
+List `.agentsmd/tasks/backlog/` and `.agentsmd/tasks/in-progress/`:
+
+```
+Backlog ([N] items):
+1. [filename] — [first line]
+2. [filename] — [first line]
+
+In progress:
+- [name] — Task [X]/[Y] complete
+```
+
+## Add to Backlog
+
+Triggered by: "add to backlog [text]"
+
+Create `.agentsmd/tasks/backlog/[slug].md` with the provided text.
+Output: "Added to backlog: [name]"
+
+## Start Feature
+
+Triggered by: "lets do this", "start", "begin", or naming a backlog item.
+Append "(guided)" for guided mode.
+
+1. Find the backlog item in `.agentsmd/tasks/backlog/`
+2. Create `.agentsmd/tasks/in-progress/[name]/`
+3. Move backlog file to `.agentsmd/tasks/in-progress/[name]/backlog-original.md`
+4. Draft SPEC.md with acceptance criteria
+5. Wait for approval
+6. Create TASKS.md with checklist
+7. Create NOTES.md (empty)
+
+## SPEC.md Format
+
+```markdown
+# SPEC: [Feature Name]
+**Mode**: [autonomous | guided]
+**Source**: [backlog file]
+**Created**: [date]
+
+## What we're building
+[2-3 sentences from the user's perspective]
+
+## Acceptance Criteria
+- [ ] [concrete, testable criterion]
+
+## Edge Cases
+- [empty / null / missing inputs]
+
+## Non-Goals
+- [explicitly out of scope]
+
+## Open Questions
+- [decisions needed]
+```
+
+## TASKS.md Format
+
+```markdown
+# TASKS: [Feature Name]
+
+Each task = RED → GREEN → SPEC-REVIEW → QUALITY-REVIEW → DOCS → COMMIT
+
+- [ ] **Task 1**: [name]
+  - Criteria: [which Acceptance Criteria this covers]
+  - Tests:    [unit / integration / E2E]
+  - Docs:     [which file to update, or "none"]
+  - Commit:   `[type]: [message]`
+```
+
+## Status
+
+Triggered by: "status", "progress", "what are we working on"
+
+Show all in-progress features with their progress.
+
+## Done
+
+Done = all tasks checked off + PR open + docs updated + tests green.
+No "done" folder — done lives in git history.

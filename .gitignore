@@ -1,0 +1,20 @@
+## .NET
+bin/
+obj/
+publish/
+*.user
+*.suo
+*.nupkg
+
+## IDE
+.vs/
+.vscode/
+*.swp
+*~
+
+## OS
+Thumbs.db
+.DS_Store
+
+## Test results
+TestResults/

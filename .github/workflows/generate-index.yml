@@ -1,0 +1,81 @@
+name: Generate Lib Index
+
+on:
+  push:
+    paths:
+      - 'lib/**'
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate index.json
+        shell: bash
+        run: |
+          cd lib
+          echo '{"version":1,"generated":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'","artifacts":[' > index.json.tmp
+
+          first=true
+          for f in agents/*.md skills/*/SKILL.md workflows/*.md; do
+            [ -f "$f" ] || continue
+
+            # Extract front matter between --- delimiters
+            fm=$(sed -n '/^---$/,/^---$/p' "$f" | sed '1d;$d')
+            [ -z "$fm" ] && continue
+
+            name=$(echo "$fm" | grep '^name:' | sed 's/^name: *//')
+            type=$(echo "$fm" | grep '^type:' | sed 's/^type: *//')
+            version=$(echo "$fm" | grep '^version:' | sed 's/^version: *//')
+            description=$(echo "$fm" | grep '^description:' | sed 's/^description: *//')
+
+            # Determine path
+            if [ "$type" = "skill" ]; then
+              path="$(dirname "$f")/"
+            else
+              path="$f"
+            fi
+
+            # Extract deps as JSON array
+            deps="[]"
+            if echo "$fm" | grep -q '^deps:'; then
+              dep_lines=$(echo "$fm" | sed -n '/^deps:/,/^[^ ]/p' | grep '^ *-' | sed 's/^ *- *//')
+              if [ -n "$dep_lines" ]; then
+                deps=$(echo "$dep_lines" | awk 'BEGIN{printf "["} NR>1{printf ","} {printf "\"%s\"",$0} END{printf "]"}')
+              fi
+            fi
+
+            # Extract tags as JSON array
+            tags="[]"
+            if echo "$fm" | grep -q '^tags:'; then
+              tag_lines=$(echo "$fm" | sed -n '/^tags:/,/^[^ ]/p' | grep '^ *-' | sed 's/^ *- *//')
+              if [ -n "$tag_lines" ]; then
+                tags=$(echo "$tag_lines" | awk 'BEGIN{printf "["} NR>1{printf ","} {printf "\"%s\"",$0} END{printf "]"}')
+              fi
+            fi
+
+            [ "$first" = true ] && first=false || echo ',' >> index.json.tmp
+
+            cat >> index.json.tmp <<EOF
+          {"name":"$name","type":"$type","version":"$version","description":"$description","path":"$path","deps":$deps,"tags":$tags}
+          EOF
+          done
+
+          echo ']}' >> index.json.tmp
+          # Pretty-print with python
+          python3 -m json.tool index.json.tmp > index.json
+          rm index.json.tmp
+
+      - name: Commit index.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lib/index.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "chore: regenerate lib/index.json"
+          git push
