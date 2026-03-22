@@ -177,6 +177,7 @@ public sealed class InstalledStateManager
         "agent" => AgentsDir,
         "skill" => SkillsDir,
         "workflow" => WorkflowsDir,
+        "pack" => string.Empty, // packs are virtual — they install their members, not files
         _ => throw new ArgumentException($"Unknown type: {type}")
     };
 

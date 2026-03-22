@@ -1,7 +1,7 @@
 ---
 name: sdd-tdd
 type: workflow
-version: 0.2.0
+version: 0.3.0
 description: Spec-Driven Development with TDD pipeline
 deps:
   - agent:test-writer@>=0.2.0
@@ -10,8 +10,8 @@ deps:
   - agent:reviewer-quality@>=0.2.0
   - agent:docs-writer@>=0.2.0
   - agent:planner@>=0.2.0
+  - agent:changelog-writer@>=0.3.0
   - skill:task-management@>=0.2.0
-  - skill:preview-delivery@>=0.1.0
 tags:
   - development
   - tdd
@@ -30,8 +30,10 @@ No implementation exists before its test exists and fails.
 
 ## Start Conditions
 
-Triggered by: "lets do this", "start", "begin", or naming a backlog item.
+Triggered by: "lets do this", "start feature", "begin feature", or naming a backlog item.
 Append "(guided)" for guided mode.
+
+**Collision Guard:** Before creating a new in-progress task, check `.linxmd/tasks/in-progress/` for existing active tasks. If a folder already exists for the same backlog item, either choose a different task or pause and notify the user. Never start work on a task that is already in-progress.
 
 1. Find matching backlog item in `.linxmd/tasks/backlog/`
 2. Create `.linxmd/tasks/in-progress/[name]/`
@@ -52,7 +54,9 @@ Append "(guided)" for guided mode.
 4. **QUALITY-REVIEW** → `reviewer-quality` → Code quality + security
    - Note: steps 3 and 4 have no data dependency — run in parallel when tooling supports it
 5. **DOCS** → `docs-writer` → Update documentation
-6. **COMMIT** → All green → Commit
+6. **CHANGELOG** → `changelog-writer` → Append `Added` entry to `CHANGELOG.md`
+   - Format: `- [Feature name]: [one-line summary]`
+7. **COMMIT** → All green → Commit
 
 **Max iterations:** If the GREEN → SPEC-REVIEW cycle fails 3 times for the same task, stop and wait for a user decision. Do not proceed to the next task.
 
@@ -83,7 +87,7 @@ Autonomous mode behavior:
 
 After all tasks complete:
 1. Run final checks
-2. Optionally run preview-delivery for review feedback loops
+2. Optionally use `skill:preview-delivery` (if installed) for review feedback loops
 3. Open PR with SPEC summary
 
 ## When NOT to Use

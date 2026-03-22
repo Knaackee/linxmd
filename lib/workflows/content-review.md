@@ -70,5 +70,5 @@ Guided prompts:
 2. `linxmd add workflow:content-review --yes` → Install workflow
 3. `linxmd sync` → Generate tool wrappers
 4. Add content task to `.linxmd/tasks/backlog/`
-5. Start with "lets do this"
+5. Start with "begin content review" or "write content: [topic]"
 

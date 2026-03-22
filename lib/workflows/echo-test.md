@@ -3,6 +3,7 @@ name: echo-test
 type: workflow
 version: 0.1.0
 description: Test-only workflow for smoke tests — safe to delete
+internal: true
 deps:
   - agent:echo-test@>=0.1.0
   - skill:echo-test@>=0.1.0

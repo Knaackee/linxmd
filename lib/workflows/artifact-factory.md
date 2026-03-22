@@ -1,11 +1,10 @@
 ---
 name: artifact-factory
 type: workflow
-version: 0.2.0
+version: 0.3.0
 description: Create and refine new agents, skills, and workflows as reusable building blocks
 deps:
   - skill:task-management@>=0.2.0
-  - skill:preview-delivery@>=0.1.0
 tags:
   - factory
   - authoring
@@ -41,9 +40,9 @@ A single workflow for generating new workflow assets.
 - Provide an echo-test fixture or minimal example that exercises the artifact end-to-end
 - Every shipped artifact must have at least one verifiable smoke test
 
-6. Preview and feedback loop
-- Use `preview-delivery` skill to share preview
-- Collect and integrate feedback
+6. Preview and feedback loop (optional)
+   - If `skill:preview-delivery` is installed: use it to share a preview and collect feedback
+   - Otherwise: ask the user directly for review before publishing
 
 7. Publish
 - Add entry to `lib/index.json`

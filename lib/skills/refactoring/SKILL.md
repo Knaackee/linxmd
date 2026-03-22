@@ -1,11 +1,9 @@
 ---
 name: refactoring
 type: skill
-version: 0.1.0
+version: 0.2.0
 description: Safe refactoring with test coverage
-deps:
-  - agent:implementer@>=0.1.0
-  - agent:reviewer-quality@>=0.1.0
+deps: []
 tags:
   - refactoring
   - cleanup
@@ -15,6 +13,8 @@ tags:
 
 Triggered by: "refactor [target]", "cleanup [target]", "simplify [target]",
 or during QUALITY-REVIEW when reviewer suggests REFACTOR changes.
+
+**Works best with:** `agent:implementer` (apply changes) and `agent:reviewer-quality` (final check) — not required but strongly recommended for non-trivial refactorings.
 
 ## Process
 

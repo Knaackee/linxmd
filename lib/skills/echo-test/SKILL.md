@@ -3,6 +3,7 @@ name: echo-test
 type: skill
 version: 0.1.0
 description: Test-only skill for smoke tests — safe to delete
+internal: true
 deps: []
 tags:
   - test

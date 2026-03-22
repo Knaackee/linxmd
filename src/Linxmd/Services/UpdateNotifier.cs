@@ -26,7 +26,7 @@ public static class UpdateNotifier
                 return;
             }
 
-            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(2000));
             using var http = new HttpClient();
             http.DefaultRequestHeaders.UserAgent.ParseAdd("linxmd-cli/0.1");
 
