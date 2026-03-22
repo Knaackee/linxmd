@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-22T11:15:35Z",
+  "generated": "2026-03-22T11:39:23Z",
   "artifacts": [
     {
       "name": "architect",
@@ -303,8 +303,8 @@
     {
       "name": "project-memory",
       "type": "skill",
-      "version": "0.3.0",
-      "description": "Maintain a structured knowledge base for your project — ADR decisions, CHANGELOG entries, and a known-issues log so context survives context resets, new sessions, and team turnover",
+      "version": "1.0.0",
+      "description": "Query and maintain a structured project knowledge base (ADRs, changelog, known issues) via the linxmd memory CLI — decisions survive context resets, new sessions, and team turnover",
       "path": "skills/project-memory/",
       "deps": [],
       "tags": [
