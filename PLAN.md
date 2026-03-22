@@ -44,55 +44,55 @@ Statusregel:
 - Ein Batch gilt erst als erledigt, wenn alle Punkte und alle Abnahmepunkte abgehakt sind.
 
 ### Batch 1 - CLI-Kern finalisieren
-- [ ] Deprecated Commands entfernen (`agent|skill|workflow` Trees raus)
-- [ ] Typed IDs als Standard einfuehren (`add typ:name`, `remove typ:name`)
-- [ ] `--type` Option entfernen
-- [ ] Uninstall mit Reverse-Dependency-Blockierung (safe default)
-- [ ] Tests fuer obige Punkte aktualisieren
+- [x] Deprecated Commands entfernen (`agent|skill|workflow` Trees raus)
+- [x] Typed IDs als Standard einfuehren (`add typ:name`, `remove typ:name`)
+- [x] `--type` Option entfernen
+- [x] Uninstall mit Reverse-Dependency-Blockierung (safe default)
+- [x] Tests fuer obige Punkte aktualisieren
 
 Abnahme Batch 1
-- [ ] Help zeigt nur neue Kommandostruktur
-- [ ] Alte Commands sind entfernt
-- [ ] Uninstall blockiert korrekt bei Abhaengigkeiten
-- [ ] Tests gruen
+- [x] Help zeigt nur neue Kommandostruktur
+- [x] Alte Commands sind entfernt
+- [x] Uninstall blockiert korrekt bei Abhaengigkeiten
+- [x] Tests gruen
 
 ### Batch 2 - Multi-Source + Update-Logik
-- [ ] `.agentsmd/sources.json` einfuehren
-- [ ] Install speichert source metadata in `installed.json`
-- [ ] Update prueft primaer origin source
-- [ ] Fallback-Regeln bei nicht erreichbarer source
-- [ ] Unit- und E2E-Tests fuer source/update erweitern
+- [x] `.agentsmd/sources.json` einfuehren
+- [x] Install speichert source metadata in `installed.json`
+- [x] Update prueft primaer origin source
+- [x] Fallback-Regeln bei nicht erreichbarer source
+- [x] Unit- und E2E-Tests fuer source/update erweitern
 
 Abnahme Batch 2
-- [ ] Install aus alternativer source funktioniert
-- [ ] Update bleibt source-treu
-- [ ] Fehlertexte bei offline source sind klar
-- [ ] Tests gruen
+- [x] Install aus alternativer source funktioniert
+- [x] Update bleibt source-treu
+- [x] Fehlertexte bei offline source sind klar
+- [x] Tests gruen
 
 ### Batch 3 - Library-Inhalte
-- [ ] Alle Agent/Skill/Workflow Versionen auf `0.0.1`
-- [ ] Namen vereinheitlichen gemaess Konvention
-- [ ] Generator-Workflow (Option A) implementieren
-- [ ] Skill `preview-delivery` implementieren
-- [ ] Referenzen in Markdown auf kanonische IDs umstellen (`type:name`)
+- [x] Alle Agent/Skill/Workflow Versionen auf `0.0.1`
+- [x] Namen vereinheitlichen gemaess Konvention
+- [x] Generator-Workflow (Option A) implementieren
+- [x] Skill `preview-delivery` implementieren
+- [x] Referenzen in Markdown auf kanonische IDs umstellen (`type:name`)
 
 Abnahme Batch 3
-- [ ] `lib/index.json` konsistent
-- [ ] Artefakte installierbar
-- [ ] Keine Namenskollisionen
-- [ ] Tests gruen
+- [x] `lib/index.json` konsistent
+- [x] Artefakte installierbar
+- [x] Keine Namenskollisionen
+- [x] Tests gruen
 
 ### Batch 4 - Produktisierung
-- [ ] README auf realen CLI-Stand + modernes Layout
-- [ ] Update-Check beim Start (async, cached, opt-out)
-- [ ] Coverage-UX in VS Code stabil (Gutter/Tree sichtbar)
-- [ ] Rebranding-Spuren auf Linxmd finalisieren
+- [x] README auf realen CLI-Stand + modernes Layout
+- [x] Update-Check beim Start (async, cached, opt-out)
+- [x] Coverage-UX in VS Code stabil (Gutter/Tree sichtbar)
+- [x] Rebranding-Spuren auf Linxmd finalisieren
 
 Abnahme Batch 4
-- [ ] README und CLI sind konsistent
-- [ ] Update-Hinweis funktioniert ohne spuerbaren Startup-Delay
-- [ ] Coverage sichtbar in VS Code
-- [ ] Release-ready Check bestanden
+- [x] README und CLI sind konsistent
+- [x] Update-Hinweis funktioniert ohne spuerbaren Startup-Delay
+- [x] Coverage sichtbar in VS Code
+- [x] Release-ready Check bestanden
 
 ---
 
@@ -202,8 +202,8 @@ Option A: Nur `--type`
 
 Option B: Prefix-Notation + `--type` (empfohlen)
 - Unterstuetze:
-  - `agentsmd add workflow:sdd-tdd --yes`
-  - `agentsmd remove skill:feature --yes`
+  - `linxmd add workflow:sdd-tdd --yes`
+  - `linxmd remove skill:feature --yes`
 - Behalte `--type` als Alternative
 
 Entscheidung: Option B
@@ -384,3 +384,4 @@ Exit-Kriterien
 - Multi-source update robust
 - >95% Coverage fuer In-Process Kernlogik
 - Stabile E2E smoke matrix fuer reale CLI Flows
+

@@ -1,0 +1,37 @@
+---
+name: preview-delivery
+type: skill
+version: 0.0.1
+description: Build previews, share links or binaries, collect feedback, and iterate
+deps: []
+tags:
+  - preview
+  - feedback
+  - delivery
+---
+
+# Preview Delivery Skill
+
+Use this skill when you need a fast review loop for websites or binaries.
+
+## Flow
+
+1. Build preview artifact
+- Web: build and run preview server
+- Binary: build release binary for target platform
+
+2. Publish preview
+- Web option: expose via Tailscale Funnel (or equivalent secure tunnel)
+- Binary option: attach artifact to release, issue, or direct file transfer channel
+
+3. Collect feedback
+- Ask for structured feedback: what works, what breaks, what is missing
+- Capture feedback in `.agentsmd/tasks/in-progress/<feature>/NOTES.md`
+
+4. Iterate
+- Prioritize feedback by severity
+- Apply fixes
+- Re-publish preview with changelog note
+
+5. Stop rule
+- Wait explicitly for reviewer confirmation before final release.

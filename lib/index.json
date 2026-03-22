@@ -5,7 +5,7 @@
     {
       "name": "docs-writer",
       "type": "agent",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Updates documentation after reviews pass",
       "path": "agents/docs-writer.md",
       "deps": [],
@@ -34,7 +34,7 @@
     {
       "name": "implementer",
       "type": "agent",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Implements minimal code until tests pass (GREEN phase)",
       "path": "agents/implementer.md",
       "deps": [],
@@ -47,7 +47,7 @@
     {
       "name": "reviewer-quality",
       "type": "agent",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Reviews code quality and security",
       "path": "agents/reviewer-quality.md",
       "deps": [],
@@ -60,7 +60,7 @@
     {
       "name": "reviewer-spec",
       "type": "agent",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Verifies that implementation meets all acceptance criteria",
       "path": "agents/reviewer-spec.md",
       "deps": [],
@@ -73,7 +73,7 @@
     {
       "name": "test-writer",
       "type": "agent",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Writes tests from specifications (RED phase)",
       "path": "agents/test-writer.md",
       "deps": [],
@@ -86,7 +86,7 @@
     {
       "name": "debugging",
       "type": "skill",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Systematic debugging with hypothesis tracking",
       "path": "skills/debugging/",
       "deps": [],
@@ -110,11 +110,11 @@
     {
       "name": "feature",
       "type": "skill",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Feature development with SDD+TDD workflow",
       "path": "skills/feature/",
       "deps": [
-        "skill:task-management@>=1.0"
+        "skill:task-management@>=0.0.1"
       ],
       "tags": [
         "feature",
@@ -125,7 +125,7 @@
     {
       "name": "refactoring",
       "type": "skill",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Safe refactoring with test coverage",
       "path": "skills/refactoring/",
       "deps": [],
@@ -137,7 +137,7 @@
     {
       "name": "task-management",
       "type": "skill",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Task system with backlog, specs, and task tracking",
       "path": "skills/task-management/",
       "deps": [],
@@ -148,13 +148,26 @@
       ]
     },
     {
+      "name": "preview-delivery",
+      "type": "skill",
+      "version": "0.0.1",
+      "description": "Build previews, share links or binaries, collect feedback, and iterate",
+      "path": "skills/preview-delivery/",
+      "deps": [],
+      "tags": [
+        "preview",
+        "feedback",
+        "delivery"
+      ]
+    },
+    {
       "name": "content-review",
       "type": "workflow",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Content creation with review pipeline",
       "path": "workflows/content-review.md",
       "deps": [
-        "skill:task-management@>=1.0"
+        "skill:task-management@>=0.0.1"
       ],
       "tags": [
         "content",
@@ -180,23 +193,40 @@
     {
       "name": "sdd-tdd",
       "type": "workflow",
-      "version": "1.0.0",
+      "version": "0.0.1",
       "description": "Spec-Driven Development with TDD pipeline",
       "path": "workflows/sdd-tdd.md",
       "deps": [
-        "agent:test-writer@>=1.0",
-        "agent:implementer@>=1.0",
-        "agent:reviewer-spec@>=1.0",
-        "agent:reviewer-quality@>=1.0",
-        "agent:docs-writer@>=1.0",
-        "skill:feature@>=1.0",
-        "skill:task-management@>=1.0"
+        "agent:test-writer@>=0.0.1",
+        "agent:implementer@>=0.0.1",
+        "agent:reviewer-spec@>=0.0.1",
+        "agent:reviewer-quality@>=0.0.1",
+        "agent:docs-writer@>=0.0.1",
+        "skill:feature@>=0.0.1",
+        "skill:task-management@>=0.0.1"
       ],
       "tags": [
         "development",
         "tdd",
         "sdd"
       ]
+    },
+    {
+      "name": "artifact-factory",
+      "type": "workflow",
+      "version": "0.0.1",
+      "description": "Create and refine new agents, skills, and workflows as reusable building blocks",
+      "path": "workflows/artifact-factory.md",
+      "deps": [
+        "skill:task-management@>=0.0.1",
+        "skill:preview-delivery@>=0.0.1"
+      ],
+      "tags": [
+        "factory",
+        "authoring",
+        "workflow"
+      ]
     }
   ]
 }
+

@@ -1,7 +1,7 @@
 ---
 name: docs-writer
 type: agent
-version: 1.0.0
+version: 0.0.1
 description: Updates documentation after reviews pass
 deps: []
 tags:
@@ -32,3 +32,4 @@ Never invent information. Only document what was actually built.
 ## Report
 
 "Docs updated: [files]" or "No docs update needed."
+

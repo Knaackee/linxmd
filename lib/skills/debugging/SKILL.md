@@ -1,7 +1,7 @@
 ---
 name: debugging
 type: skill
-version: 1.0.0
+version: 0.0.1
 description: Systematic debugging with hypothesis tracking
 deps: []
 tags:
@@ -47,3 +47,4 @@ After 5 failed hypotheses or when stuck:
 - [hypothesis 1]: [result]
 - [hypothesis 2]: [result]
 What would you like to try?"
+

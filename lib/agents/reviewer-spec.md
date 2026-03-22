@@ -1,7 +1,7 @@
 ---
 name: reviewer-spec
 type: agent
-version: 1.0.0
+version: 0.0.1
 description: Verifies that implementation meets all acceptance criteria
 deps: []
 tags:
@@ -38,3 +38,4 @@ PASS: All [N] criteria covered and verified.
 
 If BLOCKER: route back to implementer or test-writer.
 Do not comment on code style or structure.
+

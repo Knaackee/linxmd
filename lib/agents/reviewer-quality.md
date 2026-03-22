@@ -1,7 +1,7 @@
 ---
 name: reviewer-quality
 type: agent
-version: 1.0.0
+version: 0.0.1
 description: Reviews code quality and security
 deps: []
 tags:
@@ -54,3 +54,4 @@ REFACTOR (optional cleanup):
 
 BLOCKER = production bug, security issue, or core principle violated.
 Minimal targeted fixes only — never suggest full rewrites.
+

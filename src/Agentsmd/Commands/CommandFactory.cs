@@ -1,9 +1,10 @@
 using System.CommandLine;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Agentsmd.Models;
-using Agentsmd.Services;
 using Agentsmd.Parsing;
+using Agentsmd.Services;
 using Spectre.Console;
 
 namespace Agentsmd.Commands;
@@ -15,23 +16,28 @@ public static class CommandFactory
     public static readonly Option<string> ProjectOption =
         new(["--project", "-p"], () => Directory.GetCurrentDirectory(), "Project root directory");
 
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd add [query] [--type] [--yes]
-    // ═══════════════════════════════════════════════════════════════
-
     public static Command CreateAddCommand()
     {
-        var queryArg = new Argument<string>("query", () => "", "Search query or artifact name");
-        var typeOpt = new Option<string>(["--type", "-t"], () => "", "Filter by type (agent, skill, workflow)");
+        var queryArg = new Argument<string>("query", () => "", "Artifact id (type:name) or search query");
         var yesOpt = new Option<bool>(["--yes", "-y"], "Skip confirmation prompts");
+        var sourceOpt = new Option<string>("--source", () => "default", "Source id from .agentsmd/sources.json");
         var cmd = new Command("add", "Browse, search and install artifacts") { queryArg };
-        cmd.AddOption(typeOpt);
         cmd.AddOption(yesOpt);
+        cmd.AddOption(sourceOpt);
 
-        cmd.SetHandler(async (string query, string type, bool yes, string project) =>
+        cmd.SetHandler(async (string query, bool yes, string source, string project) =>
         {
             var state = new InstalledStateManager(project);
-            var client = new GitHubLibClient(Http);
+            state.EnsureDefaultSources();
+
+            var selectedSource = state.GetSource(source);
+            if (selectedSource is null)
+            {
+                Console.Error.WriteLine($"Unknown source '{source}'. Check .agentsmd/sources.json.");
+                return;
+            }
+
+            var client = CreateClient(selectedSource);
             var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
 
@@ -39,23 +45,24 @@ public static class CommandFactory
             if (index is null) { Console.Error.WriteLine("Invalid index format."); return; }
 
             bool interactive = !yes && AnsiConsole.Profile.Capabilities.Interactive;
-            string? filterType = string.IsNullOrEmpty(type) ? null : type;
+            var parsedId = ParseArtifactId(query);
+            string? filterType = parsedId?.type;
+            string lookup = parsedId?.name ?? query;
 
-            // If no query, prompt interactively or leave empty for all
-            if (string.IsNullOrEmpty(query) && interactive)
+            if (string.IsNullOrEmpty(lookup) && interactive)
             {
-                query = AnsiConsole.Prompt(
+                lookup = AnsiConsole.Prompt(
                     new TextPrompt<string>("[bold]Search library:[/]")
                         .AllowEmpty());
             }
 
-            var results = IndexParser.Search(index, query, filterType: filterType);
+            var results = IndexParser.Search(index, lookup, filterType: filterType);
             if (results.Count == 0)
             {
                 Console.WriteLine("No results found.");
-                if (!string.IsNullOrEmpty(query))
+                if (!string.IsNullOrEmpty(lookup))
                 {
-                    var suggestion = Cli.FindClosestMatch(query, index.Artifacts.Select(a => a.Name));
+                    var suggestion = Cli.FindClosestMatch(lookup, index.Artifacts.Select(a => $"{a.Type}:{a.Name}"));
                     if (suggestion is not null)
                         AnsiConsole.MarkupLine($"[{Cli.Muted}]Did you mean [{Cli.Accent}]{Markup.Escape(suggestion)}[/]?[/]");
                 }
@@ -63,11 +70,14 @@ public static class CommandFactory
             }
 
             ArtifactEntry? selected = null;
-
-            // Try exact name match(es)
-            var exact = results
-                .Where(a => a.Name.Equals(query, StringComparison.OrdinalIgnoreCase))
+            var exact = results.Where(a =>
+                    a.Name.Equals(lookup, StringComparison.OrdinalIgnoreCase) &&
+                    (filterType is null || a.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
+
+            if (parsedId is not null)
+                exact = results.Where(a => a.Name.Equals(parsedId.Value.name, StringComparison.OrdinalIgnoreCase)
+                                           && a.Type.Equals(parsedId.Value.type, StringComparison.OrdinalIgnoreCase)).ToList();
 
             if (exact.Count == 1)
             {
@@ -75,12 +85,15 @@ public static class CommandFactory
             }
             else if (exact.Count > 1)
             {
-                // Same name, different types — disambiguate
-                if (filterType is not null)
+                if (yes)
                 {
-                    selected = exact.FirstOrDefault(a => a.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
+                    Console.Error.WriteLine($"Multiple matches for '{lookup}'. Use typed id, e.g. agent:{lookup}");
+                    foreach (var m in exact)
+                        Console.Error.WriteLine($"  {m.Type}:{m.Name}");
+                    return;
                 }
-                else if (interactive)
+
+                if (interactive)
                 {
                     selected = AnsiConsole.Prompt(
                         new SelectionPrompt<ArtifactEntry>()
@@ -89,23 +102,14 @@ public static class CommandFactory
                             .UseConverter(a => $"{Cli.TypeIcon(a.Type)} {a.Type,-10} {a.Name,-20} {a.Version}")
                             .AddChoices(exact));
                 }
-                else if (yes)
-                {
-                    Console.Error.WriteLine($"Multiple artifacts named '{query}'. Use --type to disambiguate.");
-                    foreach (var m in exact)
-                        Console.Error.WriteLine($"  {m.Type}: {m.Name}");
-                    return;
-                }
                 else
                 {
-                    // Non-interactive browse — show all matches
                     Cli.WriteArtifactTable(exact.Select(a => (a.Type, a.Name, a.Version, a.Description)));
                     return;
                 }
             }
             else if (interactive)
             {
-                // No exact match — pick from results
                 selected = AnsiConsole.Prompt(
                     new SelectionPrompt<ArtifactEntry>()
                         .Title("Select an artifact to install:")
@@ -119,57 +123,50 @@ public static class CommandFactory
             }
             else
             {
-                // Non-interactive browse — show results table
                 Cli.WriteArtifactTable(results.Select(a => (a.Type, a.Name, a.Version, a.Description)));
                 return;
             }
 
             if (selected is null) return;
 
-            // Check init before installing
             if (!state.IsInitialized)
             {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
                 return;
             }
 
-            // Show info
             ShowArtifactInfo(selected);
 
-            // Confirm
             if (interactive)
             {
                 var depsMsg = selected.Deps.Count > 0
                     ? $" This will also install {selected.Deps.Count} dependencies."
                     : "";
-                if (!AnsiConsole.Confirm($"Install [bold]{Markup.Escape(selected.Name)}[/]?{depsMsg}"))
+                if (!AnsiConsole.Confirm($"Install [bold]{Markup.Escape(selected.Type + ":" + selected.Name)}[/]?{depsMsg}"))
                     return;
             }
 
-            await InstallArtifactAsync(client, state, index, selected);
+            await InstallArtifactAsync(client, state, index, selected, selectedSource.Id);
             AutoSync(state, project);
-        }, queryArg, typeOpt, yesOpt, ProjectOption);
+        }, queryArg, yesOpt, sourceOpt, ProjectOption);
 
         return cmd;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd remove [query] [--yes]
-    // ═══════════════════════════════════════════════════════════════
-
     public static Command CreateRemoveCommand()
     {
-        var queryArg = new Argument<string>("query", () => "", "Artifact name to remove");
+        var queryArg = new Argument<string>("query", () => "", "Artifact id (type:name) or name");
         var yesOpt = new Option<bool>(["--yes", "-y"], "Skip confirmation prompts");
         var cmd = new Command("remove", "Browse installed artifacts and uninstall") { queryArg };
         cmd.AddOption(yesOpt);
 
-        cmd.SetHandler((string query, bool yes, string project) =>
+        cmd.SetHandler(async (string query, bool yes, string project) =>
         {
             var state = new InstalledStateManager(project);
+            state.EnsureDefaultSources();
             if (!state.IsInitialized)
             {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
                 return;
             }
 
@@ -185,16 +182,18 @@ public static class CommandFactory
 
             if (!string.IsNullOrEmpty(query))
             {
-                var matches = installed.Artifacts
-                    .Where(a => a.Name.Equals(query, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                var parsed = ParseArtifactId(query);
+                toRemove = parsed is null
+                    ? installed.Artifacts.Where(a => a.Name.Equals(query, StringComparison.OrdinalIgnoreCase)).ToList()
+                    : installed.Artifacts.Where(a =>
+                        a.Name.Equals(parsed.Value.name, StringComparison.OrdinalIgnoreCase) &&
+                        a.Type.Equals(parsed.Value.type, StringComparison.OrdinalIgnoreCase)).ToList();
 
-                if (matches.Count == 0)
+                if (toRemove.Count == 0)
                 {
                     Console.Error.WriteLine($"'{query}' is not installed.");
                     return;
                 }
-                toRemove = matches;
             }
             else if (interactive)
             {
@@ -207,17 +206,23 @@ public static class CommandFactory
             }
             else
             {
-                Console.Error.WriteLine("Specify an artifact name. Usage: agentsmd remove <name> [--yes]");
+                Console.Error.WriteLine("Specify an artifact id. Usage: linxmd remove <type:name> [--yes]");
                 return;
             }
 
             if (toRemove.Count == 0) return;
 
-            if (interactive)
+            var blockers = await FindRemovalBlockersAsync(state, installed, toRemove);
+            if (blockers.Count > 0)
             {
-                if (!AnsiConsole.Confirm($"Remove {toRemove.Count} artifact(s)?"))
-                    return;
+                Console.Error.WriteLine("Cannot uninstall due to active dependencies:");
+                foreach (var (target, dependent) in blockers)
+                    Console.Error.WriteLine($"  {dependent.Type}:{dependent.Name} depends on {target.Type}:{target.Name}");
+                return;
             }
+
+            if (interactive && !AnsiConsole.Confirm($"Remove {toRemove.Count} artifact(s)?"))
+                return;
 
             foreach (var artifact in toRemove)
             {
@@ -231,10 +236,6 @@ public static class CommandFactory
         return cmd;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd update [--yes]
-    // ═══════════════════════════════════════════════════════════════
-
     public static Command CreateUpdateCommand()
     {
         var yesOpt = new Option<bool>(["--yes", "-y"], "Skip confirmation prompts");
@@ -244,9 +245,10 @@ public static class CommandFactory
         cmd.SetHandler(async (bool yes, string project) =>
         {
             var state = new InstalledStateManager(project);
+            state.EnsureDefaultSources();
             if (!state.IsInitialized)
             {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
                 return;
             }
 
@@ -257,21 +259,35 @@ public static class CommandFactory
                 return;
             }
 
-            var client = new GitHubLibClient(Http);
-            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
-            if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
+            var updatable = new List<(InstalledArtifact Installed, ArtifactEntry Latest, ILibClient Client)>();
+            var sourceCache = new Dictionary<string, (ILibClient client, LibIndex index)>();
 
-            var index = IndexParser.Parse(json);
-            if (index is null) { Console.Error.WriteLine("Invalid index format."); return; }
-
-            var updatable = new List<(InstalledArtifact Installed, ArtifactEntry Latest)>();
             foreach (var inst in installed.Artifacts)
             {
-                var latest = index.Artifacts.FirstOrDefault(a =>
+                var sourceId = string.IsNullOrWhiteSpace(inst.SourceId) ? "default" : inst.SourceId;
+                if (!sourceCache.TryGetValue(sourceId, out var pair))
+                {
+                    var source = state.GetSource(sourceId);
+                    if (source is null)
+                    {
+                        Console.Error.WriteLine($"Source '{sourceId}' for {inst.Type}:{inst.Name} is missing.");
+                        continue;
+                    }
+
+                    var client = CreateClient(source);
+                    var json = await client.FetchIndexAsync();
+                    if (json is null) continue;
+                    var index = IndexParser.Parse(json);
+                    if (index is null) continue;
+                    pair = (client, index);
+                    sourceCache[sourceId] = pair;
+                }
+
+                var latest = pair.index.Artifacts.FirstOrDefault(a =>
                     a.Name.Equals(inst.Name, StringComparison.OrdinalIgnoreCase) &&
                     a.Type.Equals(inst.Type, StringComparison.OrdinalIgnoreCase));
                 if (latest is not null && latest.Version != inst.Version)
-                    updatable.Add((inst, latest));
+                    updatable.Add((inst, latest, pair.client));
             }
 
             if (updatable.Count == 0)
@@ -280,39 +296,40 @@ public static class CommandFactory
                 return;
             }
 
-            var table = Cli.CreateTable("Type", "Name", "Installed", "Available");
-            foreach (var (inst, latest) in updatable)
+            var table = Cli.CreateTable("Type", "Name", "Installed", "Available", "Source");
+            foreach (var (inst, latest, _) in updatable)
                 table.AddRow(
                     $"{Cli.TypeIcon(inst.Type)} {Markup.Escape(inst.Type)}",
                     $"[{Cli.Primary}]{Markup.Escape(inst.Name)}[/]",
                     $"[{Cli.Muted}]{Markup.Escape(inst.Version)}[/]",
-                    $"[{Cli.Success}]{Markup.Escape(latest.Version)}[/]");
+                    $"[{Cli.Success}]{Markup.Escape(latest.Version)}[/]",
+                    $"[{Cli.Muted}]{Markup.Escape(inst.SourceId)}[/]");
             AnsiConsole.Write(table);
 
             bool interactive = !yes && AnsiConsole.Profile.Capabilities.Interactive;
-            List<(InstalledArtifact Installed, ArtifactEntry Latest)> toUpdate;
+            var toUpdate = updatable;
 
             if (interactive)
             {
-                var labels = updatable.Select(u => $"{u.Latest.Type}: {u.Latest.Name}").ToList();
+                var labels = updatable.Select(u => $"{u.Installed.Type}:{u.Installed.Name}@{u.Installed.SourceId}").ToList();
                 var selected = AnsiConsole.Prompt(
                     new MultiSelectionPrompt<string>()
                         .Title("Select artifacts to update:")
                         .PageSize(15)
                         .AddChoices(labels));
-                toUpdate = updatable.Where(u => selected.Contains($"{u.Latest.Type}: {u.Latest.Name}")).ToList();
 
+                toUpdate = updatable.Where(u => selected.Contains($"{u.Installed.Type}:{u.Installed.Name}@{u.Installed.SourceId}")).ToList();
                 if (toUpdate.Count == 0) return;
                 if (!AnsiConsole.Confirm($"Update {toUpdate.Count} artifact(s)?"))
                     return;
             }
-            else
-            {
-                toUpdate = updatable;
-            }
 
-            foreach (var (_, latest) in toUpdate)
-                await InstallArtifactAsync(client, state, index, latest);
+            foreach (var (inst, latest, client) in toUpdate)
+            {
+                var sourceId = string.IsNullOrWhiteSpace(inst.SourceId) ? "default" : inst.SourceId;
+                var sourceIndex = sourceCache[sourceId].index;
+                await InstallArtifactAsync(client, state, sourceIndex, latest, sourceId);
+            }
 
             AutoSync(state, project);
             Cli.WriteSuccess($"Updated {toUpdate.Count} artifact(s).");
@@ -321,35 +338,33 @@ public static class CommandFactory
         return cmd;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd list [--type] [--json]
-    // ═══════════════════════════════════════════════════════════════
-
     public static Command CreateListCommand()
     {
-        var typeOpt = new Option<string>(["--type", "-t"], () => "", "Filter by type (agent, skill, workflow)");
+        var filterArg = new Argument<string>("filter", () => "", "Optional type (agent|skill|workflow) or typed id (type:name)");
         var jsonOpt = new Option<bool>("--json", "Output as JSON");
-        var cmd = new Command("list", "List installed artifacts");
-        cmd.AddOption(typeOpt);
+        var cmd = new Command("list", "List installed artifacts") { filterArg };
         cmd.AddOption(jsonOpt);
 
-        cmd.SetHandler((string type, bool json, string project) =>
+        cmd.SetHandler((string filter, bool json, string project) =>
         {
             var state = new InstalledStateManager(project);
             if (!state.IsInitialized)
             {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
                 return;
             }
 
             var installed = state.Load();
             var artifacts = installed.Artifacts.AsEnumerable();
+            var parsed = ParseArtifactId(filter);
 
-            if (!string.IsNullOrEmpty(type))
-                artifacts = artifacts.Where(a => a.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
+            if (parsed is not null)
+                artifacts = artifacts.Where(a => a.Type.Equals(parsed.Value.type, StringComparison.OrdinalIgnoreCase) &&
+                                                 a.Name.Equals(parsed.Value.name, StringComparison.OrdinalIgnoreCase));
+            else if (!string.IsNullOrWhiteSpace(filter))
+                artifacts = artifacts.Where(a => a.Type.Equals(filter, StringComparison.OrdinalIgnoreCase));
 
             var list = artifacts.ToList();
-
             if (json)
             {
                 var output = new InstalledState { Artifacts = list };
@@ -359,19 +374,15 @@ public static class CommandFactory
 
             if (list.Count == 0)
             {
-                Console.WriteLine(!string.IsNullOrEmpty(type) ? $"No {type}s installed." : "No artifacts installed.");
+                Console.WriteLine(string.IsNullOrWhiteSpace(filter) ? "No artifacts installed." : $"No entries for '{filter}'.");
                 return;
             }
 
             Cli.WriteInstalledTable(list.Select(a => (a.Type, a.Name, a.Version)));
-        }, typeOpt, jsonOpt, ProjectOption);
+        }, filterArg, jsonOpt, ProjectOption);
 
         return cmd;
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd sync (unchanged)
-    // ═══════════════════════════════════════════════════════════════
 
     public static Command CreateSyncCommand()
     {
@@ -381,7 +392,7 @@ public static class CommandFactory
             var state = new InstalledStateManager(project);
             if (!state.IsInitialized)
             {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
                 return;
             }
 
@@ -404,10 +415,6 @@ public static class CommandFactory
         return cmd;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd status (unchanged)
-    // ═══════════════════════════════════════════════════════════════
-
     public static Command CreateStatusCommand()
     {
         var cmd = new Command("status", "Show project overview");
@@ -416,8 +423,8 @@ public static class CommandFactory
             var state = new InstalledStateManager(project);
             if (!state.IsInitialized)
             {
-                Console.WriteLine("agentsmd: not initialized");
-                Console.WriteLine("Run 'agentsmd init' to set up.");
+                Console.WriteLine("linxmd: not initialized");
+                Console.WriteLine("Run 'linxmd init' to set up.");
                 return;
             }
 
@@ -446,18 +453,14 @@ public static class CommandFactory
             sb.AppendLine($"  {Cli.InProgressIcon} In Progress:   {inProgressCount}");
             sb.Append($"  {Cli.ToolsIcon} Tools: {(tools.Count > 0 ? string.Join(", ", tools) : "none")}");
 
-            Cli.WritePanel("agentsmd status", sb.ToString());
+            Cli.WritePanel("linxmd status", sb.ToString());
         }, ProjectOption);
         return cmd;
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // agentsmd init (interactive wizard)
-    // ═══════════════════════════════════════════════════════════════
-
     public static Command CreateInitCommand()
     {
-        var cmd = new Command("init", "Initialize agentsmd in project");
+        var cmd = new Command("init", "Initialize linxmd in project");
         cmd.SetHandler(async (string project) =>
         {
             var state = new InstalledStateManager(project);
@@ -471,7 +474,8 @@ public static class CommandFactory
             state.EnsureDirectories();
             Cli.WriteSuccess("Created .agentsmd/ structure.");
 
-            var client = new GitHubLibClient(Http);
+            var source = state.GetSource("default")!;
+            var client = CreateClient(source);
             var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             bool interactive = AnsiConsole.Profile.Capabilities.Interactive;
 
@@ -496,7 +500,7 @@ public static class CommandFactory
                             if (selected != "(skip)")
                             {
                                 var workflow = workflows.First(w => w.Name == selected);
-                                await InstallArtifactAsync(client, state, index, workflow);
+                                await InstallArtifactAsync(client, state, index, workflow, "default");
                                 AutoSync(state, project);
                                 return;
                             }
@@ -507,7 +511,7 @@ public static class CommandFactory
                             AnsiConsole.MarkupLine("[bold]Available workflows:[/]");
                             foreach (var wf in workflows)
                                 AnsiConsole.MarkupLine($"  [{Cli.Muted}]-[/] [{Cli.Primary}]{Markup.Escape(wf.Name)}[/]: {Markup.Escape(wf.Description)}");
-                            AnsiConsole.MarkupLine($"\n[{Cli.Muted}]Install a workflow:[/] [{Cli.Accent}]agentsmd add <name>[/]");
+                            AnsiConsole.MarkupLine($"\n[{Cli.Muted}]Install a workflow:[/] [{Cli.Accent}]linxmd add workflow:<name>[/]");
                         }
                     }
                 }
@@ -515,53 +519,11 @@ public static class CommandFactory
 
             AnsiConsole.WriteLine();
             Cli.WriteSuccess("Initialized. Next steps:");
-            AnsiConsole.MarkupLine($"  [{Cli.Muted}]1.[/] agentsmd add <workflow>");
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]1.[/] linxmd add workflow:<name>");
             AnsiConsole.MarkupLine($"  [{Cli.Muted}]2.[/] Start your AI agent");
         }, ProjectOption);
         return cmd;
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // DEPRECATED: agent / skill / workflow subcommands
-    // Still functional but print deprecation hint
-    // ═══════════════════════════════════════════════════════════════
-
-    public static Command CreateAgentCommand()
-    {
-        var cmd = new Command("agent", "Manage agents (use 'add'/'remove' instead)");
-        cmd.AddCommand(CreateTypeInstallCommand("agent"));
-        cmd.AddCommand(CreateTypeUninstallCommand("agent"));
-        cmd.AddCommand(CreateTypeListCommand("agent"));
-        cmd.AddCommand(CreateTypeSearchCommand("agent"));
-        cmd.AddCommand(CreateTypeInfoCommand("agent"));
-        return cmd;
-    }
-
-    public static Command CreateSkillCommand()
-    {
-        var cmd = new Command("skill", "Manage skills (use 'add'/'remove' instead)");
-        cmd.AddCommand(CreateTypeInstallCommand("skill"));
-        cmd.AddCommand(CreateTypeUninstallCommand("skill"));
-        cmd.AddCommand(CreateTypeListCommand("skill"));
-        cmd.AddCommand(CreateTypeSearchCommand("skill"));
-        cmd.AddCommand(CreateTypeInfoCommand("skill"));
-        return cmd;
-    }
-
-    public static Command CreateWorkflowCommand()
-    {
-        var cmd = new Command("workflow", "Manage workflows (use 'add'/'remove' instead)");
-        cmd.AddCommand(CreateTypeInstallCommand("workflow"));
-        cmd.AddCommand(CreateTypeUninstallCommand("workflow"));
-        cmd.AddCommand(CreateTypeListCommand("workflow"));
-        cmd.AddCommand(CreateTypeSearchCommand("workflow"));
-        cmd.AddCommand(CreateTypeInfoCommand("workflow"));
-        return cmd;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // Shared: Install, Uninstall, Info display
-    // ═══════════════════════════════════════════════════════════════
 
     private static void ShowArtifactInfo(ArtifactEntry artifact)
     {
@@ -572,8 +534,17 @@ public static class CommandFactory
             AnsiConsole.MarkupLine($"  [{Cli.Muted}]Dependencies: {Markup.Escape(string.Join(", ", artifact.Deps))}[/]");
     }
 
-    private static async Task InstallArtifactAsync(ILibClient client, InstalledStateManager state, LibIndex index, ArtifactEntry artifact)
+    private static ILibClient CreateClient(LibSource source)
     {
+        if (!source.Kind.Equals("github", StringComparison.OrdinalIgnoreCase))
+            throw new NotSupportedException($"Source kind '{source.Kind}' is not supported yet.");
+
+        return new GitHubLibClient(Http, source.Owner, source.Repo, source.Branch, source.BasePath);
+    }
+
+    private static async Task InstallArtifactAsync(ILibClient client, InstalledStateManager state, LibIndex index, ArtifactEntry artifact, string sourceId)
+    {
+        string? checksum = null;
         if (artifact.Type == "skill")
         {
             await InstallSkillAsync(client, state, artifact);
@@ -584,11 +555,13 @@ public static class CommandFactory
             if (content is null) { Console.Error.WriteLine($"Could not fetch {artifact.Path}."); return; }
 
             var targetDir = state.GetArtifactDir(artifact.Type);
+            Directory.CreateDirectory(targetDir);
             var targetPath = Path.Combine(targetDir, Path.GetFileName(artifact.Path));
             await File.WriteAllTextAsync(targetPath, content);
+            checksum = Hash(content);
         }
 
-        state.AddArtifact(artifact.Name, artifact.Type, artifact.Version);
+        state.AddArtifact(artifact.Name, artifact.Type, artifact.Version, sourceId, artifact.Path, checksum);
         Cli.WriteSuccess($"Installed {artifact.Type} '{artifact.Name}' v{artifact.Version}.");
 
         if (artifact.Deps.Count > 0)
@@ -611,6 +584,7 @@ public static class CommandFactory
 
                 if (state.GetArtifact(depEntry.Name, depEntry.Type) is not null) continue;
 
+                string? depChecksum = null;
                 if (depEntry.Type == "skill")
                 {
                     await InstallSkillAsync(client, state, depEntry);
@@ -620,10 +594,12 @@ public static class CommandFactory
                     var depContent = await client.FetchFileAsync(depEntry.Path);
                     if (depContent is null) continue;
                     var targetDir = state.GetArtifactDir(depEntry.Type);
+                    Directory.CreateDirectory(targetDir);
                     await File.WriteAllTextAsync(Path.Combine(targetDir, Path.GetFileName(depEntry.Path)), depContent);
+                    depChecksum = Hash(depContent);
                 }
 
-                state.AddArtifact(depEntry.Name, depEntry.Type, depEntry.Version);
+                state.AddArtifact(depEntry.Name, depEntry.Type, depEntry.Version, sourceId, depEntry.Path, depChecksum);
                 Cli.WriteSuccess($"  Installed {depEntry.Type} '{depEntry.Name}' v{depEntry.Version}.");
             }
         }
@@ -641,6 +617,58 @@ public static class CommandFactory
             if (content is not null)
                 await File.WriteAllTextAsync(Path.Combine(targetDir, entry), content);
         }
+    }
+
+    private static async Task<List<(InstalledArtifact target, InstalledArtifact dependent)>> FindRemovalBlockersAsync(
+        InstalledStateManager state,
+        InstalledState installed,
+        List<InstalledArtifact> toRemove)
+    {
+        var blockers = new List<(InstalledArtifact target, InstalledArtifact dependent)>();
+        var removeSet = toRemove.Select(a => $"{a.Type}:{a.Name}").ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var indexCache = new Dictionary<string, LibIndex>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var dependent in installed.Artifacts)
+        {
+            var dependentId = $"{dependent.Type}:{dependent.Name}";
+            if (removeSet.Contains(dependentId))
+                continue;
+
+            var sourceId = string.IsNullOrWhiteSpace(dependent.SourceId) ? "default" : dependent.SourceId;
+            if (!indexCache.TryGetValue(sourceId, out var sourceIndex))
+            {
+                var source = state.GetSource(sourceId);
+                if (source is null)
+                    continue;
+
+                var client = CreateClient(source);
+                var json = await client.FetchIndexAsync();
+                if (json is null) continue;
+                sourceIndex = IndexParser.Parse(json) ?? new LibIndex();
+                indexCache[sourceId] = sourceIndex;
+            }
+
+            var depEntry = sourceIndex.Artifacts.FirstOrDefault(a =>
+                a.Name.Equals(dependent.Name, StringComparison.OrdinalIgnoreCase) &&
+                a.Type.Equals(dependent.Type, StringComparison.OrdinalIgnoreCase));
+
+            if (depEntry is null) continue;
+
+            var depIds = depEntry.Deps
+                .Select(ParseDep)
+                .Where(x => x is not null)
+                .Select(x => $"{x!.Value.type}:{x.Value.name}")
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var target in toRemove)
+            {
+                var targetId = $"{target.Type}:{target.Name}";
+                if (depIds.Contains(targetId))
+                    blockers.Add((target, dependent));
+            }
+        }
+
+        return blockers;
     }
 
     private static void UninstallArtifact(InstalledStateManager state, string name, string type)
@@ -661,206 +689,6 @@ public static class CommandFactory
 
         state.RemoveArtifact(name, type);
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // Deprecated typed subcommands (still functional)
-    // ═══════════════════════════════════════════════════════════════
-
-    private static Command CreateTypeInstallCommand(string type)
-    {
-        var nameArg = new Argument<string>("name", $"Name of the {type} to install");
-        var cmd = new Command("install", $"Install a {type} from lib") { nameArg };
-        cmd.SetHandler(async (string name, string project) =>
-        {
-            var state = new InstalledStateManager(project);
-            if (!state.IsInitialized)
-            {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
-                return;
-            }
-
-            var client = new GitHubLibClient(Http);
-            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
-            if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
-
-            var index = IndexParser.Parse(json);
-            if (index is null) { Console.Error.WriteLine("Invalid index format."); return; }
-
-            var artifact = index.Artifacts.FirstOrDefault(a =>
-                a.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                a.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
-
-            if (artifact is null)
-            {
-                Console.Error.WriteLine($"{type} '{name}' not found in lib.");
-                var candidates = index.Artifacts
-                    .Where(a => a.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
-                    .Select(a => a.Name);
-                var suggestion = Cli.FindClosestMatch(name, candidates);
-                if (suggestion is not null)
-                    AnsiConsole.MarkupLine($"[{Cli.Muted}]Did you mean [{Cli.Accent}]{Markup.Escape(suggestion)}[/]?[/]");
-                return;
-            }
-
-            await InstallArtifactAsync(client, state, index, artifact);
-            AutoSync(state, project);
-
-            WriteDeprecationHint("agentsmd add");
-        }, nameArg, ProjectOption);
-        return cmd;
-    }
-
-    private static Command CreateTypeUninstallCommand(string type)
-    {
-        var nameArg = new Argument<string>("name", $"Name of the {type} to uninstall");
-        var cmd = new Command("uninstall", $"Uninstall a {type}") { nameArg };
-        cmd.SetHandler((string name, string project) =>
-        {
-            var state = new InstalledStateManager(project);
-            if (!state.IsInitialized)
-            {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
-                return;
-            }
-
-            var existing = state.GetArtifact(name, type);
-            if (existing is null)
-            {
-                Console.Error.WriteLine($"{type} '{name}' is not installed.");
-                return;
-            }
-
-            UninstallArtifact(state, name, type);
-            Cli.WriteSuccess($"Uninstalled {type} '{name}'.");
-            AutoSync(state, project);
-
-            WriteDeprecationHint("agentsmd remove");
-        }, nameArg, ProjectOption);
-        return cmd;
-    }
-
-    private static Command CreateTypeListCommand(string type)
-    {
-        var cmd = new Command("list", $"List installed {type}s");
-        cmd.SetHandler((string project) =>
-        {
-            var state = new InstalledStateManager(project);
-            if (!state.IsInitialized)
-            {
-                Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first.");
-                return;
-            }
-
-            var installed = state.Load().Artifacts.Where(a => a.Type == type).ToList();
-            if (installed.Count == 0) { Console.WriteLine($"No {type}s installed."); return; }
-
-            var table = Cli.CreateTable("Name", "Version");
-            foreach (var a in installed)
-                table.AddRow(
-                    $"[{Cli.Primary}]{Markup.Escape(a.Name)}[/]",
-                    $"[{Cli.Muted}]{Markup.Escape(a.Version)}[/]");
-            AnsiConsole.Write(table);
-
-            WriteDeprecationHint("agentsmd list --type " + type);
-        }, ProjectOption);
-        return cmd;
-    }
-
-    private static Command CreateTypeSearchCommand(string type)
-    {
-        var queryArg = new Argument<string>("query", () => "", "Search query");
-        var cmd = new Command("search", $"Search {type}s in lib") { queryArg };
-        cmd.SetHandler(async (string query, string project) =>
-        {
-            var client = new GitHubLibClient(Http);
-            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
-            if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
-
-            var index = IndexParser.Parse(json);
-            if (index is null) { Console.Error.WriteLine("Invalid index format."); return; }
-
-            var results = IndexParser.Search(index, query, filterType: type);
-            if (results.Count == 0) { Console.WriteLine("No results found."); return; }
-
-            var table = Cli.CreateTable("Name", "Version", "Description");
-            foreach (var a in results)
-                table.AddRow(
-                    $"[{Cli.Primary}]{Markup.Escape(a.Name)}[/]",
-                    $"[{Cli.Muted}]{Markup.Escape(a.Version)}[/]",
-                    Markup.Escape(a.Description));
-            AnsiConsole.Write(table);
-
-            WriteDeprecationHint("agentsmd add --type " + type);
-        }, queryArg, ProjectOption);
-        return cmd;
-    }
-
-    private static Command CreateTypeInfoCommand(string type)
-    {
-        var nameArg = new Argument<string>("name", $"Name of the {type}");
-        var cmd = new Command("info", $"Show {type} details") { nameArg };
-        cmd.SetHandler(async (string name, string project) =>
-        {
-            var client = new GitHubLibClient(Http);
-            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
-            if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
-
-            var index = IndexParser.Parse(json);
-            if (index is null) { Console.Error.WriteLine("Invalid index format."); return; }
-
-            var artifact = index.Artifacts.FirstOrDefault(a =>
-                a.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-                a.Type.Equals(type, StringComparison.OrdinalIgnoreCase));
-
-            if (artifact is null)
-            {
-                Console.Error.WriteLine($"{type} '{name}' not found in lib.");
-                var candidates = index.Artifacts
-                    .Where(a => a.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
-                    .Select(a => a.Name);
-                var suggestion = Cli.FindClosestMatch(name, candidates);
-                if (suggestion is not null)
-                    AnsiConsole.MarkupLine($"[{Cli.Muted}]Did you mean [{Cli.Accent}]{Markup.Escape(suggestion)}[/]?[/]");
-                return;
-            }
-
-            var sb = new StringBuilder();
-            sb.AppendLine($"[bold]Name:[/]        [{Cli.Primary}]{Markup.Escape(artifact.Name)}[/]");
-            sb.AppendLine($"[bold]Type:[/]        {Cli.TypeIcon(artifact.Type)} {Markup.Escape(artifact.Type)}");
-            sb.AppendLine($"[bold]Version:[/]     [{Cli.Muted}]{Markup.Escape(artifact.Version)}[/]");
-            sb.AppendLine($"[bold]Description:[/] {Markup.Escape(artifact.Description)}");
-            sb.AppendLine($"[bold]Path:[/]        [{Cli.Muted}]{Markup.Escape(artifact.Path)}[/]");
-
-            if (artifact.Deps.Count > 0)
-            {
-                sb.AppendLine("[bold]Dependencies:[/]");
-                foreach (var dep in artifact.Deps)
-                    sb.AppendLine($"  [{Cli.Accent}]- {Markup.Escape(dep)}[/]");
-            }
-            if (artifact.Tags.Count > 0)
-                sb.AppendLine($"[bold]Tags:[/]        [{Cli.Muted}]{Markup.Escape(string.Join(", ", artifact.Tags))}[/]");
-            if (artifact.Supported is { Count: > 0 })
-                sb.AppendLine($"[bold]Supported:[/]   [{Cli.Muted}]{Markup.Escape(string.Join(", ", artifact.Supported))}[/]");
-
-            var state = new InstalledStateManager(project);
-            if (state.IsInitialized)
-            {
-                var installed = state.GetArtifact(name, type);
-                sb.Append(installed is not null
-                    ? $"[bold]Status:[/]      [{Cli.Success}]installed (v{Markup.Escape(installed.Version)})[/]"
-                    : $"[bold]Status:[/]      [{Cli.Muted}]not installed[/]");
-            }
-
-            Cli.WritePanel($"{Cli.TypeIcon(type)} {artifact.Name}", sb.ToString());
-
-            WriteDeprecationHint("agentsmd add");
-        }, nameArg, ProjectOption);
-        return cmd;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // Helpers
-    // ═══════════════════════════════════════════════════════════════
 
     private static void AutoSync(InstalledStateManager state, string project)
     {
@@ -883,15 +711,27 @@ public static class CommandFactory
         return (type, name);
     }
 
+    private static (string type, string name)? ParseArtifactId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var colonIndex = value.IndexOf(':');
+        if (colonIndex <= 0 || colonIndex >= value.Length - 1) return null;
+        var type = value[..colonIndex].Trim().ToLowerInvariant();
+        var name = value[(colonIndex + 1)..].Trim();
+        if (string.IsNullOrEmpty(name)) return null;
+        return (type, name);
+    }
+
+    private static string Hash(string content)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(content));
+        return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
     private static SyncOptions DetectTools(string project) => new()
     {
         Copilot = Directory.Exists(Path.Combine(project, ".github")) || true,
         ClaudeCode = true,
         OpenCode = true
     };
-
-    private static void WriteDeprecationHint(string alternative)
-    {
-        AnsiConsole.MarkupLine($"\n[{Cli.Muted}]💡 Tip: Use '{Markup.Escape(alternative)}' for an interactive experience.[/]");
-    }
 }

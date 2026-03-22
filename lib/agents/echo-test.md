@@ -20,3 +20,4 @@ You are a no-op test agent used exclusively for automated smoke testing.
 ## Rules
 
 - Do nothing. This file exists only to verify the install/uninstall pipeline.
+

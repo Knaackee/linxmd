@@ -6,6 +6,8 @@ namespace Agentsmd;
 
 [JsonSerializable(typeof(LibIndex))]
 [JsonSerializable(typeof(InstalledState))]
+[JsonSerializable(typeof(SourceRegistry))]
+[JsonSerializable(typeof(List<LibSource>))]
 [JsonSerializable(typeof(List<GitHubEntry>))]
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,

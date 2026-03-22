@@ -1,10 +1,10 @@
 ---
 name: content-review
 type: workflow
-version: 1.0.0
+version: 0.0.1
 description: Content creation with review pipeline
 deps:
-  - skill:task-management@>=1.0
+  - skill:task-management@>=0.0.1
 tags:
   - content
   - writing
@@ -38,3 +38,4 @@ fact-checking, and editing.
 3. `agentsmd sync` → Generate tool wrappers
 4. Add content task to `.agentsmd/tasks/backlog/`
 5. Start with "lets do this"
+

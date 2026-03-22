@@ -20,3 +20,4 @@ Test-only workflow that depends on echo-test agent and echo-test skill.
 1. Install echo-test agent
 2. Install echo-test skill
 3. Done — this workflow exists purely for testing dependency resolution.
+

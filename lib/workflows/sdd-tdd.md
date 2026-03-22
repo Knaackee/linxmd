@@ -1,16 +1,16 @@
 ---
 name: sdd-tdd
 type: workflow
-version: 1.0.0
+version: 0.0.1
 description: Spec-Driven Development with TDD pipeline
 deps:
-  - agent:test-writer@>=1.0
-  - agent:implementer@>=1.0
-  - agent:reviewer-spec@>=1.0
-  - agent:reviewer-quality@>=1.0
-  - agent:docs-writer@>=1.0
-  - skill:feature@>=1.0
-  - skill:task-management@>=1.0
+  - agent:test-writer@>=0.0.1
+  - agent:implementer@>=0.0.1
+  - agent:reviewer-spec@>=0.0.1
+  - agent:reviewer-quality@>=0.0.1
+  - agent:docs-writer@>=0.0.1
+  - skill:feature@>=0.0.1
+  - skill:task-management@>=0.0.1
 tags:
   - development
   - tdd
@@ -52,3 +52,4 @@ Default: autonomous. Override: "lets do this (guided)"
 3. `agentsmd sync` → Generate tool wrappers
 4. Add an idea to `.agentsmd/tasks/backlog/`
 5. Say "lets do this" → the workflow starts automatically
+

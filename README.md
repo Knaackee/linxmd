@@ -1,159 +1,159 @@
-# agentsmd
+# Linxmd
 
-> AI Agent Workflow Manager — a CLI for Agents, Skills, and Workflows.
+> Build and run AI workflow building blocks with one CLI.
 
-Self-contained executable for Windows, Linux, and macOS. No runtime required.
+Linxmd installs reusable Agents, Skills, and Workflows into your project, then syncs wrappers for GitHub Copilot, Claude Code, and OpenCode.
 
-## Quick Start
+## Why Linxmd
 
-**Windows (PowerShell):**
+- One unified command model (`add`, `remove`, `list`, `update`, `sync`, `status`, `init`)
+- Typed artifact IDs to avoid ambiguity (`agent:test-writer`, `skill:feature`, `workflow:sdd-tdd`)
+- Dependency-safe uninstall (blocks removals that would break installed workflows)
+- Source-aware installs and updates via `.agentsmd/sources.json`
+- Cross-tool wrapper generation in a single sync step
+
+## 60-Second Quickstart
+
+### Install
+
+Windows (PowerShell):
+
 ```powershell
-Invoke-WebRequest -Uri https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-win-x64.exe -OutFile agentsmd.exe; Move-Item agentsmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\agentsmd.exe" -Force
+Invoke-WebRequest -Uri https://github.com/Knaackee/linxmd/releases/latest/download/linxmd-win-x64.exe -OutFile linxmd.exe; Move-Item linxmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\linxmd.exe" -Force
 ```
 
-**Linux:**
-```bash
-curl -Lo agentsmd https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-linux-x64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
-```
-
-**macOS:**
-```bash
-curl -Lo agentsmd https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-osx-arm64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
-```
-
-**Then in your project:**
-```bash
-agentsmd init
-agentsmd workflow install sdd-tdd
-agentsmd sync
-```
-
-## What is agentsmd?
-
-A package manager for AI agent workflows. Install pre-built Agents, Skills, and Workflows from a central lib — and sync them automatically for GitHub Copilot, Claude Code, and OpenCode.
-
-```
-Lib (this repo)                Your Project
-┌────────────────┐             ┌──────────────────┐
-│ lib/           │   install   │ .agentsmd/       │
-│   agents/      │ ──────────► │   agents/        │
-│   skills/      │             │   skills/        │
-│   workflows/   │             │   workflows/     │
-└────────────────┘             │   tasks/         │
-                               │   installed.json │
-                               └────────┬─────────┘
-                                  sync  │
-                                        ▼
-                               ┌──────────────────┐
-                               │ .github/agents/  │ Copilot
-                               │ .claude/agents/  │ Claude Code
-                               │ .claude/skills/  │ Claude Code
-                               │ .opencode/agents/│ OpenCode
-                               └──────────────────┘
-```
-
-## CLI Commands
+Linux:
 
 ```bash
-# Global
-agentsmd init                        # Initialize project
-agentsmd search [query]              # Search the lib
-agentsmd list                        # List installed artifacts
-agentsmd sync                        # Generate tool wrappers
-agentsmd status                      # Project overview
-
-# Agents
-agentsmd agent install <name>        # Install an agent
-agentsmd agent uninstall <name>      # Remove an agent
-agentsmd agent list                  # List installed agents
-agentsmd agent search [query]        # Search agents in lib
-agentsmd agent info <name>           # Show agent details
-
-# Skills (same verbs)
-agentsmd skill install <name>
-agentsmd skill uninstall <name>
-agentsmd skill list
-agentsmd skill search [query]
-agentsmd skill info <name>
-
-# Workflows (same verbs)
-agentsmd workflow install <name>     # + automatic dependency resolution
-agentsmd workflow uninstall <name>
-agentsmd workflow list
-agentsmd workflow search [query]
-agentsmd workflow info <name>
+curl -Lo linxmd https://github.com/Knaackee/linxmd/releases/latest/download/linxmd-linux-x64 && chmod +x linxmd && sudo mv linxmd /usr/local/bin/
 ```
 
-## Lib Contents
+macOS:
 
-### Agents
+```bash
+curl -Lo linxmd https://github.com/Knaackee/linxmd/releases/latest/download/linxmd-osx-arm64 && chmod +x linxmd && sudo mv linxmd /usr/local/bin/
+```
 
-| Agent | Description |
-|-------|-------------|
-| `test-writer` | Writes tests from specifications (RED phase) |
-| `implementer` | Minimal code until tests pass (GREEN phase) |
-| `reviewer-spec` | Verifies all acceptance criteria are met |
-| `reviewer-quality` | Code quality and security review |
-| `docs-writer` | Updates documentation after reviews pass |
+### Initialize and install a workflow
 
-### Skills
+```bash
+linxmd init
+linxmd add workflow:sdd-tdd --yes
+linxmd status
+```
 
-| Skill | Description |
-|-------|-------------|
-| `task-management` | Backlog, specs, and task tracking |
-| `feature` | Feature development with SDD+TDD workflow |
-| `debugging` | Systematic debugging with hypothesis tracking |
-| `refactoring` | Safe refactoring with test coverage |
+## Command Model
+
+```bash
+linxmd init
+linxmd add [query-or-type:name] [--yes] [--source <id>]
+linxmd remove [name-or-type:name] [--yes]
+linxmd list [type|type:name] [--json]
+linxmd update [--yes]
+linxmd sync
+linxmd status
+```
+
+Examples:
+
+```bash
+linxmd add agent:test-writer --yes
+linxmd add workflow:sdd-tdd --yes
+linxmd remove skill:feature --yes
+linxmd list workflow
+linxmd list skill:task-management
+linxmd list --json
+```
+
+## Multi-Source Registry
+
+`linxmd init` creates `.agentsmd/sources.json` with a default source:
+
+```json
+{
+  "sources": [
+    {
+      "id": "default",
+      "kind": "github",
+      "owner": "Knaackee",
+      "repo": "linxmd",
+      "branch": "main",
+      "basePath": "lib"
+    }
+  ]
+}
+```
+
+Install from a source:
+
+```bash
+linxmd add agent:echo-test --source default --yes
+```
+
+`linxmd update` checks each installed artifact against its original source metadata.
+
+## Dependency Safety
+
+By default, uninstall is safe:
+
+- If `workflow:sdd-tdd` depends on `skill:task-management`, removing `skill:task-management` is blocked.
+- Remove dependents first, then dependencies.
+
+## Project Structure
+
+```text
+your-project/
++-- .agentsmd/
+�   +-- agents/
+�   +-- skills/
+�   +-- workflows/
+�   +-- tasks/
+�   �   +-- backlog/
+�   �   +-- in-progress/
+�   +-- installed.json
+�   +-- sources.json
++-- .github/agents/
++-- .claude/agents/
++-- .claude/skills/
++-- .opencode/agents/
+```
+
+## Included Library Artifacts
 
 ### Workflows
 
-| Workflow | Description |
-|----------|-------------|
-| `sdd-tdd` | Spec-Driven Development with TDD pipeline |
-| `content-review` | Content creation with review pipeline |
+- `workflow:sdd-tdd`
+- `workflow:content-review`
+- `workflow:artifact-factory`
+- `workflow:echo-test`
 
-## How `agentsmd sync` works
+### Skills
 
-```
-.agentsmd/agents/test-writer.md
-  ├──► .github/agents/test-writer.agent.md   (+ Copilot front matter)
-  ├──► .opencode/agents/test-writer.md        (+ OpenCode front matter)
-  └──► .claude/agents/test-writer.md          (+ Claude Code front matter)
+- `skill:feature`
+- `skill:task-management`
+- `skill:debugging`
+- `skill:refactoring`
+- `skill:preview-delivery`
+- `skill:echo-test`
 
-.agentsmd/skills/feature/
-  └──► .claude/skills/feature/                (copy — entire folder)
-```
+### Agents
 
-Agents are generated as tool wrappers for all three AI tools.
-Skills are copied to `.claude/skills/` (all three tools read this path).
+- `agent:test-writer`
+- `agent:implementer`
+- `agent:reviewer-spec`
+- `agent:reviewer-quality`
+- `agent:docs-writer`
+- `agent:echo-test`
 
-## Project structure after `agentsmd init`
+## VS Code Coverage Setup
 
-```
-your-project/
-├── .agentsmd/
-│   ├── agents/              # Installed agents
-│   ├── skills/              # Installed skills (folders)
-│   ├── workflows/           # Installed workflows
-│   ├── tasks/
-│   │   ├── backlog/         # Feature ideas
-│   │   └── in-progress/     # Active features with SPEC.md + TASKS.md
-│   └── installed.json       # Installation state
-├── .github/agents/          # Copilot wrappers (generated)
-├── .claude/agents/          # Claude Code wrappers (generated)
-├── .claude/skills/          # Skills for all tools (generated)
-└── .opencode/agents/        # OpenCode wrappers (generated)
-```
+Linxmd includes workspace settings and tasks for coverage visualization.
 
-## Download
+1. Install extension: `ryanluker.vscode-coverage-gutters`
+2. Run task: `test:coverage`
+3. In Coverage Gutters command palette, choose "Display Coverage"
 
-Current version: **v0.1.0**
-
-| Platform | Download |
-|----------|----------|
-| Windows | [agentsmd-win-x64.exe](https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-win-x64.exe) |
-| Linux | [agentsmd-linux-x64](https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-linux-x64) |
-| macOS | [agentsmd-osx-arm64](https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-osx-arm64) |
+If the gutter is not visible, run tests once and verify a `coverage.cobertura.xml` exists under `tests/Agentsmd.Tests/TestResults`.
 
 ## Development
 
@@ -165,4 +165,3 @@ dotnet test
 ## License
 
 MIT
-

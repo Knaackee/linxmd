@@ -1,7 +1,7 @@
 ---
 name: task-management
 type: skill
-version: 1.0.0
+version: 0.0.1
 description: Task system with backlog, specs, and task tracking
 deps: []
 tags:
@@ -107,3 +107,4 @@ Show all in-progress features with their progress.
 
 Done = all tasks checked off + PR open + docs updated + tests green.
 No "done" folder — done lives in git history.
+

@@ -16,3 +16,4 @@ This is a no-op skill used exclusively for automated smoke testing.
 ## Rules
 
 - Do nothing.
+

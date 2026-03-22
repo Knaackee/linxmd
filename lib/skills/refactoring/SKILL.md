@@ -1,7 +1,7 @@
 ---
 name: refactoring
 type: skill
-version: 1.0.0
+version: 0.0.1
 description: Safe refactoring with test coverage
 deps: []
 tags:
@@ -41,3 +41,4 @@ or during QUALITY-REVIEW when reviewer suggests REFACTOR changes.
 ## Report
 
 "Refactored [target]: [what changed]. All tests green. [N] commits."
+

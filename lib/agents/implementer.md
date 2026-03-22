@@ -1,7 +1,7 @@
 ---
 name: implementer
 type: agent
-version: 1.0.0
+version: 0.0.1
 description: Implements minimal code until tests pass (GREEN phase)
 deps: []
 tags:
@@ -40,3 +40,4 @@ Your goal: make the failing tests pass. Nothing more.
 - Never catch exceptions to hide errors
 - Never add TODO and move on
 - Never repeat a fix that already failed
+

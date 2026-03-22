@@ -1,7 +1,7 @@
 ---
 name: test-writer
 type: agent
-version: 1.0.0
+version: 0.0.1
 description: Writes tests from specifications (RED phase)
 deps: []
 tags:
@@ -35,3 +35,4 @@ Your output: failing tests that prove those criteria are not yet met.
 ## Report
 
 "RED complete. [X] tests written — all failing. Criteria covered: [list]"
+

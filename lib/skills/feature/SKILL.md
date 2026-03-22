@@ -1,10 +1,10 @@
 ---
 name: feature
 type: skill
-version: 1.0.0
+version: 0.0.1
 description: Feature development with SDD+TDD workflow
 deps:
-  - skill:task-management@>=1.0
+  - skill:task-management@>=0.0.1
 tags:
   - feature
   - sdd
@@ -87,3 +87,4 @@ Output:
 "All [N] tasks complete. PR is open.
 Review: `gh pr view --web`
 Merge: `gh pr merge` ← you do this"
+

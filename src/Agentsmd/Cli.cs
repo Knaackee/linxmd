@@ -37,7 +37,7 @@ public static class Cli
     // ──── Logo ────
     public static void WriteLogo()
     {
-        AnsiConsole.Write(new FigletText("agentsmd").Color(Color.DodgerBlue1));
+        AnsiConsole.Write(new FigletText("linxmd").Color(Color.DodgerBlue1));
         AnsiConsole.MarkupLine($"[{Muted}]AI Agent Workflow Manager[/]");
         AnsiConsole.WriteLine();
     }

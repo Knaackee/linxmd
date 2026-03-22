@@ -1,0 +1,12 @@
+{
+  "sources": [
+    {
+      "id": "default",
+      "kind": "github",
+      "owner": "Knaackee",
+      "repo": "linxmd",
+      "branch": "main",
+      "basePath": "lib"
+    }
+  ]
+}

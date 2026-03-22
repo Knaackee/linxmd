@@ -10,19 +10,18 @@ public interface ILibClient
 
 public sealed class GitHubLibClient : ILibClient
 {
-    private const string Owner = "Knaackee";
-    private const string Repo = "linxmd";
-    private const string Branch = "main";
-    private const string BaseUrl = $"https://raw.githubusercontent.com/{Owner}/{Repo}/{Branch}/lib";
-    private const string ApiBase = $"https://api.github.com/repos/{Owner}/{Repo}/contents/lib";
+    private readonly string _baseUrl;
+    private readonly string _apiBase;
 
     private readonly HttpClient _http;
 
-    public GitHubLibClient(HttpClient http)
+    public GitHubLibClient(HttpClient http, string owner = "Knaackee", string repo = "linxmd", string branch = "main", string basePath = "lib")
     {
         _http = http;
+        _baseUrl = $"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{basePath.Trim('/')}";
+        _apiBase = $"https://api.github.com/repos/{owner}/{repo}/contents/{basePath.Trim('/')}";
         if (_http.DefaultRequestHeaders.UserAgent.Count == 0)
-            _http.DefaultRequestHeaders.UserAgent.ParseAdd("agentsmd-cli/0.1");
+            _http.DefaultRequestHeaders.UserAgent.ParseAdd("linxmd-cli/0.1");
 
         // Use GITHUB_TOKEN if available (raises API rate limit from 60 to 1000+ req/hour)
         var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
@@ -39,7 +38,7 @@ public sealed class GitHubLibClient : ILibClient
     {
         try
         {
-            var url = $"{BaseUrl}/{path}";
+            var url = $"{_baseUrl}/{path}";
             var response = await _http.GetAsync(url, ct);
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -55,7 +54,7 @@ public sealed class GitHubLibClient : ILibClient
     {
         try
         {
-            var url = $"{BaseUrl}/{path}";
+            var url = $"{_baseUrl}/{path}";
             var response = await _http.GetAsync(url, ct);
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -71,7 +70,7 @@ public sealed class GitHubLibClient : ILibClient
     {
         try
         {
-            var url = $"{ApiBase}/{path}";
+            var url = $"{_apiBase}/{path}";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Accept.ParseAdd("application/vnd.github.v3+json");
             var response = await _http.SendAsync(request, ct);
