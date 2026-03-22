@@ -57,7 +57,7 @@ Abnahme Batch 1
 - [x] Tests gruen
 
 ### Batch 2 - Multi-Source + Update-Logik
-- [x] `.agentsmd/sources.json` einfuehren
+- [x] `.linxmd/sources.json` einfuehren
 - [x] Install speichert source metadata in `installed.json`
 - [x] Update prueft primaer origin source
 - [x] Fallback-Regeln bei nicht erreichbarer source
@@ -215,7 +215,7 @@ Entscheidung: Option B
 Option A: Nur globales Standard-Repo
 
 Option B: Multi-source registry (empfohlen)
-- Neue Datei: `.agentsmd/sources.json`
+- Neue Datei: `.linxmd/sources.json`
 - Beispielquellen: GitHub repo index, raw URL, lokaler Ordner, private mirror
 - In `installed.json` speichere pro Artefakt: `sourceId`, `sourcePath`, `checksum`
 - `update` prueft zuerst die origin source, dann fallback rules
@@ -252,12 +252,12 @@ Option A: Immer synchron checken
 Option B: Asynchron + gecached (empfohlen)
 - Max alle 24h
 - Timeout 500ms
-- Opt-out env/config: `AGENTSMD_NO_UPDATE_CHECK=1`
+- Opt-out env/config: `LINXMD_NO_UPDATE_CHECK=1`
 - Hinweis: "New version available: x.y.z - run ..."
 
 Entscheidung: Option B
 
-### 12) Neuer Name statt "agentsmd"
+### 12) Neuer Name statt "linxmd"
 
 Optionen
 - `agentblocks`
@@ -307,7 +307,7 @@ Exit-Kriterien
 - Kein versehentliches Brechen durch Standard-Uninstall
 
 ## Phase 2 - Multi-source Registry (3-4 Tage)
-- `.agentsmd/sources.json` einfuehren
+- `.linxmd/sources.json` einfuehren
 - install speichert source metadata
 - update nutzt origin source
 - source fallback + clear errors

@@ -15,13 +15,13 @@ jobs:
         include:
           - os: windows-latest
             rid: win-x64
-            artifact: agentsmd.exe
+            artifact: linxmd.exe
           - os: ubuntu-latest
             rid: linux-x64
-            artifact: agentsmd
+            artifact: linxmd
           - os: macos-latest
             rid: osx-arm64
-            artifact: agentsmd
+            artifact: linxmd
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
 
       - name: Publish
         run: >
-          dotnet publish src/Agentsmd/Agentsmd.csproj
+          dotnet publish src/Linxmd/Linxmd.csproj
           -c Release
           -r ${{ matrix.rid }}
           --self-contained true
@@ -50,17 +50,17 @@ jobs:
 
       - name: Rename artifact (Linux/macOS)
         if: runner.os != 'Windows'
-        run: mv publish/${{ matrix.artifact }} publish/agentsmd-${{ matrix.rid }}
+        run: mv publish/${{ matrix.artifact }} publish/linxmd-${{ matrix.rid }}
 
       - name: Rename artifact (Windows)
         if: runner.os == 'Windows'
-        run: mv publish/${{ matrix.artifact }} publish/agentsmd-${{ matrix.rid }}.exe
+        run: mv publish/${{ matrix.artifact }} publish/linxmd-${{ matrix.rid }}.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: agentsmd-${{ matrix.rid }}
-          path: publish/agentsmd-*
+          name: linxmd-${{ matrix.rid }}
+          path: publish/linxmd-*
 
   release:
     needs: build

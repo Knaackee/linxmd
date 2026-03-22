@@ -18,3 +18,6 @@ Thumbs.db
 
 ## Test results
 TestResults/
+
+## Local linxmd runtime state
+.linxmd/

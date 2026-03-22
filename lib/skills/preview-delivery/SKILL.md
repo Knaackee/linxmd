@@ -26,7 +26,7 @@ Use this skill when you need a fast review loop for websites or binaries.
 
 3. Collect feedback
 - Ask for structured feedback: what works, what breaks, what is missing
-- Capture feedback in `.agentsmd/tasks/in-progress/<feature>/NOTES.md`
+- Capture feedback in `.linxmd/tasks/in-progress/<feature>/NOTES.md`
 
 4. Iterate
 - Prioritize feedback by severity

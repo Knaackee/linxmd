@@ -47,9 +47,9 @@ Default: autonomous. Override: "lets do this (guided)"
 
 ## Getting Started
 
-1. `agentsmd init` → Initialize project
-2. `agentsmd workflow install sdd-tdd` → Install workflow + all dependencies
-3. `agentsmd sync` → Generate tool wrappers
-4. Add an idea to `.agentsmd/tasks/backlog/`
+1. `linxmd init` → Initialize project
+2. `linxmd add workflow:sdd-tdd --yes` → Install workflow + all dependencies
+3. `linxmd sync` → Generate tool wrappers
+4. Add an idea to `.linxmd/tasks/backlog/`
 5. Say "lets do this" → the workflow starts automatically
 

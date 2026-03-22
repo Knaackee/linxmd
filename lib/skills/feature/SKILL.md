@@ -21,7 +21,7 @@ SPEC → TASKS → Red/Green/Spec-Review/Quality-Review/Docs/Commit → PR.
 
 ## 1 — Find the backlog item
 
-Look in `.agentsmd/tasks/backlog/` for the matching file.
+Look in `.linxmd/tasks/backlog/` for the matching file.
 If multiple exist and no name given: list them and ask "Which one?"
 If exactly one exists: use it without asking.
 
@@ -32,9 +32,9 @@ Read the file:
 
 ## 2 — Draft SPEC.md — wait for approval
 
-Create `.agentsmd/tasks/in-progress/[name]/SPEC.md`
-Move backlog file to `.agentsmd/tasks/in-progress/[name]/backlog-original.md`
-Create `.agentsmd/tasks/in-progress/[name]/NOTES.md` (empty)
+Create `.linxmd/tasks/in-progress/[name]/SPEC.md`
+Move backlog file to `.linxmd/tasks/in-progress/[name]/backlog-original.md`
+Create `.linxmd/tasks/in-progress/[name]/NOTES.md` (empty)
 
 Output: "Here is the SPEC. Review Acceptance Criteria and Non-Goals.
 Each criterion becomes a failing test. OK to proceed?"
@@ -47,7 +47,7 @@ Wait for approval. Do not create TASKS.md yet.
 - User said "lets do this (guided)" → MODE = guided
 - Default → MODE = autonomous
 
-Create `.agentsmd/tasks/in-progress/[name]/TASKS.md`
+Create `.linxmd/tasks/in-progress/[name]/TASKS.md`
 
 **If autonomous:**
 "Running [N] tasks autonomously. I will only stop on BLOCKER."

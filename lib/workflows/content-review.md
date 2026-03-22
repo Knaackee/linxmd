@@ -33,9 +33,9 @@ fact-checking, and editing.
 
 ## Getting Started
 
-1. `agentsmd init` → Initialize project
-2. `agentsmd workflow install content-review` → Install workflow
-3. `agentsmd sync` → Generate tool wrappers
-4. Add content task to `.agentsmd/tasks/backlog/`
+1. `linxmd init` → Initialize project
+2. `linxmd add workflow:content-review --yes` → Install workflow
+3. `linxmd sync` → Generate tool wrappers
+4. Add content task to `.linxmd/tasks/backlog/`
 5. Start with "lets do this"
 

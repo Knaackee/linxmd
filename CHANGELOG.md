@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Rich terminal UI powered by Spectre.Console v0.50.0
-- FigletText ASCII logo on `agentsmd init`
+- FigletText ASCII logo on `linxmd init`
 - Rounded-border tables for search, list, and info commands
 - Rounded-border panels for status overview and artifact info
 - Emoji icons per artifact type (🤖 Agent, 📦 Skill, 🔄 Workflow)
 - Animated spinner during network requests (fetch index, install)
-- Tree visualization for `agentsmd sync` output (wrappers + skills)
+- Tree visualization for `linxmd sync` output (wrappers + skills)
 - "Did you mean?" fuzzy matching (Levenshtein) on not-found errors
 - `Cli.cs` — centralized rendering helper with consistent theming
 - Color system: DodgerBlue1 (primary), Green3 (success), Orange1 (warning), Red (error)
@@ -29,15 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [0.1.0] - 2026-03-21
 
 ### Added
-- Initial release of agentsmd CLI
-- `agentsmd init` — Initialize `.agentsmd/` directory structure with tasks/backlog and tasks/in-progress
-- `agentsmd agent install/uninstall/list/search/info` — Manage agents
-- `agentsmd skill install/uninstall/list/search/info` — Manage skills (folder-based)
-- `agentsmd workflow install/uninstall/list/search/info` — Manage workflows with dependency resolution
-- `agentsmd search` — Global search across all artifact types
-- `agentsmd list` — List all installed artifacts
-- `agentsmd sync` — Generate tool wrappers for Copilot, Claude Code, and OpenCode + copy skills to `.claude/skills/`
-- `agentsmd status` — Project overview with artifact counts and task status
+- Initial release of linxmd CLI
+- `linxmd init` — Initialize `.linxmd/` directory structure with tasks/backlog and tasks/in-progress
+- `linxmd agent install/uninstall/list/search/info` — Manage agents
+- `linxmd skill install/uninstall/list/search/info` — Manage skills (folder-based)
+- `linxmd workflow install/uninstall/list/search/info` — Manage workflows with dependency resolution
+- `linxmd search` — Global search across all artifact types
+- `linxmd list` — List all installed artifacts
+- `linxmd sync` — Generate tool wrappers for Copilot, Claude Code, and OpenCode + copy skills to `.claude/skills/`
+- `linxmd status` — Project overview with artifact counts and task status
 - Lib content: 5 agents (test-writer, implementer, reviewer-spec, reviewer-quality, docs-writer)
 - Lib content: 4 skills (task-management, feature, debugging, refactoring)
 - Lib content: 2 workflows (sdd-tdd, content-review)

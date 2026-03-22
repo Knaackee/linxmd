@@ -15,7 +15,7 @@ tags:
 ## Structure
 
 ```
-.agentsmd/tasks/
+.linxmd/tasks/
 ├── backlog/              ← one file per idea (free text or Issue: #NNN)
 └── in-progress/
     └── [name]/
@@ -28,7 +28,7 @@ tags:
 
 Triggered by: "backlog", "show backlog", "what's in the backlog"
 
-List `.agentsmd/tasks/backlog/` and `.agentsmd/tasks/in-progress/`:
+List `.linxmd/tasks/backlog/` and `.linxmd/tasks/in-progress/`:
 
 ```
 Backlog ([N] items):
@@ -43,7 +43,7 @@ In progress:
 
 Triggered by: "add to backlog [text]"
 
-Create `.agentsmd/tasks/backlog/[slug].md` with the provided text.
+Create `.linxmd/tasks/backlog/[slug].md` with the provided text.
 Output: "Added to backlog: [name]"
 
 ## Start Feature
@@ -51,9 +51,9 @@ Output: "Added to backlog: [name]"
 Triggered by: "lets do this", "start", "begin", or naming a backlog item.
 Append "(guided)" for guided mode.
 
-1. Find the backlog item in `.agentsmd/tasks/backlog/`
-2. Create `.agentsmd/tasks/in-progress/[name]/`
-3. Move backlog file to `.agentsmd/tasks/in-progress/[name]/backlog-original.md`
+1. Find the backlog item in `.linxmd/tasks/backlog/`
+2. Create `.linxmd/tasks/in-progress/[name]/`
+3. Move backlog file to `.linxmd/tasks/in-progress/[name]/backlog-original.md`
 4. Draft SPEC.md with acceptance criteria
 5. Wait for approval
 6. Create TASKS.md with checklist
