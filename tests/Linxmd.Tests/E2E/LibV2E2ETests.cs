@@ -121,7 +121,7 @@ public class LibV2E2ETests : IDisposable
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'bug-fix'");
         stdout.Should().Contain("Installed agent 'implementer'");
-        stdout.Should().Contain("Installed agent 'reviewer-spec'");
+        // reviewer-spec was removed from bug-fix deps in v0.3.0 (replaced by reviewer-quality)
         stdout.Should().Contain("Installed agent 'reviewer-quality'");
         stdout.Should().Contain("Installed agent 'docs-writer'");
         stdout.Should().Contain("Installed skill 'debugging'");

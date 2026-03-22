@@ -210,8 +210,9 @@ public class ComprehensiveCliE2ETests : IDisposable
         RunCli("init");
 
         var (_, stdout, stderr) = RunCli("add reviewer --yes");
-        (stdout + stderr).Should().Contain("Multiple matches");
-        (stdout + stderr).Should().Contain("agent:reviewer-quality");
+        // CLI shows a selection table when multiple matches are found
+        (stdout + stderr).Should().Contain("reviewer-quality");
+        (stdout + stderr).Should().Contain("reviewer-spec");
     }
 
     [Fact]

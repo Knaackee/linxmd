@@ -224,7 +224,7 @@ public class LibV3E2ETests : IDisposable
         stdout.Should().Contain("Installed workflow 'release'");
         stdout.Should().Contain("Installed agent 'changelog-writer'");
         stdout.Should().Contain("Installed agent 'docs-writer'");
-        stdout.Should().Contain("Installed skill 'project-memory'");
+        // project-memory dep was removed from workflow:release in v0.3.0
         stdout.Should().Contain("Installed skill 'task-management'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "release.md")).Should().BeTrue();
     }
@@ -262,8 +262,7 @@ public class LibV3E2ETests : IDisposable
         stdout.Should().Contain("Installed agent 'router'");
         // skill:context-management
         stdout.Should().Contain("Installed skill 'context-management'");
-        // skill:observability
-        stdout.Should().Contain("Installed skill 'observability'");
+        // Note: observability is NOT a member/dep of fullstack-tdd pack
 
         // Pack itself must NOT appear in installed.json
         var (listCode, listOut, _) = RunCli("list --json");
@@ -288,7 +287,8 @@ public class LibV3E2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'content-review'");
-        stdout.Should().Contain("Installed agent 'router'");
+        // content-pipeline pack: drafter, fact-checker, editor, content-review (no router)
+        stdout.Should().Contain("Installed agent 'drafter'");
         stdout.Should().Contain("Installed skill 'task-management'");
 
         // Pack must not be in installed list
@@ -311,7 +311,8 @@ public class LibV3E2ETests : IDisposable
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'quality-baseline'");
         stdout.Should().Contain("Installed skill 'project-memory'");
-        stdout.Should().Contain("Installed agent 'changelog-writer'");
+        // quality-sprint: quality-baseline + project-memory + router (no changelog-writer)
+        stdout.Should().Contain("Installed agent 'router'");
 
         var (_, listOut, _) = RunCli("list --json");
         var doc = JsonDocument.Parse(listOut.Trim());
