@@ -369,9 +369,10 @@ public class DangerSmokeTests : IDisposable
     // ═══════════════════════════════════════════════════════════════
 
     [Fact]
-    public void Search_EchoTest_FoundAcrossAllTypes()
+    public void Add_Browse_EchoTest_FoundAcrossAllTypes()
     {
-        var (exitCode, stdout, _) = RunCli("search echo");
+        // 'add' in non-interactive mode without --yes shows results like old search
+        var (exitCode, stdout, _) = RunCli("add echo");
         exitCode.Should().Be(0);
         // Should find agent, skill, and workflow
         stdout.Should().Contain("agent");
@@ -404,9 +405,9 @@ public class DangerSmokeTests : IDisposable
     }
 
     [Fact]
-    public void Search_ByTag_Smoke()
+    public void Add_Browse_ByTag_Smoke()
     {
-        var (exitCode, stdout, _) = RunCli("search smoke");
+        var (exitCode, stdout, _) = RunCli("add smoke");
         exitCode.Should().Be(0);
         stdout.Should().Contain("echo-test");
     }
@@ -556,8 +557,11 @@ public class DangerSmokeTests : IDisposable
             "skill uninstall echo-test",
             "workflow install echo-test",
             "workflow uninstall echo-test",
+            "add echo-test --yes --type agent",
+            "remove echo-test --yes",
             "list",
             "sync",
+            "update --yes",
             "agent list",
             "skill list",
             "workflow list"
@@ -565,8 +569,9 @@ public class DangerSmokeTests : IDisposable
 
         foreach (var cmd in commands)
         {
-            var (_, _, stderr) = RunCli(cmd);
-            stderr.Should().Contain("Not initialized", $"'{cmd}' should fail without init");
+            var (_, stdout, stderr) = RunCli(cmd);
+            var output = stdout + stderr;
+            output.Should().Contain("Not initialized", $"'{cmd}' should fail without init");
         }
     }
 
@@ -777,9 +782,9 @@ public class DangerSmokeTests : IDisposable
     }
 
     [Fact]
-    public void Search_CaseInsensitive()
+    public void Add_Browse_CaseInsensitive()
     {
-        var (exitCode, stdout, _) = RunCli("search ECHO");
+        var (exitCode, stdout, _) = RunCli("add ECHO");
         exitCode.Should().Be(0);
         stdout.Should().Contain("echo-test");
     }
@@ -820,6 +825,133 @@ public class DangerSmokeTests : IDisposable
 
         File.Exists(Path.Combine(_tempDir, ".agentsmd", "workflows", "content-review.md")).Should().BeTrue();
         Directory.Exists(Path.Combine(_tempDir, ".agentsmd", "skills", "task-management")).Should().BeTrue();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // SECTION 17: New 'add' command lifecycle tests
+    // ═══════════════════════════════════════════════════════════════
+
+    [Fact]
+    public void Add_Yes_EchoTestAgent_FullLifecycle()
+    {
+        RunCli("init");
+
+        // Install via add --yes --type
+        var (exitCode, stdout, _) = RunCli("add echo-test --yes --type agent");
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("Installed agent 'echo-test'");
+
+        // Verify file
+        var agentFile = Path.Combine(_tempDir, ".agentsmd", "agents", "echo-test.md");
+        File.Exists(agentFile).Should().BeTrue();
+        File.ReadAllText(agentFile).Should().Contain("echo-test");
+
+        // Verify wrappers
+        File.Exists(Path.Combine(_tempDir, ".github", "agents", "echo-test.agent.md")).Should().BeTrue();
+
+        // Remove via remove --yes
+        var (exit2, out2, _) = RunCli("remove echo-test --yes");
+        exit2.Should().Be(0);
+        out2.Should().Contain("Uninstalled agent 'echo-test'");
+        File.Exists(agentFile).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Add_Yes_EchoTestSkill_InstallsAllFiles()
+    {
+        RunCli("init");
+
+        var (exitCode, stdout, _) = RunCli("add echo-test --yes --type skill");
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("Installed skill 'echo-test'");
+
+        var skillDir = Path.Combine(_tempDir, ".agentsmd", "skills", "echo-test");
+        Directory.Exists(skillDir).Should().BeTrue();
+        File.Exists(Path.Combine(skillDir, "SKILL.md")).Should().BeTrue();
+        File.Exists(Path.Combine(skillDir, "helpers.md")).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Add_Yes_EchoTestWorkflow_ResolvesAllDeps()
+    {
+        RunCli("init");
+
+        var (exitCode, stdout, _) = RunCli("add echo-test --yes --type workflow");
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("Installed workflow 'echo-test'");
+        stdout.Should().Contain("Installing dependencies");
+
+        // Verify deps
+        File.Exists(Path.Combine(_tempDir, ".agentsmd", "agents", "echo-test.md")).Should().BeTrue();
+        Directory.Exists(Path.Combine(_tempDir, ".agentsmd", "skills", "echo-test")).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Add_Yes_SddTddWorkflow_AllSevenDeps()
+    {
+        RunCli("init");
+
+        var (exitCode, stdout, _) = RunCli("add sdd-tdd --yes");
+        exitCode.Should().Be(0);
+
+        // Verify all agents
+        File.Exists(Path.Combine(_tempDir, ".agentsmd", "agents", "test-writer.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".agentsmd", "agents", "implementer.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".agentsmd", "agents", "reviewer-spec.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".agentsmd", "agents", "reviewer-quality.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".agentsmd", "agents", "docs-writer.md")).Should().BeTrue();
+
+        // Verify skills
+        Directory.Exists(Path.Combine(_tempDir, ".agentsmd", "skills", "feature")).Should().BeTrue();
+        Directory.Exists(Path.Combine(_tempDir, ".agentsmd", "skills", "task-management")).Should().BeTrue();
+
+        // Verify status
+        var (_, statusOut, _) = RunCli("status");
+        statusOut.Should().Contain("Agents:    5");
+        statusOut.Should().Contain("Skills:    2");
+        statusOut.Should().Contain("Workflows: 1");
+    }
+
+    [Fact]
+    public void Remove_MultipleTypes_ByName()
+    {
+        RunCli("init");
+        RunCli("add echo-test --yes --type agent");
+        RunCli("add echo-test --yes --type skill");
+
+        // Remove by name — removes all types with that name
+        var (exitCode, stdout, _) = RunCli("remove echo-test --yes");
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("Uninstalled agent 'echo-test'");
+        stdout.Should().Contain("Uninstalled skill 'echo-test'");
+    }
+
+    [Fact]
+    public void ListJson_AfterAddRemove_ReflectsState()
+    {
+        RunCli("init");
+        RunCli("add echo-test --yes --type agent");
+
+        var (_, json1, _) = RunCli("list --json");
+        var doc1 = JsonDocument.Parse(json1.Trim());
+        doc1.RootElement.GetProperty("artifacts").GetArrayLength().Should().Be(1);
+
+        RunCli("remove echo-test --yes");
+
+        var (_, json2, _) = RunCli("list --json");
+        var doc2 = JsonDocument.Parse(json2.Trim());
+        doc2.RootElement.GetProperty("artifacts").GetArrayLength().Should().Be(0);
+    }
+
+    [Fact]
+    public void Update_WhenUpToDate_ShowsMessage()
+    {
+        RunCli("init");
+        RunCli("add echo-test --yes --type agent");
+
+        var (exitCode, stdout, _) = RunCli("update --yes");
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("up to date");
     }
 
     // ═══════════════════════════════════════════════════════════════

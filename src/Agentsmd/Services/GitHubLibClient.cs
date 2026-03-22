@@ -11,7 +11,7 @@ public interface ILibClient
 public sealed class GitHubLibClient : ILibClient
 {
     private const string Owner = "Knaackee";
-    private const string Repo = "agentsmd";
+    private const string Repo = "linxmd";
     private const string Branch = "main";
     private const string BaseUrl = $"https://raw.githubusercontent.com/{Owner}/{Repo}/{Branch}/lib";
     private const string ApiBase = $"https://api.github.com/repos/{Owner}/{Repo}/contents/lib";

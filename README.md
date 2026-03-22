@@ -8,17 +8,17 @@ Self-contained executable for Windows, Linux, and macOS. No runtime required.
 
 **Windows (PowerShell):**
 ```powershell
-Invoke-WebRequest -Uri https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe -OutFile agentsmd.exe; Move-Item agentsmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\agentsmd.exe" -Force
+Invoke-WebRequest -Uri https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-win-x64.exe -OutFile agentsmd.exe; Move-Item agentsmd.exe "$env:LOCALAPPDATA\Microsoft\WindowsApps\agentsmd.exe" -Force
 ```
 
 **Linux:**
 ```bash
-curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
+curl -Lo agentsmd https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-linux-x64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
 ```
 
 **macOS:**
 ```bash
-curl -Lo agentsmd https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
+curl -Lo agentsmd https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-osx-arm64 && chmod +x agentsmd && sudo mv agentsmd /usr/local/bin/
 ```
 
 **Then in your project:**
@@ -151,9 +151,9 @@ Current version: **v0.1.0**
 
 | Platform | Download |
 |----------|----------|
-| Windows | [agentsmd-win-x64.exe](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-win-x64.exe) |
-| Linux | [agentsmd-linux-x64](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-linux-x64) |
-| macOS | [agentsmd-osx-arm64](https://github.com/Knaackee/agentsmd/releases/latest/download/agentsmd-osx-arm64) |
+| Windows | [agentsmd-win-x64.exe](https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-win-x64.exe) |
+| Linux | [agentsmd-linux-x64](https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-linux-x64) |
+| macOS | [agentsmd-osx-arm64](https://github.com/Knaackee/linxmd/releases/latest/download/agentsmd-osx-arm64) |
 
 ## Development
 

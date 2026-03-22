@@ -9,14 +9,17 @@ public static class Program
     {
         var root = new RootCommand("agentsmd — AI Agent workflow manager")
         {
-            CommandFactory.CreateAgentCommand(),
-            CommandFactory.CreateSkillCommand(),
-            CommandFactory.CreateWorkflowCommand(),
-            CommandFactory.CreateSearchCommand(),
+            CommandFactory.CreateAddCommand(),
+            CommandFactory.CreateRemoveCommand(),
             CommandFactory.CreateListCommand(),
             CommandFactory.CreateSyncCommand(),
             CommandFactory.CreateStatusCommand(),
-            CommandFactory.CreateInitCommand()
+            CommandFactory.CreateInitCommand(),
+            CommandFactory.CreateUpdateCommand(),
+            // Deprecated — still functional, print hint
+            CommandFactory.CreateAgentCommand(),
+            CommandFactory.CreateSkillCommand(),
+            CommandFactory.CreateWorkflowCommand()
         };
 
         root.AddGlobalOption(CommandFactory.ProjectOption);
