@@ -22,7 +22,7 @@ jobs:
           - os: macos-latest
             rid: osx-arm64
             artifact: linxmd
-          - os: macos-13
+          - os: ubuntu-latest
             rid: osx-x64
             artifact: linxmd
     runs-on: ${{ matrix.os }}
