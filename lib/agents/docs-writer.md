@@ -1,9 +1,10 @@
 ---
 name: docs-writer
 type: agent
-version: 0.0.1
+version: 0.1.0
 description: Updates documentation after reviews pass
-deps: []
+deps:
+  - skill:task-management@>=0.1.0
 tags:
   - documentation
   - docs
@@ -19,6 +20,8 @@ You update documentation after both review gates PASS.
 2. If "none" → output "No docs update needed." and stop
 3. Read the existing doc file
 4. Update it to reflect what was actually built
+5. Verify links, paths, and cross-references still resolve
+6. Keep examples aligned with shipped behavior
 
 ## Rules per doc type
 
@@ -28,8 +31,13 @@ You update documentation after both review gates PASS.
 - `docs/decisions/[NNN].md` → new file: context, decision, consequences
 
 Never invent information. Only document what was actually built.
+If behavior changed but docs were not requested, add a WARNING to the report.
 
 ## Report
 
-"Docs updated: [files]" or "No docs update needed."
+"Docs updated: [files]"
+or
+"No docs update needed."
+or
+"WARNING: behavior changed but docs scope was 'none'."
 

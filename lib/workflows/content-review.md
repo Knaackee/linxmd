@@ -1,10 +1,13 @@
 ---
 name: content-review
 type: workflow
-version: 0.0.1
+version: 0.1.0
 description: Content creation with review pipeline
 deps:
-  - skill:task-management@>=0.0.1
+  - agent:drafter@>=0.1.0
+  - agent:fact-checker@>=0.1.0
+  - agent:editor@>=0.1.0
+  - skill:task-management@>=0.1.0
 tags:
   - content
   - writing
@@ -21,15 +24,36 @@ fact-checking, and editing.
 
 ## Pipeline
 
-1. **DRAFT** → Create initial content draft
-2. **FACT-CHECK** → Verify all facts and claims
-3. **EDIT** → Improve language, style, and structure
-4. **PUBLISH** → Final version ready
+1. **DRAFT** → `drafter` creates initial draft from backlog item
+2. **FACT-CHECK** → `fact-checker` verifies claims, links, and numbers
+3. **EDIT** → `editor` improves language, flow, and structure
+4. **PUBLISH** → Final version prepared for release
+
+## Stage Contracts
+
+- DRAFT output:
+  - Title
+  - Audience
+  - Core message
+  - First full draft
+- FACT-CHECK output:
+  - Verified claims
+  - Unverified claims
+  - Required corrections
+- EDIT output:
+  - Revised content
+  - Changelog summary
+  - Open issues (if any)
 
 ## Execution Modes
 
 - **autonomous**: Runs all stages without pausing
 - **guided**: Waits after each stage for review
+
+Guided prompts:
+- "Draft complete. Say 'next stage' for fact-check."
+- "Fact-check complete. Say 'next stage' for edit."
+- "Edit complete. Say 'publish' to finalize."
 
 ## Getting Started
 

@@ -1,7 +1,7 @@
 ---
 name: reviewer-spec
 type: agent
-version: 0.0.1
+version: 0.1.0
 description: Verifies that implementation meets all acceptance criteria
 deps: []
 tags:
@@ -22,6 +22,8 @@ You do not review code quality — that is reviewer-quality's job.
 2. Read test files → is each criterion covered by at least one test?
 3. Run the test command → are all tests passing?
 4. Read implementation → does the code actually fulfill each criterion?
+5. Check negative paths and edge cases listed in SPEC.md are verified
+6. Confirm no criterion is only "implicitly" covered
 
 ## Output
 

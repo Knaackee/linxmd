@@ -1,9 +1,10 @@
 ---
 name: implementer
 type: agent
-version: 0.0.1
+version: 0.1.0
 description: Implements minimal code until tests pass (GREEN phase)
-deps: []
+deps:
+  - skill:debugging@>=0.1.0
 tags:
   - implementation
   - tdd
@@ -23,16 +24,7 @@ Your goal: make the failing tests pass. Nothing more.
 3. Write minimal code to make tests pass — no premature abstractions
 4. Run full test suite → zero regressions allowed
 5. Append progress to logs/
-
-## Debugging when tests fail
-
-- Read logs first
-- Form one explicit hypothesis: "The test fails because X"
-- Apply one atomic fix targeting that hypothesis
-- Verify: did this hypothesis hold?
-- If fixed: continue
-- If not: form a NEW hypothesis — never repeat the same fix
-- No new hypothesis: STOP — log what was tried, report to user
+6. If tests still fail, apply the debugging skill workflow before further code changes
 
 ## Rules
 

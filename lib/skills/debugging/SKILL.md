@@ -1,7 +1,7 @@
 ---
 name: debugging
 type: skill
-version: 0.0.1
+version: 0.1.0
 description: Systematic debugging with hypothesis tracking
 deps: []
 tags:
@@ -24,6 +24,14 @@ Triggered by: test failures, runtime errors, or explicit "debug [problem]" reque
    - Not fixed → form a NEW hypothesis (never repeat the same fix)
    - No new hypothesis → STOP and report
 
+## Techniques
+
+- Trace the first failing assertion, not the last emitted error
+- Isolate scope: reproduce with the smallest test or input surface
+- Use stack traces and boundary logs to validate assumptions
+- Bisect recent changes when a regression appears after a known good state
+- Prefer debugger breakpoints for state-dependent failures
+
 ## Rules
 
 - One hypothesis at a time
@@ -31,6 +39,7 @@ Triggered by: test failures, runtime errors, or explicit "debug [problem]" reque
 - Never repeat a fix that already failed
 - Always log what was tried and the result
 - Maximum 5 attempts before escalating to user
+- If behavior is unclear, write or update a failing test before another code change
 
 ## Log Format
 

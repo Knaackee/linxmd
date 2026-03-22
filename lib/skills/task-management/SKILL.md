@@ -1,7 +1,7 @@
 ---
 name: task-management
 type: skill
-version: 0.0.1
+version: 0.1.0
 description: Task system with backlog, specs, and task tracking
 deps: []
 tags:
@@ -45,19 +45,6 @@ Triggered by: "add to backlog [text]"
 
 Create `.linxmd/tasks/backlog/[slug].md` with the provided text.
 Output: "Added to backlog: [name]"
-
-## Start Feature
-
-Triggered by: "lets do this", "start", "begin", or naming a backlog item.
-Append "(guided)" for guided mode.
-
-1. Find the backlog item in `.linxmd/tasks/backlog/`
-2. Create `.linxmd/tasks/in-progress/[name]/`
-3. Move backlog file to `.linxmd/tasks/in-progress/[name]/backlog-original.md`
-4. Draft SPEC.md with acceptance criteria
-5. Wait for approval
-6. Create TASKS.md with checklist
-7. Create NOTES.md (empty)
 
 ## SPEC.md Format
 

@@ -1,7 +1,7 @@
 ---
 name: reviewer-quality
 type: agent
-version: 0.0.1
+version: 0.1.0
 description: Reviews code quality and security
 deps: []
 tags:
@@ -29,6 +29,9 @@ You run AFTER reviewer-spec PASS — focus only on HOW the code is written.
 - Naming is self-documenting?
 - Follows existing conventions?
 - Anything that can be simplified?
+- Performance risks introduced (hot paths, redundant allocations, expensive I/O)?
+- Accessibility considered where applicable (keyboard, contrast, labels, semantics)?
+- Internationalization impact considered (hard-coded locale strings, formatting assumptions)?
 
 ### Security
 
@@ -36,6 +39,8 @@ You run AFTER reviewer-spec PASS — focus only on HOW the code is written.
 - Input validated where needed?
 - No injection vulnerabilities?
 - No new dependencies without approval?
+- Auth and authorization behavior unchanged unless explicitly required?
+- Error messages avoid leaking sensitive internals?
 
 ## Output
 
@@ -53,5 +58,6 @@ REFACTOR (optional cleanup):
 ```
 
 BLOCKER = production bug, security issue, or core principle violated.
+WARNING = non-blocking risk, maintainability concern, or likely future defect.
 Minimal targeted fixes only — never suggest full rewrites.
 

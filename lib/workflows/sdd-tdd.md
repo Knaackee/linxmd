@@ -1,16 +1,16 @@
 ---
 name: sdd-tdd
 type: workflow
-version: 0.0.1
+version: 0.1.0
 description: Spec-Driven Development with TDD pipeline
 deps:
-  - agent:test-writer@>=0.0.1
-  - agent:implementer@>=0.0.1
-  - agent:reviewer-spec@>=0.0.1
-  - agent:reviewer-quality@>=0.0.1
-  - agent:docs-writer@>=0.0.1
-  - skill:feature@>=0.0.1
-  - skill:task-management@>=0.0.1
+  - agent:test-writer@>=0.1.0
+  - agent:implementer@>=0.1.0
+  - agent:reviewer-spec@>=0.1.0
+  - agent:reviewer-quality@>=0.1.0
+  - agent:docs-writer@>=0.1.0
+  - skill:task-management@>=0.1.0
+  - skill:preview-delivery@>=0.1.0
 tags:
   - development
   - tdd
@@ -27,6 +27,17 @@ Test-Driven Development defines HOW it is built (Red → Green → Refactor).
 Every Acceptance Criterion in SPEC.md becomes a failing test first.
 No implementation exists before its test exists and fails.
 
+## Start Conditions
+
+Triggered by: "lets do this", "start", "begin", or naming a backlog item.
+Append "(guided)" for guided mode.
+
+1. Find matching backlog item in `.linxmd/tasks/backlog/`
+2. Create `.linxmd/tasks/in-progress/[name]/`
+3. Move source item to `backlog-original.md`
+4. Draft SPEC.md and wait for approval
+5. Create TASKS.md and NOTES.md
+
 ## Pipeline
 
 For each task in TASKS.md:
@@ -38,12 +49,35 @@ For each task in TASKS.md:
 5. **DOCS** → `docs-writer` → Update documentation
 6. **COMMIT** → All green → Commit
 
+## Stop Conditions
+
+- Implementer reports BLOCKER
+- Reviewer-spec returns BLOCKER
+- Reviewer-quality returns BLOCKER
+
+In all three cases: stop, report, and wait for user decision.
+
 ## Execution Modes
 
 - **autonomous**: Runs all tasks without pausing. Only stops on BLOCKER.
 - **guided**: Waits after each task for "next task". User controls the pace.
 
 Default: autonomous. Override: "lets do this (guided)"
+
+Guided mode behavior:
+- Start with: "[N] tasks ready. Say 'next task' to begin."
+- After each successful task: "Task [N] done. Say 'next task' to continue."
+
+Autonomous mode behavior:
+- Start with: "Running [N] tasks autonomously. I will only stop on BLOCKER."
+- Continue until all tasks are done or blocked
+
+## Finish
+
+After all tasks complete:
+1. Run final checks
+2. Optionally run preview-delivery for review feedback loops
+3. Open PR with SPEC summary
 
 ## Getting Started
 

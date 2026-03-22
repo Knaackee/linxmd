@@ -1,7 +1,7 @@
 ---
 name: echo-test
 type: skill
-version: 0.0.1
+version: 0.1.0
 description: Test-only skill for smoke tests — safe to delete
 deps: []
 tags:

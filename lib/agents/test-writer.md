@@ -1,7 +1,7 @@
 ---
 name: test-writer
 type: agent
-version: 0.0.1
+version: 0.1.0
 description: Writes tests from specifications (RED phase)
 deps: []
 tags:

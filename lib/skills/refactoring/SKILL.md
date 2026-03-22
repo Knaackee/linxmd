@@ -1,9 +1,11 @@
 ---
 name: refactoring
 type: skill
-version: 0.0.1
+version: 0.1.0
 description: Safe refactoring with test coverage
-deps: []
+deps:
+  - agent:implementer@>=0.1.0
+  - agent:reviewer-quality@>=0.1.0
 tags:
   - refactoring
   - cleanup
@@ -20,7 +22,8 @@ or during QUALITY-REVIEW when reviewer suggests REFACTOR changes.
 2. **Identify scope** — what exactly needs to change?
 3. **Small steps** — one refactoring at a time, run tests after each
 4. **No behavior changes** — tests must stay green throughout
-5. **Commit** — one commit per logical refactoring step
+5. **Quality review** — run reviewer-quality when done
+6. **Commit** — one commit per logical refactoring step
 
 ## Rules
 
@@ -37,6 +40,11 @@ or during QUALITY-REVIEW when reviewer suggests REFACTOR changes.
 - **Remove duplication** — repeated code → shared helper
 - **Simplify conditionals** — nested ifs → guard clauses or pattern matching
 - **Move responsibility** — code in wrong class → move to correct location
+
+## Commit Convention
+
+- Use focused messages like `refactor: extract parser normalization`
+- Do not mix behavior changes into refactor commits
 
 ## Report
 

@@ -1,11 +1,11 @@
 ---
 name: artifact-factory
 type: workflow
-version: 0.0.1
+version: 0.1.0
 description: Create and refine new agents, skills, and workflows as reusable building blocks
 deps:
-  - skill:task-management@>=0.0.1
-  - skill:preview-delivery@>=0.0.1
+  - skill:task-management@>=0.1.0
+  - skill:preview-delivery@>=0.1.0
 tags:
   - factory
   - authoring
@@ -14,7 +14,7 @@ tags:
 
 # Artifact Factory Workflow
 
-A single workflow (Option A) for generating new workflow assets.
+A single workflow for generating new workflow assets.
 
 ## Pipeline
 

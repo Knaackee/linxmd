@@ -1,7 +1,7 @@
 ---
 name: preview-delivery
 type: skill
-version: 0.0.1
+version: 0.1.0
 description: Build previews, share links or binaries, collect feedback, and iterate
 deps: []
 tags:
@@ -21,12 +21,18 @@ Use this skill when you need a fast review loop for websites or binaries.
 - Binary: build release binary for target platform
 
 2. Publish preview
-- Web option: expose via Tailscale Funnel (or equivalent secure tunnel)
+- Web option: expose via secure tunnel or temporary hosting
 - Binary option: attach artifact to release, issue, or direct file transfer channel
 
 3. Collect feedback
 - Ask for structured feedback: what works, what breaks, what is missing
 - Capture feedback in `.linxmd/tasks/in-progress/<feature>/NOTES.md`
+
+Feedback template:
+- Works: [list]
+- Broken: [list]
+- Missing: [list]
+- Priority: [high|medium|low]
 
 4. Iterate
 - Prioritize feedback by severity
