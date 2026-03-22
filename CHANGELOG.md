@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-03-22
+
+### Added
+
+- `lib/packs/` — pack definitions now live as standalone `.md` files with YAML frontmatter, making them version-controlled and durable
+- Four curated packs: `fullstack-tdd`, `content-pipeline`, `quality-sprint`, `i18n-ready`
+
+### Fixed
+
+- `generate-index.py` now scans `packs/*.md` — previously every push to `lib/**` silently wiped all pack entries from `index.json`, rendering `linxmd add pack:<name>` broken for all users
+
+### Changed
+
+- Multiple lib artifact files improved: updated descriptions, tags, trigger phrases, and body content across agents, skills, and workflows
+
+---
+
 ## [0.4.0] - 2026-03-22
 
 ### Added
