@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.1] - 2026-03-22
+
+### Added
+
+- Unit tests for `MemoryDb`: Insert/Search/Stats/Recent/ClearAll/transaction coverage (17 tests)
+- Unit tests for `MemoryIndexer`: ADR, CHANGELOG block, and KNOWN_ISSUES indexing, edge cases (22 tests)
+- Unit tests for `UpdateNotifier`: `NormalizeVersion` logic for v-prefix, build metadata, pre-release suffixes (10 tests)
+
+### Fixed
+
+- E2E assertions updated to match current library state: `workflow:bug-fix` no longer depends on `agent:reviewer-spec`, `workflow:release` no longer depends on `skill:project-memory`, pack member assertions corrected for `fullstack-tdd`, `content-pipeline`, `quality-sprint`
+- Ambiguous-name E2E test updated to match new table output format (replaces old "Multiple matches" message)
+
+---
+
 ## [0.6.0] - 2026-03-22
 
 ### Added
