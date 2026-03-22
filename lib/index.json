@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-22T11:39:23Z",
+  "generated": "2026-03-22T13:08:40Z",
   "artifacts": [
     {
       "name": "architect",
@@ -57,23 +57,6 @@
       "tags": [
         "content",
         "drafting"
-      ]
-    },
-    {
-      "name": "echo-test",
-      "type": "agent",
-      "version": "0.1.0",
-      "description": "Test-only agent for smoke tests — safe to delete",
-      "path": "agents/echo-test.md",
-      "deps": [],
-      "tags": [
-        "test",
-        "smoke"
-      ],
-      "supported": [
-        "windows",
-        "linux",
-        "macos"
       ]
     },
     {
@@ -160,7 +143,7 @@
     {
       "name": "router",
       "type": "agent",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Routes user intent to the correct workflow or agent based on task type",
       "path": "agents/router.md",
       "deps": [],
@@ -250,18 +233,6 @@
       ]
     },
     {
-      "name": "echo-test",
-      "type": "skill",
-      "version": "0.1.0",
-      "description": "Test-only skill for smoke tests — safe to delete",
-      "path": "skills/echo-test/",
-      "deps": [],
-      "tags": [
-        "test",
-        "smoke"
-      ]
-    },
-    {
       "name": "i18n",
       "type": "skill",
       "version": "0.3.0",
@@ -317,13 +288,10 @@
     {
       "name": "refactoring",
       "type": "skill",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "description": "Safe refactoring with test coverage",
       "path": "skills/refactoring/",
-      "deps": [
-        "agent:implementer@>=0.1.0",
-        "agent:reviewer-quality@>=0.1.0"
-      ],
+      "deps": [],
       "tags": [
         "refactoring",
         "cleanup"
@@ -358,12 +326,11 @@
     {
       "name": "artifact-factory",
       "type": "workflow",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Create and refine new agents, skills, and workflows as reusable building blocks",
       "path": "workflows/artifact-factory.md",
       "deps": [
-        "skill:task-management@>=0.2.0",
-        "skill:preview-delivery@>=0.1.0"
+        "skill:task-management@>=0.2.0"
       ],
       "tags": [
         "factory",
@@ -380,7 +347,6 @@
       "deps": [
         "agent:implementer@>=0.2.0",
         "agent:test-writer@>=0.2.0",
-        "agent:reviewer-spec@>=0.2.0",
         "agent:reviewer-quality@>=0.2.0",
         "agent:docs-writer@>=0.2.0",
         "agent:changelog-writer@>=0.3.0",
@@ -408,21 +374,6 @@
         "content",
         "writing",
         "review"
-      ]
-    },
-    {
-      "name": "echo-test",
-      "type": "workflow",
-      "version": "0.1.0",
-      "description": "Test-only workflow for smoke tests — safe to delete",
-      "path": "workflows/echo-test.md",
-      "deps": [
-        "agent:echo-test@>=0.1.0",
-        "skill:echo-test@>=0.1.0"
-      ],
-      "tags": [
-        "test",
-        "smoke"
       ]
     },
     {
@@ -454,7 +405,6 @@
       "deps": [
         "agent:changelog-writer@>=0.3.0",
         "agent:docs-writer@>=0.2.0",
-        "skill:project-memory@>=0.3.0",
         "skill:task-management@>=0.2.0"
       ],
       "tags": [
@@ -467,7 +417,7 @@
     {
       "name": "sdd-tdd",
       "type": "workflow",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Spec-Driven Development with TDD pipeline",
       "path": "workflows/sdd-tdd.md",
       "deps": [
@@ -477,8 +427,8 @@
         "agent:reviewer-quality@>=0.2.0",
         "agent:docs-writer@>=0.2.0",
         "agent:planner@>=0.2.0",
-        "skill:task-management@>=0.2.0",
-        "skill:preview-delivery@>=0.1.0"
+        "agent:changelog-writer@>=0.3.0",
+        "skill:task-management@>=0.2.0"
       ],
       "tags": [
         "development",
