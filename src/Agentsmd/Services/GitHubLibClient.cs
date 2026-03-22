@@ -23,6 +23,11 @@ public sealed class GitHubLibClient : ILibClient
         _http = http;
         if (_http.DefaultRequestHeaders.UserAgent.Count == 0)
             _http.DefaultRequestHeaders.UserAgent.ParseAdd("agentsmd-cli/0.1");
+
+        // Use GITHUB_TOKEN if available (raises API rate limit from 60 to 1000+ req/hour)
+        var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+        if (!string.IsNullOrEmpty(token) && _http.DefaultRequestHeaders.Authorization is null)
+            _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
     }
 
     public async Task<string?> FetchIndexAsync(CancellationToken ct = default)

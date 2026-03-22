@@ -175,7 +175,7 @@ public class CliE2ETests : IDisposable
 
         exitCode.Should().Be(0);
         stdout.Trim().Should().NotBeEmpty();
-        stdout.Trim().Should().Contain("0.1.0");
+        stdout.Trim().Should().Contain("0.2.0");
     }
 
     // ──── Search ────
