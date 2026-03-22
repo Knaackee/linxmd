@@ -1,6 +1,8 @@
 using System.CommandLine;
+using System.Text;
 using Agentsmd.Services;
 using Agentsmd.Parsing;
+using Spectre.Console;
 
 namespace Agentsmd.Commands;
 
@@ -55,7 +57,7 @@ public static class CommandFactory
         cmd.SetHandler(async (string query, string project) =>
         {
             var client = new GitHubLibClient(Http);
-            var json = await client.FetchIndexAsync();
+            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
 
             var index = IndexParser.Parse(json);
@@ -64,8 +66,7 @@ public static class CommandFactory
             var results = IndexParser.Search(index, query);
             if (results.Count == 0) { Console.WriteLine("No results found."); return; }
 
-            foreach (var a in results)
-                Console.WriteLine($"  {a.Type,-10} {a.Name,-25} {a.Version,-10} {a.Description}");
+            Cli.WriteArtifactTable(results.Select(a => (a.Type, a.Name, a.Version, a.Description)));
         }, queryArg, ProjectOption);
         return cmd;
     }
@@ -82,8 +83,7 @@ public static class CommandFactory
             var installed = state.Load();
             if (installed.Artifacts.Count == 0) { Console.WriteLine("No artifacts installed."); return; }
 
-            foreach (var a in installed.Artifacts)
-                Console.WriteLine($"  {a.Type,-10} {a.Name,-25} {a.Version}");
+            Cli.WriteInstalledTable(installed.Artifacts.Select(a => (a.Type, a.Name, a.Version)));
         }, ProjectOption);
         return cmd;
     }
@@ -101,11 +101,17 @@ public static class CommandFactory
             var engine = new SyncEngine(state, project);
             var result = engine.Sync(options);
 
-            Console.WriteLine($"Synced: {result.GeneratedFiles.Count} wrapper(s), {result.CopiedSkills.Count} skill(s) copied.");
-            foreach (var f in result.GeneratedFiles)
-                Console.WriteLine($"  → {Path.GetRelativePath(project, f)}");
-            foreach (var s in result.CopiedSkills)
-                Console.WriteLine($"  → .claude/skills/{s}/");
+            Cli.WriteSuccess($"Synced: {result.GeneratedFiles.Count} wrapper(s), {result.CopiedSkills.Count} skill(s) copied.");
+
+            if (result.GeneratedFiles.Count > 0 || result.CopiedSkills.Count > 0)
+            {
+                var groups = new List<(string folder, IEnumerable<string> files)>();
+                if (result.GeneratedFiles.Count > 0)
+                    groups.Add(("Wrappers", result.GeneratedFiles.Select(f => Path.GetRelativePath(project, f))));
+                if (result.CopiedSkills.Count > 0)
+                    groups.Add(("Skills", result.CopiedSkills.Select(s => $".claude/skills/{s}/")));
+                Cli.WriteFileTree("sync", groups);
+            }
         }, ProjectOption);
         return cmd;
     }
@@ -125,25 +131,32 @@ public static class CommandFactory
             }
 
             var installed = state.Load();
-            Console.WriteLine("agentsmd status");
-            Console.WriteLine($"  Project: {project}");
-            Console.WriteLine($"  Agents:    {installed.Artifacts.Count(a => a.Type == "agent")}");
-            Console.WriteLine($"  Skills:    {installed.Artifacts.Count(a => a.Type == "skill")}");
-            Console.WriteLine($"  Workflows: {installed.Artifacts.Count(a => a.Type == "workflow")}");
+
+            var agentCount = installed.Artifacts.Count(a => a.Type == "agent");
+            var skillCount = installed.Artifacts.Count(a => a.Type == "skill");
+            var workflowCount = installed.Artifacts.Count(a => a.Type == "workflow");
 
             var backlogDir = state.BacklogDir;
             var inProgressDir = state.InProgressDir;
             var backlogCount = Directory.Exists(backlogDir) ? Directory.GetFiles(backlogDir, "*.md").Length : 0;
             var inProgressCount = Directory.Exists(inProgressDir) ? Directory.GetDirectories(inProgressDir).Length : 0;
-            Console.WriteLine($"  Backlog:       {backlogCount}");
-            Console.WriteLine($"  In Progress:   {inProgressCount}");
 
             // tools
             var tools = new List<string>();
             if (Directory.Exists(Path.Combine(project, ".github", "agents"))) tools.Add("copilot");
             if (Directory.Exists(Path.Combine(project, ".claude", "agents"))) tools.Add("claude-code");
             if (Directory.Exists(Path.Combine(project, ".opencode", "agents"))) tools.Add("opencode");
-            Console.WriteLine($"  Tools: {(tools.Count > 0 ? string.Join(", ", tools) : "none")}");
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"  Project:     {Markup.Escape(project)}");
+            sb.AppendLine($"  {Cli.AgentIcon} Agents:    {agentCount}");
+            sb.AppendLine($"  {Cli.SkillIcon} Skills:    {skillCount}");
+            sb.AppendLine($"  {Cli.WorkflowIcon} Workflows: {workflowCount}");
+            sb.AppendLine($"  {Cli.BacklogIcon} Backlog:       {backlogCount}");
+            sb.AppendLine($"  {Cli.InProgressIcon} In Progress:   {inProgressCount}");
+            sb.Append($"  {Cli.ToolsIcon} Tools: {(tools.Count > 0 ? string.Join(", ", tools) : "none")}");
+
+            Cli.WritePanel("agentsmd status", sb.ToString());
         }, ProjectOption);
         return cmd;
     }
@@ -161,12 +174,14 @@ public static class CommandFactory
                 return;
             }
 
+            Cli.WriteLogo();
+
             state.EnsureDirectories();
-            Console.WriteLine("Created .agentsmd/ structure.");
+            Cli.WriteSuccess("Created .agentsmd/ structure.");
 
             // Fetch index and show available workflows
             var client = new GitHubLibClient(Http);
-            var json = await client.FetchIndexAsync();
+            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             if (json is not null)
             {
                 var index = IndexParser.Parse(json);
@@ -175,18 +190,20 @@ public static class CommandFactory
                     var workflows = IndexParser.Search(index, "", filterType: "workflow");
                     if (workflows.Count > 0)
                     {
-                        Console.WriteLine("\nAvailable workflows:");
+                        AnsiConsole.WriteLine();
+                        AnsiConsole.MarkupLine("[bold]Available workflows:[/]");
                         foreach (var wf in workflows)
-                            Console.WriteLine($"  - {wf.Name}: {wf.Description}");
-                        Console.WriteLine($"\nInstall a workflow: agentsmd workflow install <name>");
+                            AnsiConsole.MarkupLine($"  [{Cli.Muted}]-[/] [{Cli.Primary}]{Markup.Escape(wf.Name)}[/]: {Markup.Escape(wf.Description)}");
+                        AnsiConsole.MarkupLine($"\n[{Cli.Muted}]Install a workflow:[/] [{Cli.Accent}]agentsmd workflow install <name>[/]");
                     }
                 }
             }
 
-            Console.WriteLine("\n✓ Initialized. Next steps:");
-            Console.WriteLine("  1. agentsmd workflow install sdd-tdd");
-            Console.WriteLine("  2. agentsmd sync");
-            Console.WriteLine("  3. Start your AI agent with the kick-off prompt");
+            AnsiConsole.WriteLine();
+            Cli.WriteSuccess("Initialized. Next steps:");
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]1.[/] agentsmd workflow install sdd-tdd");
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]2.[/] agentsmd sync");
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]3.[/] Start your AI agent with the kick-off prompt");
         }, ProjectOption);
         return cmd;
     }
@@ -203,7 +220,7 @@ public static class CommandFactory
             if (!state.IsInitialized) { Console.Error.WriteLine("Not initialized. Run 'agentsmd init' first."); return; }
 
             var client = new GitHubLibClient(Http);
-            var json = await client.FetchIndexAsync();
+            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
 
             var index = IndexParser.Parse(json);
@@ -216,6 +233,12 @@ public static class CommandFactory
             if (artifact is null)
             {
                 Console.Error.WriteLine($"{type} '{name}' not found in lib.");
+                var candidates = index.Artifacts
+                    .Where(a => a.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
+                    .Select(a => a.Name);
+                var suggestion = Cli.FindClosestMatch(name, candidates);
+                if (suggestion is not null)
+                    AnsiConsole.MarkupLine($"[{Cli.Muted}]Did you mean [{Cli.Accent}]{Markup.Escape(suggestion)}[/]?[/]");
                 return;
             }
 
@@ -234,7 +257,7 @@ public static class CommandFactory
             }
 
             state.AddArtifact(artifact.Name, artifact.Type, artifact.Version);
-            Console.WriteLine($"Installed {type} '{artifact.Name}' v{artifact.Version}.");
+            Cli.WriteSuccess($"Installed {type} '{artifact.Name}' v{artifact.Version}.");
 
             // Install deps
             if (artifact.Deps.Count > 0)
@@ -271,7 +294,7 @@ public static class CommandFactory
                     }
 
                     state.AddArtifact(depEntry.Name, depEntry.Type, depEntry.Version);
-                    Console.WriteLine($"  Installed {depEntry.Type} '{depEntry.Name}' v{depEntry.Version}.");
+                    Cli.WriteSuccess($"  Installed {depEntry.Type} '{depEntry.Name}' v{depEntry.Version}.");
                 }
             }
 
@@ -328,7 +351,7 @@ public static class CommandFactory
             }
 
             state.RemoveArtifact(name, type);
-            Console.WriteLine($"Uninstalled {type} '{name}'.");
+            Cli.WriteSuccess($"Uninstalled {type} '{name}'.");
 
             // Auto-sync
             AutoSync(state, project);
@@ -347,8 +370,12 @@ public static class CommandFactory
             var installed = state.Load().Artifacts.Where(a => a.Type == type).ToList();
             if (installed.Count == 0) { Console.WriteLine($"No {type}s installed."); return; }
 
+            var table = Cli.CreateTable("Name", "Version");
             foreach (var a in installed)
-                Console.WriteLine($"  {a.Name,-25} {a.Version}");
+                table.AddRow(
+                    $"[{Cli.Primary}]{Markup.Escape(a.Name)}[/]",
+                    $"[{Cli.Muted}]{Markup.Escape(a.Version)}[/]");
+            AnsiConsole.Write(table);
         }, ProjectOption);
         return cmd;
     }
@@ -360,7 +387,7 @@ public static class CommandFactory
         cmd.SetHandler(async (string query, string project) =>
         {
             var client = new GitHubLibClient(Http);
-            var json = await client.FetchIndexAsync();
+            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
 
             var index = IndexParser.Parse(json);
@@ -369,8 +396,13 @@ public static class CommandFactory
             var results = IndexParser.Search(index, query, filterType: type);
             if (results.Count == 0) { Console.WriteLine("No results found."); return; }
 
+            var table = Cli.CreateTable("Name", "Version", "Description");
             foreach (var a in results)
-                Console.WriteLine($"  {a.Name,-25} {a.Version,-10} {a.Description}");
+                table.AddRow(
+                    $"[{Cli.Primary}]{Markup.Escape(a.Name)}[/]",
+                    $"[{Cli.Muted}]{Markup.Escape(a.Version)}[/]",
+                    Markup.Escape(a.Description));
+            AnsiConsole.Write(table);
         }, queryArg, ProjectOption);
         return cmd;
     }
@@ -382,7 +414,7 @@ public static class CommandFactory
         cmd.SetHandler(async (string name, string project) =>
         {
             var client = new GitHubLibClient(Http);
-            var json = await client.FetchIndexAsync();
+            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
             if (json is null) { Console.Error.WriteLine("Could not fetch lib index."); return; }
 
             var index = IndexParser.Parse(json);
@@ -395,34 +427,44 @@ public static class CommandFactory
             if (artifact is null)
             {
                 Console.Error.WriteLine($"{type} '{name}' not found in lib.");
+                var candidates = index.Artifacts
+                    .Where(a => a.Type.Equals(type, StringComparison.OrdinalIgnoreCase))
+                    .Select(a => a.Name);
+                var suggestion = Cli.FindClosestMatch(name, candidates);
+                if (suggestion is not null)
+                    AnsiConsole.MarkupLine($"[{Cli.Muted}]Did you mean [{Cli.Accent}]{Markup.Escape(suggestion)}[/]?[/]");
                 return;
             }
 
-            Console.WriteLine($"Name:        {artifact.Name}");
-            Console.WriteLine($"Type:        {artifact.Type}");
-            Console.WriteLine($"Version:     {artifact.Version}");
-            Console.WriteLine($"Description: {artifact.Description}");
-            Console.WriteLine($"Path:        {artifact.Path}");
+            var sb = new StringBuilder();
+            sb.AppendLine($"[bold]Name:[/]        [{Cli.Primary}]{Markup.Escape(artifact.Name)}[/]");
+            sb.AppendLine($"[bold]Type:[/]        {Cli.TypeIcon(artifact.Type)} {Markup.Escape(artifact.Type)}");
+            sb.AppendLine($"[bold]Version:[/]     [{Cli.Muted}]{Markup.Escape(artifact.Version)}[/]");
+            sb.AppendLine($"[bold]Description:[/] {Markup.Escape(artifact.Description)}");
+            sb.AppendLine($"[bold]Path:[/]        [{Cli.Muted}]{Markup.Escape(artifact.Path)}[/]");
+
             if (artifact.Deps.Count > 0)
             {
-                Console.WriteLine("Dependencies:");
+                sb.AppendLine("[bold]Dependencies:[/]");
                 foreach (var dep in artifact.Deps)
-                    Console.WriteLine($"  - {dep}");
+                    sb.AppendLine($"  [{Cli.Accent}]- {Markup.Escape(dep)}[/]");
             }
             if (artifact.Tags.Count > 0)
-                Console.WriteLine($"Tags:        {string.Join(", ", artifact.Tags)}");
+                sb.AppendLine($"[bold]Tags:[/]        [{Cli.Muted}]{Markup.Escape(string.Join(", ", artifact.Tags))}[/]");
             if (artifact.Supported is { Count: > 0 })
-                Console.WriteLine($"Supported:   {string.Join(", ", artifact.Supported)}");
+                sb.AppendLine($"[bold]Supported:[/]   [{Cli.Muted}]{Markup.Escape(string.Join(", ", artifact.Supported))}[/]");
 
             // Check if installed
             var state = new InstalledStateManager(project);
             if (state.IsInitialized)
             {
                 var installed = state.GetArtifact(name, type);
-                Console.WriteLine(installed is not null
-                    ? $"Status:      installed (v{installed.Version})"
-                    : "Status:      not installed");
+                sb.Append(installed is not null
+                    ? $"[bold]Status:[/]      [{Cli.Success}]installed (v{Markup.Escape(installed.Version)})[/]"
+                    : $"[bold]Status:[/]      [{Cli.Muted}]not installed[/]");
             }
+
+            Cli.WritePanel($"{Cli.TypeIcon(type)} {artifact.Name}", sb.ToString());
         }, nameArg, ProjectOption);
         return cmd;
     }
@@ -434,7 +476,7 @@ public static class CommandFactory
         var options = DetectTools(project);
         var engine = new SyncEngine(state, project);
         var result = engine.Sync(options);
-        Console.WriteLine($"Synced: {result.GeneratedFiles.Count} wrapper(s), {result.CopiedSkills.Count} skill(s) copied.");
+        Cli.WriteSuccess($"Synced: {result.GeneratedFiles.Count} wrapper(s), {result.CopiedSkills.Count} skill(s) copied.");
     }
 
     private static (string type, string name)? ParseDep(string dep)
