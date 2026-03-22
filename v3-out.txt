@@ -1,0 +1,201 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+C:\Program Files\dotnet\sdk\10.0.100-rc.2.25502.107\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(351,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [d:\Development\agentsmd\tests\Linxmd.Tests\Linxmd.Tests.csproj]
+C:\Program Files\dotnet\sdk\10.0.100-rc.2.25502.107\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.RuntimeIdentifierInference.targets(351,5): message NETSDK1057: You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy [d:\Development\agentsmd\src\Linxmd\Linxmd.csproj]
+  Linxmd -> d:\Development\agentsmd\src\Linxmd\bin\Debug\net10.0\win-x64\linxmd.dll
+  Linxmd.Tests -> d:\Development\agentsmd\tests\Linxmd.Tests\bin\Debug\net10.0\Linxmd.Tests.dll
+Test run for d:\Development\agentsmd\tests\Linxmd.Tests\bin\Debug\net10.0\Linxmd.Tests.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.0-preview-25502-107 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Remove_ChangelogWriter_BlockedBy_Release_Workflow [6 s]
+  Error Message:
+   Expected (stdout + stderr) "No artifacts installed.
+" to contain "Cannot uninstall due to active dependencies".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Remove_ChangelogWriter_BlockedBy_Release_Workflow() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 400
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.IndexJson_ContainsAllV3Artifacts [24 s]
+  Error Message:
+   Expected names {empty} to contain "code-translator".
+  Stack Trace:
+     at FluentAssertions.Collections.GenericCollectionAssertions`3.Contain(T expected, String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.IndexJson_ContainsAllV3Artifacts() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 467
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Release_Workflow_InstallsSuccessfully_WithAllDeps [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Release_Workflow_InstallsSuccessfully_WithAllDeps() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 223
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_I18nReady_InstallsAllMemberArtifacts [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_I18nReady_InstallsAllMemberArtifacts() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 332
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Browse_ShowsAllNewV3Artifacts [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Browse_ShowsAllNewV3Artifacts() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 414
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_DesignTokens_Skill_InstallsSuccessfully [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_DesignTokens_Skill_InstallsSuccessfully() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 129
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_TextTranslator_Skill_InstallsSuccessfully [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_TextTranslator_Skill_InstallsSuccessfully() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 101
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Remove_ProjectMemory_BlockedBy_ChangelogWriter_Agent [6 s]
+  Error Message:
+   Expected (stdout + stderr) "No artifacts installed.
+" to contain "Cannot uninstall due to active dependencies".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Remove_ProjectMemory_BlockedBy_ChangelogWriter_Agent() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 374
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_ContentPipeline_InstallsAllMemberArtifacts [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_ContentPipeline_InstallsAllMemberArtifacts() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 289
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_QualitySprint_InstallsAllMemberArtifacts [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_QualitySprint_InstallsAllMemberArtifacts() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 311
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_SkipsAlreadyInstalledMembers [6 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_SkipsAlreadyInstalledMembers() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 356
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_FullstackTdd_InstallsAllMemberArtifacts [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Pack_FullstackTdd_InstallsAllMemberArtifacts() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 258
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Remove_ProjectMemory_BlockedBy_Architect_Agent [6 s]
+  Error Message:
+   Expected (stdout + stderr) "No artifacts installed.
+" to contain "Cannot uninstall due to active dependencies".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.Contain(String expected, String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Remove_ProjectMemory_BlockedBy_Architect_Agent() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 387
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_ProjectMemory_Skill_InstallsSuccessfully [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_ProjectMemory_Skill_InstallsSuccessfully() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 143
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_I18n_Skill_InstallsSuccessfully [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_I18n_Skill_InstallsSuccessfully() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 115
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_CodeTranslator_Skill_InstallsSuccessfully [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_CodeTranslator_Skill_InstallsSuccessfully() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 87
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_ApiDesign_Skill_InstallsSuccessfully [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_ApiDesign_Skill_InstallsSuccessfully() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 157
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_BugFix_V3_Workflow_IncludesTestWriterAndChangelogDeps [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_BugFix_V3_Workflow_IncludesTestWriterAndChangelogDeps() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 240
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_ChangelogWriter_Agent_InstallsSuccessfully_WithProjectMemoryDep [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_ChangelogWriter_Agent_InstallsSuccessfully_WithProjectMemoryDep() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 173
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_Architect_Agent_InstallsSuccessfully_WithProjectMemoryDep [3 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_Architect_Agent_InstallsSuccessfully_WithProjectMemoryDep() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 188
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+  Failed Linxmd.Tests.E2E.LibV3E2ETests.Add_QualityBaseline_Workflow_InstallsSuccessfully_WithAllDeps [4 s]
+  Error Message:
+   Expected stderr to be empty, but found "Invalid index format.
+".
+  Stack Trace:
+     at FluentAssertions.Primitives.StringAssertions`1.BeEmpty(String because, Object[] becauseArgs)
+   at Linxmd.Tests.E2E.LibV3E2ETests.Add_QualityBaseline_Workflow_InstallsSuccessfully_WithAllDeps() in d:\Development\agentsmd\tests\Linxmd.Tests\E2E\LibV3E2ETests.cs:line 205
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Failed!  - Failed:    21, Passed:     0, Skipped:     0, Total:    21, Duration: 1 m 54 s - Linxmd.Tests.dll (net10.0)

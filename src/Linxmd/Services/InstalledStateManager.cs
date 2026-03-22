@@ -178,4 +178,21 @@ public sealed class InstalledStateManager
         "workflow" => WorkflowsDir,
         _ => throw new ArgumentException($"Unknown type: {type}")
     };
+
+    public static readonly string[] KnownPlatforms = ["copilot", "claude-code", "opencode"];
+
+    public List<string> GetPlatforms()
+    {
+        var state = Load();
+        return state.Platforms;
+    }
+
+    public void SavePlatforms(List<string> platforms)
+    {
+        var state = Load();
+        state.Platforms = platforms;
+        Save(state);
+    }
+
+    public bool PlatformsConfigured => Load().Platforms.Count > 0;
 }

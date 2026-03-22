@@ -1,7 +1,7 @@
 ---
 name: fact-checker
 type: agent
-version: 0.1.0
+version: 0.2.0
 description: Verifies factual claims, links, numbers, and references in content drafts
 deps: []
 tags:

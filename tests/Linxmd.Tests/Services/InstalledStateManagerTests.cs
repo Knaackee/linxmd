@@ -207,4 +207,80 @@ public class InstalledStateManagerTests : IDisposable
         _manager.IsInitialized.Should().BeTrue();
         Directory.Exists(_manager.AgentsDir).Should().BeTrue();
     }
+
+    [Fact]
+    public void GetPlatforms_NoneConfigured_ReturnsEmptyList()
+    {
+        _manager.EnsureDirectories();
+
+        var platforms = _manager.GetPlatforms();
+
+        platforms.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void SavePlatforms_PersistsSelection()
+    {
+        _manager.EnsureDirectories();
+
+        _manager.SavePlatforms(["copilot", "claude-code"]);
+
+        var platforms = _manager.GetPlatforms();
+        platforms.Should().HaveCount(2);
+        platforms.Should().Contain("copilot");
+        platforms.Should().Contain("claude-code");
+    }
+
+    [Fact]
+    public void SavePlatforms_OverwritesPrevious()
+    {
+        _manager.EnsureDirectories();
+        _manager.SavePlatforms(["copilot", "claude-code", "opencode"]);
+
+        _manager.SavePlatforms(["opencode"]);
+
+        var platforms = _manager.GetPlatforms();
+        platforms.Should().HaveCount(1);
+        platforms.Should().Contain("opencode");
+    }
+
+    [Fact]
+    public void SavePlatforms_PreservesArtifacts()
+    {
+        _manager.EnsureDirectories();
+        _manager.AddArtifact("test-writer", "agent", "1.0.0");
+
+        _manager.SavePlatforms(["copilot"]);
+
+        var state = _manager.Load();
+        state.Artifacts.Should().HaveCount(1);
+        state.Artifacts[0].Name.Should().Be("test-writer");
+        state.Platforms.Should().Contain("copilot");
+    }
+
+    [Fact]
+    public void PlatformsConfigured_FalseWhenEmpty()
+    {
+        _manager.EnsureDirectories();
+
+        _manager.PlatformsConfigured.Should().BeFalse();
+    }
+
+    [Fact]
+    public void PlatformsConfigured_TrueWhenSet()
+    {
+        _manager.EnsureDirectories();
+        _manager.SavePlatforms(["copilot"]);
+
+        _manager.PlatformsConfigured.Should().BeTrue();
+    }
+
+    [Fact]
+    public void KnownPlatforms_ContainsAllThree()
+    {
+        InstalledStateManager.KnownPlatforms.Should().HaveCount(3);
+        InstalledStateManager.KnownPlatforms.Should().Contain("copilot");
+        InstalledStateManager.KnownPlatforms.Should().Contain("claude-code");
+        InstalledStateManager.KnownPlatforms.Should().Contain("opencode");
+    }
 }

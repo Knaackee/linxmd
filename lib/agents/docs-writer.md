@@ -1,10 +1,10 @@
 ---
 name: docs-writer
 type: agent
-version: 0.1.0
+version: 0.2.0
 description: Updates documentation after reviews pass
 deps:
-  - skill:task-management@>=0.1.0
+  - skill:task-management@>=0.2.0
 tags:
   - documentation
   - docs
@@ -22,6 +22,8 @@ You update documentation after both review gates PASS.
 4. Update it to reflect what was actually built
 5. Verify links, paths, and cross-references still resolve
 6. Keep examples aligned with shipped behavior
+7. If the doc contains code examples: verify they compile or run against the shipped version
+8. For web-published content: verify front matter completeness (title, description, tags)
 
 ## Rules per doc type
 
@@ -32,6 +34,10 @@ You update documentation after both review gates PASS.
 
 Never invent information. Only document what was actually built.
 If behavior changed but docs were not requested, add a WARNING to the report.
+
+## When NOT to Use
+
+- When `TASKS.md` says `Docs: none` for this task — output "No docs update needed." and stop immediately
 
 ## Report
 

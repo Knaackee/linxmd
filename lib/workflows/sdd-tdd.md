@@ -1,15 +1,16 @@
 ---
 name: sdd-tdd
 type: workflow
-version: 0.1.0
+version: 0.2.0
 description: Spec-Driven Development with TDD pipeline
 deps:
-  - agent:test-writer@>=0.1.0
-  - agent:implementer@>=0.1.0
-  - agent:reviewer-spec@>=0.1.0
-  - agent:reviewer-quality@>=0.1.0
-  - agent:docs-writer@>=0.1.0
-  - skill:task-management@>=0.1.0
+  - agent:test-writer@>=0.2.0
+  - agent:implementer@>=0.2.0
+  - agent:reviewer-spec@>=0.2.0
+  - agent:reviewer-quality@>=0.2.0
+  - agent:docs-writer@>=0.2.0
+  - agent:planner@>=0.2.0
+  - skill:task-management@>=0.2.0
   - skill:preview-delivery@>=0.1.0
 tags:
   - development
@@ -40,14 +41,20 @@ Append "(guided)" for guided mode.
 
 ## Pipeline
 
-For each task in TASKS.md:
+**Step 0 (once per feature):**
+0. **PLAN** → `planner` → Decompose SPEC.md into TASKS.md
+   - Skip (fast-path) when: single acceptance criterion, no integration, trivial change
 
+**For each task in TASKS.md:**
 1. **RED** → `test-writer` → Write failing tests
 2. **GREEN** → `implementer` → Minimal code until tests pass
 3. **SPEC-REVIEW** → `reviewer-spec` → All criteria met?
 4. **QUALITY-REVIEW** → `reviewer-quality` → Code quality + security
+   - Note: steps 3 and 4 have no data dependency — run in parallel when tooling supports it
 5. **DOCS** → `docs-writer` → Update documentation
 6. **COMMIT** → All green → Commit
+
+**Max iterations:** If the GREEN → SPEC-REVIEW cycle fails 3 times for the same task, stop and wait for a user decision. Do not proceed to the next task.
 
 ## Stop Conditions
 
@@ -78,6 +85,12 @@ After all tasks complete:
 1. Run final checks
 2. Optionally run preview-delivery for review feedback loops
 3. Open PR with SPEC summary
+
+## When NOT to Use
+
+- Bug fixes where behavior is already defined but broken → use `workflow:bug-fix`
+- Refactoring with no new behavior → use `skill:refactoring`
+- Documentation-only changes → use `agent:docs-writer` directly
 
 ## Getting Started
 

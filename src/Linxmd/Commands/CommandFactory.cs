@@ -416,7 +416,7 @@ public static class CommandFactory
                 return;
             }
 
-            var options = DetectTools(project);
+            var options = DetectTools(project, state);
             var engine = new SyncEngine(state, project);
             var result = engine.Sync(options);
 
@@ -459,10 +459,14 @@ public static class CommandFactory
             var backlogCount = Directory.Exists(backlogDir) ? Directory.GetFiles(backlogDir, "*.md").Length : 0;
             var inProgressCount = Directory.Exists(inProgressDir) ? Directory.GetDirectories(inProgressDir).Length : 0;
 
-            var tools = new List<string>();
-            if (Directory.Exists(Path.Combine(project, ".github", "agents"))) tools.Add("copilot");
-            if (Directory.Exists(Path.Combine(project, ".claude", "agents"))) tools.Add("claude-code");
-            if (Directory.Exists(Path.Combine(project, ".opencode", "agents"))) tools.Add("opencode");
+            var tools = state.GetPlatforms();
+            if (tools.Count == 0)
+            {
+                // Fallback: show detected folders
+                if (Directory.Exists(Path.Combine(project, ".github", "agents"))) tools.Add("copilot");
+                if (Directory.Exists(Path.Combine(project, ".claude", "agents"))) tools.Add("claude-code");
+                if (Directory.Exists(Path.Combine(project, ".opencode", "agents"))) tools.Add("opencode");
+            }
 
             var sb = new StringBuilder();
             sb.AppendLine($"  Project:     {Markup.Escape(project)}");
@@ -475,6 +479,58 @@ public static class CommandFactory
 
             Cli.WritePanel("linxmd status", sb.ToString());
         }, ProjectOption);
+        return cmd;
+    }
+
+    public static Command CreatePlatformCommand()
+    {
+        var cmd = new Command("platform", "Select target platforms for sync");
+
+        cmd.SetHandler((string project) =>
+        {
+            var state = new InstalledStateManager(project);
+            if (!state.IsInitialized)
+            {
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
+                return;
+            }
+
+            var current = state.GetPlatforms();
+            bool interactive = SupportsInteractivePrompts();
+
+            if (!interactive)
+            {
+                if (current.Count == 0)
+                {
+                    Console.WriteLine("No platforms configured. Run interactively to select.");
+                    return;
+                }
+
+                Console.WriteLine("Configured platforms:");
+                foreach (var p in current)
+                    Console.WriteLine($"  {p}");
+                return;
+            }
+
+            var prompt = new MultiSelectionPrompt<string>()
+                .Title("Select target platforms:")
+                .PageSize(10)
+                .InstructionsText("[grey](Press [blue]<space>[/] to toggle, [green]<enter>[/] to accept)[/]")
+                .AddChoices(InstalledStateManager.KnownPlatforms);
+
+            foreach (var p in current.Where(p =>
+                InstalledStateManager.KnownPlatforms.Contains(p, StringComparer.OrdinalIgnoreCase)))
+                prompt.Select(p);
+
+            var selected = AnsiConsole.Prompt(prompt);
+
+            state.SavePlatforms(selected);
+            Cli.WriteSuccess($"Platforms: {string.Join(", ", selected)}");
+
+            // Auto-sync after platform change
+            AutoSync(state, project);
+        }, ProjectOption);
+
         return cmd;
     }
 
@@ -609,12 +665,20 @@ Use CLI help to discover commands and flags when needed.
         AnsiConsole.MarkupLine($"  {Cli.TypeIcon(artifact.Type)} [{Cli.Primary}]{Markup.Escape(artifact.Name)}[/] v{Markup.Escape(artifact.Version)}");
         if (!string.IsNullOrEmpty(artifact.Description))
             AnsiConsole.MarkupLine($"  [{Cli.Muted}]{Markup.Escape(artifact.Description)}[/]");
-        if (artifact.Deps.Count > 0)
+        if (artifact.Type.Equals("pack", StringComparison.OrdinalIgnoreCase) && artifact.Artifacts.Count > 0)
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]Includes: {Markup.Escape(string.Join(", ", artifact.Artifacts))}[/]");
+        else if (artifact.Deps.Count > 0)
             AnsiConsole.MarkupLine($"  [{Cli.Muted}]Dependencies: {Markup.Escape(string.Join(", ", artifact.Deps))}[/]");
     }
 
     private static ILibClient CreateClient(LibSource source)
     {
+        if (source.Kind.Equals("local", StringComparison.OrdinalIgnoreCase))
+        {
+            var basePath = source.LocalPath ?? source.BasePath;
+            return new LocalLibClient(basePath);
+        }
+
         if (!source.Kind.Equals("github", StringComparison.OrdinalIgnoreCase))
             throw new NotSupportedException($"Source kind '{source.Kind}' is not supported yet.");
 
@@ -623,6 +687,23 @@ Use CLI help to discover commands and flags when needed.
 
     private static async Task InstallArtifactAsync(ILibClient client, InstalledStateManager state, LibIndex index, ArtifactEntry artifact, string sourceId)
     {
+        if (artifact.Type.Equals("pack", StringComparison.OrdinalIgnoreCase))
+        {
+            AnsiConsole.MarkupLine($"  [{Cli.Primary}]Installing pack '{Markup.Escape(artifact.Name)}' ({artifact.Artifacts.Count} artifact(s))...[/]");
+            foreach (var artId in artifact.Artifacts)
+            {
+                var parsedMember = ParseArtifactId(artId);
+                if (parsedMember is null) { Console.Error.WriteLine($"  Cannot parse pack member id '{artId}'."); continue; }
+                var member = index.Artifacts.FirstOrDefault(a =>
+                    a.Name.Equals(parsedMember.Value.name, StringComparison.OrdinalIgnoreCase) &&
+                    a.Type.Equals(parsedMember.Value.type, StringComparison.OrdinalIgnoreCase));
+                if (member is null) { Console.Error.WriteLine($"  Pack member '{artId}' not found in index."); continue; }
+                if (state.GetArtifact(member.Name, member.Type) is not null) continue;
+                await InstallArtifactAsync(client, state, index, member, sourceId);
+            }
+            return; // Pack itself is NOT recorded in installed.json
+        }
+
         string? checksum = null;
         if (artifact.Type == "skill")
         {
@@ -771,7 +852,7 @@ Use CLI help to discover commands and flags when needed.
 
     private static void AutoSync(InstalledStateManager state, string project)
     {
-        var options = DetectTools(project);
+        var options = DetectTools(project, state);
         var engine = new SyncEngine(state, project);
         var result = engine.Sync(options);
         Cli.WriteSuccess($"Synced: {result.GeneratedFiles.Count} wrapper(s), {result.CopiedSkills.Count} skill(s) copied.");
@@ -807,12 +888,21 @@ Use CLI help to discover commands and flags when needed.
         return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 
-    private static SyncOptions DetectTools(string project) => new()
+    private static SyncOptions DetectTools(string project, InstalledStateManager? state = null) 
     {
-        Copilot = Directory.Exists(Path.Combine(project, ".github")) || true,
-        ClaudeCode = true,
-        OpenCode = true
-    };
+        state ??= new InstalledStateManager(project);
+        var platforms = state.GetPlatforms();
+        if (platforms.Count > 0)
+            return SyncOptions.FromPlatforms(platforms);
+
+        // Fallback: all platforms when none configured yet
+        return new SyncOptions
+        {
+            Copilot = true,
+            ClaudeCode = true,
+            OpenCode = true
+        };
+    }
 
     private static bool SupportsInteractivePrompts()
     {

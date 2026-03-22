@@ -13,4 +13,6 @@ public sealed class LibSource
     public string Repo { get; init; } = "linxmd";
     public string Branch { get; init; } = "main";
     public string BasePath { get; init; } = "lib";
+    /// <summary>Absolute or relative path to the lib directory. Used when Kind is "local".</summary>
+    public string? LocalPath { get; init; }
 }

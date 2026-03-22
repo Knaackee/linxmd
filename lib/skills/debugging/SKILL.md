@@ -1,7 +1,7 @@
 ---
 name: debugging
 type: skill
-version: 0.1.0
+version: 0.2.0
 description: Systematic debugging with hypothesis tracking
 deps: []
 tags:
@@ -15,6 +15,7 @@ Triggered by: test failures, runtime errors, or explicit "debug [problem]" reque
 
 ## Process
 
+0. **Rubberduck step**: Verbalize the problem in one sentence — what was expected, what actually happened, what you have already tried. This forces problem clarification before any fix attempt.
 1. **Read logs first** — check logs/ for recent entries
 2. **Form one hypothesis**: "The error occurs because X"
 3. **Apply one atomic fix** targeting that hypothesis
@@ -48,6 +49,16 @@ Triggered by: test failures, runtime errors, or explicit "debug [problem]" reque
   Fix: [what was changed]
   Result: [pass / still failing — new symptom]
 ```
+
+## Performance Debugging
+
+Apply only after a measured baseline shows a problem — never optimize before profiling.
+
+1. Measure first: establish a baseline with profiling or benchmarks
+2. Identify the hot path: which function contributes most to total time?
+3. Form a hypothesis: "Reducing allocations in X will halve latency because Y"
+4. Apply one targeted change and re-measure
+5. Accept the change only if the measured improvement matches the hypothesis
 
 ## Escalation
 

@@ -19,7 +19,8 @@ public static class Program
             CommandFactory.CreateStatusCommand(),
             CommandFactory.CreateInitCommand(),
             CommandFactory.CreateInitPromptCommand(),
-            CommandFactory.CreateUpdateCommand()
+            CommandFactory.CreateUpdateCommand(),
+            CommandFactory.CreatePlatformCommand()
         };
 
         root.AddGlobalOption(CommandFactory.ProjectOption);

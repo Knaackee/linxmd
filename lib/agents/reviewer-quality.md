@@ -1,7 +1,7 @@
 ---
 name: reviewer-quality
 type: agent
-version: 0.1.0
+version: 0.2.0
 description: Reviews code quality and security
 deps: []
 tags:
@@ -17,6 +17,7 @@ You run AFTER reviewer-spec PASS — focus only on HOW the code is written.
 
 ## Process
 
+0. **Reason first (CoT)**: Work through each checklist section methodically before forming the VERDICT — note findings inline
 1. Read the git diff for this task
 2. Review:
 
@@ -42,6 +43,12 @@ You run AFTER reviewer-spec PASS — focus only on HOW the code is written.
 - Auth and authorization behavior unchanged unless explicitly required?
 - Error messages avoid leaking sensitive internals?
 
+### LLM-Specific (when the code interacts with AI models or processes LLM output)
+
+- User input must not flow into LLM prompts without sanitization (prompt injection risk)
+- Code must not assume deterministic LLM output format (non-determinism bug)
+- Identifiers referenced in code must exist in the actual codebase, not only in tests (hallucinated identifier risk)
+
 ## Output
 
 ```
@@ -57,7 +64,12 @@ REFACTOR (optional cleanup):
   [specific change]
 ```
 
-BLOCKER = production bug, security issue, or core principle violated.
+BLOCKER = production bug, security issue, or core principle violated. Stylistic preferences are never BLOCKER.
 WARNING = non-blocking risk, maintainability concern, or likely future defect.
 Minimal targeted fixes only — never suggest full rewrites.
+
+## When NOT to Use
+
+- Before `reviewer-spec` has returned PASS for the same task
+- For reviewing specs, plans, or documentation content
 

@@ -17,4 +17,5 @@ public sealed class ArtifactEntry
     public List<string> Deps { get; init; } = [];
     public List<string> Tags { get; init; } = [];
     public List<string> Supported { get; init; } = [];
+    public List<string> Artifacts { get; init; } = [];
 }

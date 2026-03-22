@@ -1,13 +1,13 @@
 ---
 name: content-review
 type: workflow
-version: 0.1.0
+version: 0.2.0
 description: Content creation with review pipeline
 deps:
-  - agent:drafter@>=0.1.0
-  - agent:fact-checker@>=0.1.0
-  - agent:editor@>=0.1.0
-  - skill:task-management@>=0.1.0
+  - agent:drafter@>=0.2.0
+  - agent:fact-checker@>=0.2.0
+  - agent:editor@>=0.2.0
+  - skill:task-management@>=0.2.0
 tags:
   - content
   - writing
@@ -26,8 +26,10 @@ fact-checking, and editing.
 
 1. **DRAFT** → `drafter` creates initial draft from backlog item
 2. **FACT-CHECK** → `fact-checker` verifies claims, links, and numbers
-3. **EDIT** → `editor` improves language, flow, and structure
-4. **PUBLISH** → Final version prepared for release
+3. **TONE-REVIEW** → Inline check (no separate agent): Is the tone appropriate for the target audience? Is the voice consistent throughout? Are any statements likely to alienate or confuse the reader?
+4. **EDIT** → `editor` improves language, flow, and structure
+5. **METADATA** → For web-published content only: verify title, description, tags, and canonical URL are complete
+6. **PUBLISH** → Final version prepared for release
 
 ## Stage Contracts
 
@@ -52,8 +54,15 @@ fact-checking, and editing.
 
 Guided prompts:
 - "Draft complete. Say 'next stage' for fact-check."
-- "Fact-check complete. Say 'next stage' for edit."
-- "Edit complete. Say 'publish' to finalize."
+- "Fact-check complete. Say 'next stage' for tone-review."
+- "Tone-review complete. Say 'next stage' for edit."
+- "Edit complete. Say 'next stage' for metadata check (or 'publish' to skip)."
+- "Metadata complete. Say 'publish' to finalize."
+
+## When NOT to Use
+
+- For short internal notes or comments with no review requirement — write directly
+- For code documentation → use `agent:docs-writer`
 
 ## Getting Started
 

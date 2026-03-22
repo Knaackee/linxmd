@@ -206,4 +206,74 @@ public class SyncEngineTests : IDisposable
         Directory.CreateDirectory(dir);
         File.WriteAllText(Path.Combine(dir, "SKILL.md"), content);
     }
+
+    [Fact]
+    public void FromPlatforms_AllPlatforms_SetsAllTrue()
+    {
+        var options = SyncOptions.FromPlatforms(["copilot", "claude-code", "opencode"]);
+
+        options.Copilot.Should().BeTrue();
+        options.ClaudeCode.Should().BeTrue();
+        options.OpenCode.Should().BeTrue();
+    }
+
+    [Fact]
+    public void FromPlatforms_OnlyCopilot_SetsOnlyCopilot()
+    {
+        var options = SyncOptions.FromPlatforms(["copilot"]);
+
+        options.Copilot.Should().BeTrue();
+        options.ClaudeCode.Should().BeFalse();
+        options.OpenCode.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FromPlatforms_Empty_SetsAllFalse()
+    {
+        var options = SyncOptions.FromPlatforms([]);
+
+        options.Copilot.Should().BeFalse();
+        options.ClaudeCode.Should().BeFalse();
+        options.OpenCode.Should().BeFalse();
+    }
+
+    [Fact]
+    public void FromPlatforms_CaseInsensitive()
+    {
+        var options = SyncOptions.FromPlatforms(["Copilot", "Claude-Code", "OpenCode"]);
+
+        options.Copilot.Should().BeTrue();
+        options.ClaudeCode.Should().BeTrue();
+        options.OpenCode.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Sync_WithPlatformConfig_OnlySyncsSelected()
+    {
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 1.0.0\n---\n\nContent.");
+
+        _state.SavePlatforms(["copilot"]);
+        var options = SyncOptions.FromPlatforms(_state.GetPlatforms());
+        var result = _engine.Sync(options);
+
+        result.GeneratedFiles.Should().HaveCount(1);
+        File.Exists(Path.Combine(_tempDir, ".github", "agents", "test-writer.agent.md")).Should().BeTrue();
+        Directory.Exists(Path.Combine(_tempDir, ".claude", "agents")).Should().BeFalse();
+        Directory.Exists(Path.Combine(_tempDir, ".opencode", "agents")).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Sync_WithTwoPlatforms_SyncsBoth()
+    {
+        WriteAgent("test-writer", "---\nname: test-writer\ntype: agent\nversion: 1.0.0\n---\n\nContent.");
+
+        _state.SavePlatforms(["claude-code", "opencode"]);
+        var options = SyncOptions.FromPlatforms(_state.GetPlatforms());
+        var result = _engine.Sync(options);
+
+        result.GeneratedFiles.Should().HaveCount(2);
+        File.Exists(Path.Combine(_tempDir, ".claude", "agents", "test-writer.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".opencode", "agents", "test-writer.md")).Should().BeTrue();
+        Directory.Exists(Path.Combine(_tempDir, ".github", "agents")).Should().BeFalse();
+    }
 }

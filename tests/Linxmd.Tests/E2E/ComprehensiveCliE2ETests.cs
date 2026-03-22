@@ -135,6 +135,7 @@ public class ComprehensiveCliE2ETests : IDisposable
         stdout.Should().Contain("init");
         stdout.Should().Contain("init-prompt");
         stdout.Should().Contain("update");
+        stdout.Should().Contain("platform");
     }
 
     [Fact]
@@ -149,7 +150,8 @@ public class ComprehensiveCliE2ETests : IDisposable
             "list --help",
             "sync --help",
             "status --help",
-            "update --help"
+            "update --help",
+            "platform --help"
         };
 
         foreach (var command in commands)
@@ -277,6 +279,41 @@ public class ComprehensiveCliE2ETests : IDisposable
         var (_, idOut, idErr) = RunCli("list skill:debugging");
         idErr.Should().BeEmpty();
         idOut.Should().Contain("debugging");
+    }
+
+    [Fact]
+    public void Platform_WithoutInit_FailsFast()
+    {
+        var (_, stdout, stderr) = RunCli("platform");
+        (stdout + stderr).Should().Contain("Not initialized");
+    }
+
+    [Fact]
+    public void Platform_NonInteractive_NoPlatforms_ShowsMessage()
+    {
+        RunCli("init");
+
+        var (code, stdout, stderr) = RunCli("platform");
+        code.Should().Be(0);
+        stderr.Should().BeEmpty();
+        stdout.Should().Contain("No platforms configured");
+    }
+
+    [Fact]
+    public void Platform_Help_ShowsUsage()
+    {
+        var (code, stdout, stderr) = RunCli("platform --help", includeProject: false);
+        code.Should().Be(0);
+        stderr.Should().BeEmpty();
+        stdout.Should().Contain("Usage:");
+    }
+
+    [Fact]
+    public void Help_ShowsPlatformCommand()
+    {
+        var (code, stdout, stderr) = RunCli("--help", includeProject: false);
+        code.Should().Be(0);
+        stdout.Should().Contain("platform");
     }
 
     private static string ResolveRepoRoot()

@@ -23,6 +23,7 @@ public static class Cli
         "agent" => AgentIcon,
         "skill" => SkillIcon,
         "workflow" => WorkflowIcon,
+        "pack" => "🗂️",
         _ => "·"
     };
 

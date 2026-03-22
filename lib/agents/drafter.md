@@ -1,7 +1,7 @@
 ---
 name: drafter
 type: agent
-version: 0.1.0
+version: 0.2.0
 description: Drafts first-pass content from task context and audience
 deps: []
 tags:

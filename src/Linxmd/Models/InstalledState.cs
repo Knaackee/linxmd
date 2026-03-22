@@ -14,4 +14,5 @@ public sealed class InstalledArtifact
 public sealed class InstalledState
 {
     public List<InstalledArtifact> Artifacts { get; set; } = [];
+    public List<string> Platforms { get; set; } = [];
 }

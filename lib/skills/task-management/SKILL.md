@@ -1,7 +1,7 @@
 ---
 name: task-management
 type: skill
-version: 0.1.0
+version: 0.2.0
 description: Task system with backlog, specs, and task tracking
 deps: []
 tags:
@@ -83,6 +83,32 @@ Each task = RED → GREEN → SPEC-REVIEW → QUALITY-REVIEW → DOCS → COMMIT
   - Docs:     [which file to update, or "none"]
   - Commit:   `[type]: [message]`
 ```
+
+## NOTES.md Structure
+
+```markdown
+# NOTES: [Feature Name]
+
+## Open Decisions
+- [question] — waiting on: [person/date]
+
+## Blocked
+- [task name] — blocked by: [exact blocker] — unblocks when: [condition]
+
+## Run Log
+[STEP] agent:name — STATUS — summary
+
+## Agent Notes
+[free text observations from agents during execution]
+```
+
+**Blocked rule**: A blocked item must name the exact blocker and the condition that would unblock it. Vague entries ("blocked on stuff") are not valid.
+
+## Definition of Done
+
+**Code task**: All AC tests green + no regressions + reviewer-spec PASS + reviewer-quality PASS + docs updated
+**Docs task**: File updated + all links resolve + code examples verified + reviewed by one other agent or person
+**Design/Spec task**: SPEC.md approved + all Open Questions resolved + Non-Goals explicitly listed
 
 ## Status
 

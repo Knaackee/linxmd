@@ -105,6 +105,17 @@ public sealed class SyncOptions
     public bool Copilot { get; init; }
     public bool ClaudeCode { get; init; }
     public bool OpenCode { get; init; }
+
+    public static SyncOptions FromPlatforms(IEnumerable<string> platforms)
+    {
+        var set = new HashSet<string>(platforms, StringComparer.OrdinalIgnoreCase);
+        return new SyncOptions
+        {
+            Copilot = set.Contains("copilot"),
+            ClaudeCode = set.Contains("claude-code"),
+            OpenCode = set.Contains("opencode")
+        };
+    }
 }
 
 public sealed class SyncResult
