@@ -21,3 +21,13 @@ TestResults/
 
 ## Local linxmd runtime state
 .linxmd/
+
+## Temp test output files
+full-test.txt
+full-err.txt
+quick-test.txt
+quick-err.txt
+v3-out.txt
+v3-err.txt
+v3-results.txt
+test-results.txt

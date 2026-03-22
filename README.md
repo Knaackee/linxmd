@@ -6,7 +6,7 @@ Linxmd is a lightweight package manager for AI workflow artifacts. Run `linxmd i
 
 ## ✨ Features
 
-- 📦 **20 ready-to-use artifacts** — [workflows](lib/README.md#-workflows), [agents](lib/README.md#-agents), and [skills](lib/README.md#-skills) in the box
+- 📦 **37 ready-to-use artifacts** — 7 [workflows](lib/README.md#-workflows), 13 [agents](lib/README.md#-agents), 13 [skills](lib/README.md#-skills), and 4 [packs](lib/README.md#-packs) in the box
 - 🔗 **Dependency-safe installs** — blocked removals protect dependent workflows from breaking
 - 🔄 **One-command sync** — `linxmd sync` regenerates all tool wrappers in one step
 - 🌐 **Multi-source registry** — pull from GitHub, local paths, or your own fork
@@ -58,6 +58,10 @@ linxmd list [type|type:name] [--json]
 linxmd update [--yes]
 linxmd sync
 linxmd status
+linxmd memory index
+linxmd memory search <query> [--limit <n>]
+linxmd memory stats
+linxmd memory recent [--type decision|changelog|issue] [--limit <n>]
 ```
 
 **Examples**
@@ -91,8 +95,10 @@ The full artifact catalog with dependency graphs and usage notes lives in [`lib/
 | Artifact | Description |
 |---|---|
 | `workflow:sdd-tdd` | Full Spec-Driven + TDD pipeline from spec to reviewed, documented code |
-| `workflow:content-review` | Draft → fact-check → edit content pipeline |
 | `workflow:bug-fix` | Reproduce, fix, verify, and document a bug |
+| `workflow:quality-baseline` | Audit and raise project quality — coverage, static analysis, security scan |
+| `workflow:release` | Cut a clean, documented release in one pipeline |
+| `workflow:content-review` | Draft → fact-check → edit content pipeline |
 | `workflow:artifact-factory` | Author new agents, skills, and workflows |
 
 ### 🤖 Agents
@@ -100,26 +106,43 @@ The full artifact catalog with dependency graphs and usage notes lives in [`lib/
 | Artifact | Description |
 |---|---|
 | `agent:router` | Routes requests to the right workflow or agent |
-| `agent:planner` | Decomposes a spec into a structured task list |
+| `agent:planner` | Decomposes a spec into a sequenced, independently-committable task list |
+| `agent:architect` | Records technical decisions as numbered ADRs |
 | `agent:test-writer` | Writes failing tests from acceptance criteria |
-| `agent:implementer` | Writes code until tests pass |
-| `agent:reviewer-spec` | Verifies all acceptance criteria are met |
-| `agent:reviewer-quality` | Audits code quality and security |
-| `agent:docs-writer` | Updates docs after reviews pass |
+| `agent:implementer` | Writes the minimum code to turn failing tests green |
+| `agent:reviewer-spec` | Verifies all acceptance criteria before merge |
+| `agent:reviewer-quality` | Audits code quality, security, and design smells |
+| `agent:docs-writer` | Updates READMEs, changelogs, and API docs after code changes |
+| `agent:changelog-writer` | Writes perfectly formatted changelog entries from task context or diffs |
 | `agent:drafter` | Produces first-pass content drafts |
-| `agent:editor` | Polishes content for clarity and style |
-| `agent:fact-checker` | Verifies claims and references in documents |
+| `agent:editor` | Polishes content for clarity, structure, and style |
+| `agent:fact-checker` | Verifies factual claims, numbers, and references in documents |
 
 ### 🛠️ Skills
 
 | Artifact | Description |
 |---|---|
 | `skill:task-management` | Backlog, spec files, and task-tracking conventions |
-| `skill:context-management` | Coherent-context strategies for long sessions |
+| `skill:project-memory` | ADRs, changelog, and known-issues log — durable knowledge that survives context resets |
 | `skill:debugging` | Systematic fault isolation with hypothesis tracking |
 | `skill:refactoring` | Test-backed refactoring with rollback checkpoints |
+| `skill:api-design` | OpenAPI 3.1 spec writing, versioning strategies, and security checklists |
+| `skill:code-translator` | Port code between languages idiomatically, with test-suite verification |
+| `skill:i18n` | Audit and extract hardcoded strings into locale files |
+| `skill:text-translator` | Translate content between human languages preserving tone and brand voice |
+| `skill:design-tokens` | Extract CSS magic values into a W3C token system with Tailwind + CSS output |
+| `skill:context-management` | Coherent-context strategies for long sessions |
 | `skill:observability` | Structured logging and traces for agentic pipelines |
 | `skill:preview-delivery` | Build previews, share links, collect feedback |
+
+### 📦 Packs
+
+| Artifact | Description |
+|---|---|
+| `pack:fullstack-tdd` | Complete TDD pipeline — sdd-tdd + router + context management |
+| `pack:content-pipeline` | Full content stack — content-review workflow + drafter + editor + fact-checker |
+| `pack:quality-sprint` | Quality in one shot — baseline audit + project memory + automated routing |
+| `pack:i18n-ready` | Multilingual-ready — i18n extraction + text-translator + task management |
 
 → **[Browse the full catalog with deps and dependency graph](lib/README.md)**
 
@@ -188,7 +211,12 @@ your-project/
 │   │   ├── backlog/
 │   │   └── in-progress/
 │   ├── installed.json
-│   └── sources.json
+│   ├── sources.json
+│   └── memory.db          ← SQLite FTS5 index (git-ignorable)
+├── docs/
+│   └── decisions/         ← ADRs (indexed by linxmd memory)
+├── CHANGELOG.md           ← indexed by linxmd memory
+├── KNOWN_ISSUES.md        ← indexed by linxmd memory
 ├── .github/agents/
 ├── .claude/agents/
 ├── .claude/skills/

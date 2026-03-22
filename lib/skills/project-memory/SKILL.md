@@ -131,10 +131,36 @@ Use `agent:changelog-writer` to write entries automatically.
 
 ## Search Protocol
 
-Before making a significant decision, check:
-1. `docs/decisions/` — was this already decided?
-2. `CHANGELOG.md` — was this behavior changed recently?
-3. `KNOWN_ISSUES.md` — is this a known issue?
+Before making a significant decision, check the project memory in this order:
+
+### With `linxmd memory` (recommended for projects with many ADRs)
+
+If the project has `linxmd` installed and the memory index exists (`.linxmd/memory.db`):
+
+```bash
+linxmd memory search "<relevant keywords>"   # FTS5 full-text search, returns top 5
+linxmd memory stats                          # "42 decisions, 8 issues, 120 changelog entries"
+linxmd memory recent --type decision         # last 10 ADRs, newest first
+```
+
+Build or refresh the index whenever memory files change:
+```bash
+linxmd memory index    # scans docs/decisions/*.md, CHANGELOG.md, KNOWN_ISSUES.md
+```
+
+The index file (`.linxmd/memory.db`) is a derived SQLite cache — add it to `.gitignore`. The markdown files remain the canonical source of truth.
+
+### Without the index (pure markdown)
+
+Load files **selectively** — never load the entire `docs/decisions/` directory at once:
+
+1. Load `docs/decisions/README.md` (the index table, ~3KB) — scan titles for relevant keywords
+2. Load only the 1-3 ADR files whose titles match your question
+3. For CHANGELOG: load only the `## [Unreleased]` block — not the full history
+4. For KNOWN_ISSUES: filter to `## Open` section rows; skip Resolved rows
+5. Hard cap: load at most 3 full ADR files per decision. If you need more, the problem requires more research than a single context window can provide.
+
+**Index size limit:** If `docs/decisions/README.md` exceeds 200 rows, move ADRs older than 2 years to `docs/decisions/archive/` and create a matching `docs/decisions/README-archive.md`. Never delete ADRs — only archive them.
 
 ## Rules
 
@@ -149,3 +175,19 @@ Before making a significant decision, check:
 
 - For trivial decisions with obvious rationale — no ADR needed
 - For operational secrets or credentials — use a secrets manager, not markdown
+- For temporary notes that don't need to outlive the current session — use `NOTES.md` in task-management instead
+
+## Stability Contract
+
+This skill's file and directory names are a **public API**. Every workflow that records or queries project memory depends on the exact paths below.
+
+| Path | Role |
+|------|------|
+| `docs/decisions/` | ADR directory — never rename |
+| `docs/decisions/README.md` | ADR index — never delete |
+| `docs/decisions/[NNNN]-*.md` | ADR naming pattern — never change |
+| `CHANGELOG.md` | Changelog — always at project root |
+| `KNOWN_ISSUES.md` | Issue log — always at project root |
+| `.linxmd/memory.db` | Derived SQLite index — gitignore-able, safe to delete/rebuild |
+
+Breaking changes to any path above require a major version bump and a migration note.

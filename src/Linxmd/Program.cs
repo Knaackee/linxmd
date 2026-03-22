@@ -20,7 +20,8 @@ public static class Program
             CommandFactory.CreateInitCommand(),
             CommandFactory.CreateInitPromptCommand(),
             CommandFactory.CreateUpdateCommand(),
-            CommandFactory.CreatePlatformCommand()
+            CommandFactory.CreatePlatformCommand(),
+            CommandFactory.CreateMemoryCommand()
         };
 
         root.AddGlobalOption(CommandFactory.ProjectOption);
