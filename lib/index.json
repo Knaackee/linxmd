@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-22T10:55:55Z",
+  "generated": "2026-03-22T11:15:35Z",
   "artifacts": [
     {
       "name": "architect",
@@ -484,6 +484,81 @@
         "development",
         "tdd",
         "sdd"
+      ]
+    },
+    {
+      "name": "content-pipeline",
+      "type": "pack",
+      "version": "1.0.0",
+      "description": "Complete draft → fact-check → edit → review stack",
+      "path": "packs/content-pipeline.md",
+      "deps": [],
+      "tags": [
+        "content",
+        "writing",
+        "review"
+      ],
+      "artifacts": [
+        "agent:drafter",
+        "agent:fact-checker",
+        "agent:editor",
+        "workflow:content-review"
+      ]
+    },
+    {
+      "name": "fullstack-tdd",
+      "type": "pack",
+      "version": "1.0.0",
+      "description": "Full TDD pipeline with routing and context management",
+      "path": "packs/fullstack-tdd.md",
+      "deps": [],
+      "tags": [
+        "tdd",
+        "workflow",
+        "routing"
+      ],
+      "artifacts": [
+        "workflow:sdd-tdd",
+        "agent:router",
+        "skill:task-management",
+        "skill:context-management"
+      ]
+    },
+    {
+      "name": "i18n-ready",
+      "type": "pack",
+      "version": "1.0.0",
+      "description": "i18n extraction, translation, and task management",
+      "path": "packs/i18n-ready.md",
+      "deps": [],
+      "tags": [
+        "i18n",
+        "translation",
+        "localization"
+      ],
+      "artifacts": [
+        "skill:i18n",
+        "skill:text-translator",
+        "skill:task-management",
+        "agent:docs-writer"
+      ]
+    },
+    {
+      "name": "quality-sprint",
+      "type": "pack",
+      "version": "1.0.0",
+      "description": "Baseline quality audit, project memory, and automated routing",
+      "path": "packs/quality-sprint.md",
+      "deps": [],
+      "tags": [
+        "quality",
+        "audit",
+        "routing"
+      ],
+      "artifacts": [
+        "workflow:quality-baseline",
+        "skill:project-memory",
+        "agent:router"
       ]
     }
   ]
