@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-21T19:30:27Z",
+  "generated": "2026-03-22T06:43:35Z",
   "artifacts": [
     {
       "name": "docs-writer",
@@ -123,6 +123,19 @@
       ]
     },
     {
+      "name": "preview-delivery",
+      "type": "skill",
+      "version": "0.0.1",
+      "description": "Build previews, share links or binaries, collect feedback, and iterate",
+      "path": "skills/preview-delivery/",
+      "deps": [],
+      "tags": [
+        "preview",
+        "feedback",
+        "delivery"
+      ]
+    },
+    {
       "name": "refactoring",
       "type": "skill",
       "version": "0.0.1",
@@ -148,16 +161,19 @@
       ]
     },
     {
-      "name": "preview-delivery",
-      "type": "skill",
+      "name": "artifact-factory",
+      "type": "workflow",
       "version": "0.0.1",
-      "description": "Build previews, share links or binaries, collect feedback, and iterate",
-      "path": "skills/preview-delivery/",
-      "deps": [],
+      "description": "Create and refine new agents, skills, and workflows as reusable building blocks",
+      "path": "workflows/artifact-factory.md",
+      "deps": [
+        "skill:task-management@>=0.0.1",
+        "skill:preview-delivery@>=0.0.1"
+      ],
       "tags": [
-        "preview",
-        "feedback",
-        "delivery"
+        "factory",
+        "authoring",
+        "workflow"
       ]
     },
     {
@@ -210,23 +226,6 @@
         "tdd",
         "sdd"
       ]
-    },
-    {
-      "name": "artifact-factory",
-      "type": "workflow",
-      "version": "0.0.1",
-      "description": "Create and refine new agents, skills, and workflows as reusable building blocks",
-      "path": "workflows/artifact-factory.md",
-      "deps": [
-        "skill:task-management@>=0.0.1",
-        "skill:preview-delivery@>=0.0.1"
-      ],
-      "tags": [
-        "factory",
-        "authoring",
-        "workflow"
-      ]
     }
   ]
 }
-
