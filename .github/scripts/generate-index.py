@@ -24,7 +24,7 @@ def main():
     artifacts = []
     lib = "lib"
 
-    for pattern in ["agents/*.md", "skills/*/SKILL.md", "workflows/*.md"]:
+    for pattern in ["agents/*.md", "skills/*/SKILL.md", "workflows/*.md", "packs/*.md"]:
         for f in sorted(glob.glob(os.path.join(lib, pattern))):
             with open(f, encoding="utf-8") as fh:
                 content = fh.read()
@@ -40,6 +40,7 @@ def main():
             deps = get_list_field(fm, "deps")
             tags = get_list_field(fm, "tags")
             supported = get_list_field(fm, "supported")
+            pack_artifacts = get_list_field(fm, "artifacts")
 
             rel = os.path.relpath(f, lib).replace("\\", "/")
             path = os.path.dirname(rel) + "/" if atype == "skill" else rel
@@ -55,6 +56,8 @@ def main():
             }
             if supported:
                 entry["supported"] = supported
+            if pack_artifacts:
+                entry["artifacts"] = pack_artifacts
             artifacts.append(entry)
 
     index = {
