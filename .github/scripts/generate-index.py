@@ -41,8 +41,6 @@ def main():
             tags = get_list_field(fm, "tags")
             supported = get_list_field(fm, "supported")
             pack_artifacts = get_list_field(fm, "artifacts")
-            internal_match = re.search(r'^internal:\s*(true|false)$', fm, re.MULTILINE)
-            internal = internal_match and internal_match.group(1) == "true"
 
             rel = os.path.relpath(f, lib).replace("\\", "/")
             path = os.path.dirname(rel) + "/" if atype == "skill" else rel
@@ -60,8 +58,6 @@ def main():
                 entry["supported"] = supported
             if pack_artifacts:
                 entry["artifacts"] = pack_artifacts
-            if internal:
-                entry["internal"] = True
             artifacts.append(entry)
 
     index = {

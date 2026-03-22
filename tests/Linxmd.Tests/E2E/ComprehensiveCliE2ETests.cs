@@ -71,28 +71,22 @@ public class ComprehensiveCliE2ETests : IDisposable
         statusErr.Should().BeEmpty();
         statusOut.Should().Contain("linxmd status");
 
-        var (_, addOut, addErr) = RunCli("add workflow:echo-test --yes");
+        var (_, addOut, addErr) = RunCli("add agent:test-writer --yes");
         addErr.Should().BeEmpty();
-        addOut.Should().Contain("Installed workflow 'echo-test'");
-        addOut.Should().Contain("Installed agent 'echo-test'");
-        addOut.Should().Contain("Installed skill 'echo-test'");
+        addOut.Should().Contain("Installed agent 'test-writer'");
         addOut.Should().Contain("Synced:");
 
-        File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "echo-test.md")).Should().BeTrue();
-        File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "echo-test.md")).Should().BeTrue();
-        Directory.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "echo-test")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "test-writer.md")).Should().BeTrue();
 
         var (_, listOut, listErr) = RunCli("list");
         listErr.Should().BeEmpty();
-        listOut.Should().Contain("workflow");
         listOut.Should().Contain("agent");
-        listOut.Should().Contain("skill");
-        listOut.Should().Contain("echo-test");
+        listOut.Should().Contain("test-writer");
 
         var (_, jsonOut, jsonErr) = RunCli("list --json");
         jsonErr.Should().BeEmpty();
         var doc = JsonDocument.Parse(jsonOut.Trim());
-        doc.RootElement.GetProperty("artifacts").GetArrayLength().Should().BeGreaterThan(1);
+        doc.RootElement.GetProperty("artifacts").GetArrayLength().Should().BeGreaterThan(0);
 
         var (_, syncOut, syncErr) = RunCli("sync");
         syncErr.Should().BeEmpty();
@@ -102,18 +96,9 @@ public class ComprehensiveCliE2ETests : IDisposable
         updateErr.Should().BeEmpty();
         updateOut.Should().ContainAny("All artifacts are up to date.", "Updated");
 
-        var (_, removeOut, removeErr) = RunCli("remove workflow:echo-test --yes");
+        var (_, removeOut, removeErr) = RunCli("remove agent:test-writer --yes");
         removeErr.Should().BeEmpty();
-        removeOut.Should().Contain("Uninstalled workflow 'echo-test'");
-
-        var (_, listAfterOut, listAfterErr) = RunCli("list");
-        listAfterErr.Should().BeEmpty();
-        listAfterOut.Should().Contain("echo-test");
-
-        var (_, removeRemainingOut, removeRemainingErr) = RunCli("remove echo-test --yes");
-        removeRemainingErr.Should().BeEmpty();
-        removeRemainingOut.Should().Contain("Uninstalled agent 'echo-test'");
-        removeRemainingOut.Should().Contain("Uninstalled skill 'echo-test'");
+        removeOut.Should().Contain("Uninstalled agent 'test-writer'");
 
         var (_, finalListOut, finalListErr) = RunCli("list");
         finalListErr.Should().BeEmpty();
@@ -224,9 +209,9 @@ public class ComprehensiveCliE2ETests : IDisposable
     {
         RunCli("init");
 
-        var (_, stdout, stderr) = RunCli("add echo-test --yes");
+        var (_, stdout, stderr) = RunCli("add reviewer --yes");
         (stdout + stderr).Should().Contain("Multiple matches");
-        (stdout + stderr).Should().Contain("agent:echo-test");
+        (stdout + stderr).Should().Contain("agent:reviewer-quality");
     }
 
     [Fact]

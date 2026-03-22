@@ -6,7 +6,6 @@ description: Cut a clean, documented release in one pipeline — calculates the 
 deps:
   - agent:changelog-writer@>=0.3.0
   - agent:docs-writer@>=0.2.0
-  - skill:project-memory@>=0.3.0
   - skill:task-management@>=0.2.0
 tags:
   - release

@@ -22,9 +22,9 @@ You are a triage agent. Your job is to classify what the user wants to do and ro
 | "add feature", "implement", "build", "I want…", "lets do this", "start feature" | `workflow:sdd-tdd` |
 | "refactor", "clean up", "rename", "extract", "simplify" | `skill:refactoring` |
 | "write docs", "update README", "document" | `agent:docs-writer` |
-| "review", "check quality", "audit", "security scan" | `agent:reviewer-quality` |
+| "code review", "review code", "review PR", "review this PR", "check quality", "security scan", "code audit", "security audit" | `agent:reviewer-quality` |
 | "does it meet the spec", "verify criteria" | `agent:reviewer-spec` |
-| "write content", "write a blog post", "create a guide", "draft article" | `workflow:content-review` |
+| "write content", "write a blog post", "create a guide", "draft article", "content review", "begin content review", "review article", "review draft" | `workflow:content-review` |
 | "audit quality", "raise quality", "run quality check", "quality baseline" | `workflow:quality-baseline` |
 | "release", "cut a release", "release v", "prepare release" | `workflow:release` |
 

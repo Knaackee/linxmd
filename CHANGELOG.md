@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-03-22
+
+### Added
+
+- `skill:project-memory` v1.0.0 — CLI-first protocol, FTS5 quick reference, agent session protocol, full command documentation (all 12 consistency issues resolved)
+
+### Fixed
+
+- `workflow:bug-fix` step 4 used `reviewer-spec` for root-cause check — replaced with `reviewer-quality` (reviewer-spec requires a SPEC.md; bug-fix has none)
+- `workflow:release` had a dead dep on `skill:project-memory` — removed
+- `agent:router` had trigger phrase collisions: bare "audit" routed to reviewer-quality, capturing "audit quality" (quality-baseline) and "content review" (content-review) — router table rewritten with unambiguous phrases
+- `workflow:quality-baseline` TASKS.md output path was unspecified — now writes to `.linxmd/tasks/backlog/quality-baseline-YYYY-MM-DD.md`
+
+### Removed
+
+- `agent:echo-test`, `skill:echo-test`, `workflow:echo-test` — test-only artifacts removed from public lib; E2E tests updated to use real artifacts (`agent:test-writer`, `add reviewer --yes`)
+
+---
+
 ## [0.5.0] - 2026-03-22
 
 ### Added

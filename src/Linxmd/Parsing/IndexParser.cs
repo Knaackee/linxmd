@@ -26,12 +26,9 @@ public static class IndexParser
         return JsonSerializer.Serialize(index, AppJsonContext.Default.LibIndex);
     }
 
-    public static List<ArtifactEntry> Search(LibIndex index, string query, string? filterType = null, bool includeInternal = false)
+    public static List<ArtifactEntry> Search(LibIndex index, string query, string? filterType = null)
     {
         var results = index.Artifacts.AsEnumerable();
-
-        if (!includeInternal)
-            results = results.Where(a => !a.Internal);
 
         if (!string.IsNullOrWhiteSpace(filterType))
             results = results.Where(a => a.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));

@@ -6,7 +6,6 @@ description: Structured pipeline for reproducing, fixing, and verifying a confir
 deps:
   - agent:implementer@>=0.2.0
   - agent:test-writer@>=0.2.0
-  - agent:reviewer-spec@>=0.2.0
   - agent:reviewer-quality@>=0.2.0
   - agent:docs-writer@>=0.2.0
   - agent:changelog-writer@>=0.3.0
@@ -46,7 +45,9 @@ Triggered by: "fix", "broken", "regression", "failing test", or a specific error
    - All previously passing tests must still pass
    - No unrelated changes allowed
 
-4. **SPEC-REVIEW** → `reviewer-spec` → Does the fix address the root cause, not just the symptom?
+4. **ROOT-CAUSE REVIEW** → `reviewer-quality` → Does the fix address the root cause, not just the symptom?
+   - Verify: all previously-passing tests still pass
+   - Verify: the fix does not introduce new issues
    - If BLOCKER: route back to implementer
 
 5. **QUALITY-REVIEW** → `reviewer-quality` → No new issues introduced

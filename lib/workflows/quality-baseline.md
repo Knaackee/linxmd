@@ -126,7 +126,7 @@ Produce `QUALITY_REPORT.md`:
 - [ ] [action]
 ```
 
-After producing the report, add all P1 and P2 actions to TASKS.md via `skill:task-management`.
+After producing the report, add all P1 and P2 actions to `.linxmd/tasks/backlog/quality-baseline-YYYY-MM-DD.md` via `skill:task-management`.
 
 ## Max Iterations
 

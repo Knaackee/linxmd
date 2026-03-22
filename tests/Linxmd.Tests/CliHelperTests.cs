@@ -71,7 +71,7 @@ public class CliHelperTests
     [InlineData("content-reviw", "content-review")]
     public void FindClosestMatch_Various(string input, string expected)
     {
-        var candidates = new[] { "sdd-tdd", "content-review", "echo-test" };
+        var candidates = new[] { "sdd-tdd", "content-review", "docs-writer" };
         var result = Cli.FindClosestMatch(input, candidates);
         result.Should().Be(expected);
     }
