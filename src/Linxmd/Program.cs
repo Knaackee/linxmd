@@ -10,7 +10,7 @@ public static class Program
     {
         var updateTask = UpdateNotifier.TryNotifyAsync();
 
-        var root = new RootCommand("linxmd — AI Agent workflow manager")
+        var root = new RootCommand("linxmd ï¿½ AI Agent workflow manager")
         {
             CommandFactory.CreateAddCommand(),
             CommandFactory.CreateRemoveCommand(),
@@ -18,6 +18,7 @@ public static class Program
             CommandFactory.CreateSyncCommand(),
             CommandFactory.CreateStatusCommand(),
             CommandFactory.CreateInitCommand(),
+            CommandFactory.CreateInitPromptCommand(),
             CommandFactory.CreateUpdateCommand()
         };
 

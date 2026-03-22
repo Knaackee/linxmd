@@ -70,19 +70,51 @@ public class CliE2ETests : IDisposable
         var (exitCode, stdout, _) = RunCli("init");
         exitCode.Should().Be(0);
         stdout.Should().Contain("Created .linxmd/ structure");
+        stdout.Should().Contain("Created base skill 'linxmd-self-bootstrap'");
+        stdout.Should().Contain("Synced wrappers and skills");
+        stdout.Should().Contain("Base onboarding prompt:");
 
         File.Exists(Path.Combine(_tempDir, ".linxmd", "sources.json")).Should().BeTrue();
         var sourcesJson = File.ReadAllText(Path.Combine(_tempDir, ".linxmd", "sources.json"));
         sourcesJson.Should().Contain("default");
         sourcesJson.Should().Contain("linxmd");
+
+        File.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
+        File.Exists(Path.Combine(_tempDir, ".claude", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
     }
 
     [Fact]
-    public void Add_Browse_WorksWithoutInit()
+    public void InitPrompt_PrintsPrompt_WithoutInit()
     {
-        var (exitCode, stdout, _) = RunCli("add echo-test", includeProject: false);
+        var (exitCode, stdout, _) = RunCli("init-prompt");
         exitCode.Should().Be(0);
-        stdout.Should().Contain("echo-test");
+        stdout.Should().Contain("Base onboarding prompt:");
+        stdout.Should().Contain("Do not run linxmd init");
+    }
+
+    [Fact]
+    public void Add_Browse_WithoutInit_FailsFast()
+    {
+        var (_, _, stderr) = RunCli("add echo-test");
+        stderr.Should().Contain("Not initialized");
+    }
+
+    [Fact]
+    public void Add_NoQuery_ShowsAllArtifacts_AfterInit()
+    {
+        RunCli("init");
+        var (exitCode, stdout, _) = RunCli("add");
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("test-writer");
+        stdout.Should().Contain("sdd-tdd");
+    }
+
+    [Fact]
+    public void Add_Install_WithoutQuery_ShowsError()
+    {
+        RunCli("init");
+        var (_, _, stderr) = RunCli("add --install");
+        stderr.Should().Contain("--install requires a query");
     }
 
     [Fact]
@@ -100,7 +132,25 @@ public class CliE2ETests : IDisposable
 
         exitCode.Should().Be(0);
         stdout.Should().Contain("Installed agent 'test-writer'");
+        stdout.Should().Contain("Synced:");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "test-writer.md")).Should().BeTrue();
+    }
+
+    [Fact]
+    public void Add_Install_BestMatch_InstallsWithoutSelection()
+    {
+        RunCli("init");
+        var (exitCode, stdout, _) = RunCli("add tdd --install --yes");
+
+        exitCode.Should().Be(0);
+        stdout.Should().Contain("Installed ");
+
+        var hasWorkflow = File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "sdd-tdd.md"));
+        var hasAnyInstall = Directory.Exists(Path.Combine(_tempDir, ".linxmd", "agents"))
+                            || Directory.Exists(Path.Combine(_tempDir, ".linxmd", "skills"))
+                            || Directory.Exists(Path.Combine(_tempDir, ".linxmd", "workflows"));
+
+        (hasWorkflow || hasAnyInstall).Should().BeTrue();
     }
 
     [Fact]
@@ -141,7 +191,20 @@ public class CliE2ETests : IDisposable
         var (exitCode, stdout, _) = RunCli("remove agent:test-writer --yes");
         exitCode.Should().Be(0);
         stdout.Should().Contain("Uninstalled agent 'test-writer'");
+        stdout.Should().Contain("Synced:");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "test-writer.md")).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Remove_NoQuery_NonInteractive_ListsInstalled()
+    {
+        RunCli("init");
+        RunCli("add agent:test-writer --yes");
+
+        var (exitCode, stdout, stderr) = RunCli("remove");
+        exitCode.Should().Be(0);
+        stderr.Should().NotContain("Specify an artifact id");
+        stdout.Should().Contain("test-writer");
     }
 
     [Fact]

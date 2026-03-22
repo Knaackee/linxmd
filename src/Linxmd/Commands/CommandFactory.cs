@@ -12,22 +12,32 @@ namespace Linxmd.Commands;
 public static class CommandFactory
 {
     private static readonly HttpClient Http = new();
+    private const string BootstrapSkillName = "linxmd-self-bootstrap";
 
     public static readonly Option<string> ProjectOption =
         new(["--project", "-p"], () => Directory.GetCurrentDirectory(), "Project root directory");
 
     public static Command CreateAddCommand()
     {
-        var queryArg = new Argument<string>("query", () => "", "Artifact id (type:name) or search query");
+        var queryArg = new Argument<string>("query", () => "", "Optional filter: artifact id (type:name) or search query");
         var yesOpt = new Option<bool>(["--yes", "-y"], "Skip confirmation prompts");
+        var installOpt = new Option<bool>("--install", "Install best match directly (requires a query)");
         var sourceOpt = new Option<string>("--source", () => "default", "Source id from .linxmd/sources.json");
         var cmd = new Command("add", "Browse, search and install artifacts") { queryArg };
         cmd.AddOption(yesOpt);
+        cmd.AddOption(installOpt);
         cmd.AddOption(sourceOpt);
 
-        cmd.SetHandler(async (string query, bool yes, string source, string project) =>
+        cmd.SetHandler(async (string query, bool yes, bool install, string source, string project) =>
         {
             var state = new InstalledStateManager(project);
+
+            if (!state.IsInitialized)
+            {
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
+                return;
+            }
+
             state.EnsureDefaultSources();
 
             var selectedSource = state.GetSource(source);
@@ -44,17 +54,10 @@ public static class CommandFactory
             var index = IndexParser.Parse(json);
             if (index is null) { Console.Error.WriteLine("Invalid index format."); return; }
 
-            bool interactive = !yes && AnsiConsole.Profile.Capabilities.Interactive;
+            bool interactive = !yes && SupportsInteractivePrompts();
             var parsedId = ParseArtifactId(query);
             string? filterType = parsedId?.type;
             string lookup = parsedId?.name ?? query;
-
-            if (string.IsNullOrEmpty(lookup) && interactive)
-            {
-                lookup = AnsiConsole.Prompt(
-                    new TextPrompt<string>("[bold]Search library:[/]")
-                        .AllowEmpty());
-            }
 
             var results = IndexParser.Search(index, lookup, filterType: filterType);
             if (results.Count == 0)
@@ -108,6 +111,29 @@ public static class CommandFactory
                     return;
                 }
             }
+            else if (install)
+            {
+                if (string.IsNullOrWhiteSpace(lookup))
+                {
+                    Console.Error.WriteLine("--install requires a query. Example: linxmd add tdd --install");
+                    return;
+                }
+
+                var candidates = results.Select(a => $"{a.Type}:{a.Name}").ToList();
+                var match = Cli.FindClosestMatch(lookup, candidates);
+                if (match is not null)
+                {
+                    var parsed = ParseArtifactId(match);
+                    if (parsed is not null)
+                    {
+                        selected = results.FirstOrDefault(a =>
+                            a.Type.Equals(parsed.Value.type, StringComparison.OrdinalIgnoreCase) &&
+                            a.Name.Equals(parsed.Value.name, StringComparison.OrdinalIgnoreCase));
+                    }
+                }
+
+                selected ??= results.FirstOrDefault();
+            }
             else if (interactive)
             {
                 selected = AnsiConsole.Prompt(
@@ -129,12 +155,6 @@ public static class CommandFactory
 
             if (selected is null) return;
 
-            if (!state.IsInitialized)
-            {
-                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
-                return;
-            }
-
             ShowArtifactInfo(selected);
 
             if (interactive)
@@ -148,14 +168,14 @@ public static class CommandFactory
 
             await InstallArtifactAsync(client, state, index, selected, selectedSource.Id);
             AutoSync(state, project);
-        }, queryArg, yesOpt, sourceOpt, ProjectOption);
+        }, queryArg, yesOpt, installOpt, sourceOpt, ProjectOption);
 
         return cmd;
     }
 
     public static Command CreateRemoveCommand()
     {
-        var queryArg = new Argument<string>("query", () => "", "Artifact id (type:name) or name");
+        var queryArg = new Argument<string>("query", () => "", "Optional filter: artifact id (type:name) or name");
         var yesOpt = new Option<bool>(["--yes", "-y"], "Skip confirmation prompts");
         var cmd = new Command("remove", "Browse installed artifacts and uninstall") { queryArg };
         cmd.AddOption(yesOpt);
@@ -177,7 +197,7 @@ public static class CommandFactory
                 return;
             }
 
-            bool interactive = !yes && AnsiConsole.Profile.Capabilities.Interactive;
+            bool interactive = !yes && SupportsInteractivePrompts();
             List<InstalledArtifact> toRemove;
 
             if (!string.IsNullOrEmpty(query))
@@ -206,7 +226,7 @@ public static class CommandFactory
             }
             else
             {
-                Console.Error.WriteLine("Specify an artifact id. Usage: linxmd remove <type:name> [--yes]");
+                Cli.WriteInstalledTable(installed.Artifacts.Select(a => (a.Type, a.Name, a.Version)));
                 return;
             }
 
@@ -306,7 +326,7 @@ public static class CommandFactory
                     $"[{Cli.Muted}]{Markup.Escape(inst.SourceId)}[/]");
             AnsiConsole.Write(table);
 
-            bool interactive = !yes && AnsiConsole.Profile.Capabilities.Interactive;
+            bool interactive = !yes && SupportsInteractivePrompts();
             var toUpdate = updatable;
 
             if (interactive)
@@ -460,69 +480,128 @@ public static class CommandFactory
 
     public static Command CreateInitCommand()
     {
+        var copyPromptOpt = new Option<bool>("--copy-prompt", "Copy onboarding prompt to clipboard");
         var cmd = new Command("init", "Initialize linxmd in project");
-        cmd.SetHandler(async (string project) =>
+        cmd.AddOption(copyPromptOpt);
+
+        cmd.SetHandler((bool copyPrompt, string project) =>
         {
             var state = new InstalledStateManager(project);
             if (state.IsInitialized)
             {
                 Console.WriteLine("Already initialized.");
+                PrintInitPrompt(copyPrompt);
                 return;
             }
 
             Cli.WriteLogo();
             state.EnsureDirectories();
+            EnsureBootstrapSkill(state);
+            AutoSync(state, project);
+
             Cli.WriteSuccess("Created .linxmd/ structure.");
-
-            var source = state.GetSource("default")!;
-            var client = CreateClient(source);
-            var json = await Cli.SpinAsync("Fetching library index...", () => client.FetchIndexAsync());
-            bool interactive = AnsiConsole.Profile.Capabilities.Interactive;
-
-            if (json is not null)
-            {
-                var index = IndexParser.Parse(json);
-                if (index is not null)
-                {
-                    var workflows = IndexParser.Search(index, "", filterType: "workflow");
-                    if (workflows.Count > 0)
-                    {
-                        if (interactive)
-                        {
-                            AnsiConsole.WriteLine();
-                            var choices = workflows.Select(w => w.Name).Append("(skip)").ToList();
-                            var selected = AnsiConsole.Prompt(
-                                new SelectionPrompt<string>()
-                                    .Title("Select a workflow to start with:")
-                                    .PageSize(10)
-                                    .AddChoices(choices));
-
-                            if (selected != "(skip)")
-                            {
-                                var workflow = workflows.First(w => w.Name == selected);
-                                await InstallArtifactAsync(client, state, index, workflow, "default");
-                                AutoSync(state, project);
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            AnsiConsole.WriteLine();
-                            AnsiConsole.MarkupLine("[bold]Available workflows:[/]");
-                            foreach (var wf in workflows)
-                                AnsiConsole.MarkupLine($"  [{Cli.Muted}]-[/] [{Cli.Primary}]{Markup.Escape(wf.Name)}[/]: {Markup.Escape(wf.Description)}");
-                            AnsiConsole.MarkupLine($"\n[{Cli.Muted}]Install a workflow:[/] [{Cli.Accent}]linxmd add workflow:<name>[/]");
-                        }
-                    }
-                }
-            }
+            Cli.WriteSuccess($"Created base skill '{BootstrapSkillName}'.");
+            Cli.WriteSuccess("Synced wrappers and skills.");
 
             AnsiConsole.WriteLine();
-            Cli.WriteSuccess("Initialized. Next steps:");
-            AnsiConsole.MarkupLine($"  [{Cli.Muted}]1.[/] linxmd add workflow:<name>");
-            AnsiConsole.MarkupLine($"  [{Cli.Muted}]2.[/] Start your AI agent");
-        }, ProjectOption);
+            Cli.WriteSuccess("Run onboarding prompt to complete setup:");
+            PrintInitPrompt(copyPrompt);
+        }, copyPromptOpt, ProjectOption);
         return cmd;
+    }
+
+    public static Command CreateInitPromptCommand()
+    {
+        var copyOpt = new Option<bool>("--copy", "Copy onboarding prompt to clipboard");
+        var cmd = new Command("init-prompt", "Print onboarding completion prompt for your LLM tool");
+        cmd.AddOption(copyOpt);
+
+        cmd.SetHandler((bool copy) =>
+        {
+            PrintInitPrompt(copy);
+        }, copyOpt);
+
+        return cmd;
+    }
+
+    private static void PrintInitPrompt(bool copyToClipboard)
+    {
+        var prompt = BuildInitPrompt();
+        AnsiConsole.MarkupLine("[bold]Base onboarding prompt:[/]");
+        AnsiConsole.WriteLine(prompt);
+
+        if (!copyToClipboard) return;
+
+        if (ClipboardService.TryCopy(prompt, out var error))
+            Cli.WriteSuccess("Copied onboarding prompt to clipboard.");
+        else
+            Cli.WriteWarning($"Could not copy prompt to clipboard: {error}");
+    }
+
+    private static string BuildInitPrompt()
+    {
+        return """
+Onboard this repository for linxmd.
+Do not run linxmd init (already initialized).
+
+Use the CLI first to inspect context:
+1. linxmd status
+2. linxmd list
+3. linxmd add --help
+
+Analyze:
+- project type (software/content/mixed)
+- greenfield vs existing project
+- quality gaps (tests/logging/tracing/docs/release)
+
+Then propose:
+- exactly 1 primary workflow
+- up to 3 optional improvements
+- each item must include concrete linxmd commands (for example: linxmd add workflow:sdd-tdd --yes)
+
+Do not execute install/remove commands yet.
+Do not change files yet.
+Wait for confirmation before any changes.
+""";
+    }
+
+    private static void EnsureBootstrapSkill(InstalledStateManager state)
+    {
+        var skillDir = Path.Combine(state.SkillsDir, BootstrapSkillName);
+        Directory.CreateDirectory(skillDir);
+
+        var content = """
+---
+name: linxmd-self-bootstrap
+type: skill
+version: 0.0.1
+description: Minimal guidance for using linxmd CLI through shell tools
+deps: []
+tags:
+  - onboarding
+  - linxmd
+  - cli
+---
+
+# Linxmd Self Bootstrap
+
+Linxmd is a CLI tool you can invoke from shell.
+Use CLI help to discover commands and flags when needed.
+
+## Quick Checks
+
+1. `linxmd status`
+2. `linxmd list`
+3. `linxmd add --help`
+
+## Rules
+
+1. Do not run `linxmd init` if project is already initialized.
+2. Analyze first, then propose, then wait for confirmation.
+3. After confirmation, execute linxmd commands via shell.
+""";
+
+        File.WriteAllText(Path.Combine(skillDir, "SKILL.md"), content);
     }
 
     private static void ShowArtifactInfo(ArtifactEntry artifact)
@@ -734,4 +813,13 @@ public static class CommandFactory
         ClaudeCode = true,
         OpenCode = true
     };
+
+    private static bool SupportsInteractivePrompts()
+    {
+        var caps = AnsiConsole.Profile.Capabilities;
+        return caps.Interactive
+               && caps.Ansi
+               && !Console.IsOutputRedirected
+               && !Console.IsErrorRedirected;
+    }
 }
