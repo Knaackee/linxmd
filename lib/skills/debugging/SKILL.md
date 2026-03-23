@@ -1,70 +1,71 @@
 ---
 name: debugging
 type: skill
-version: 0.2.0
-description: Systematic debugging with hypothesis tracking
-deps: []
-tags:
-  - debugging
-  - troubleshooting
+level: core
+version: 2.0.0
+description: >
+  Systematic debugging methodology: reproduce first, isolate, fix, verify.
+  Binary search for root cause, minimal reproduction cases.
+tags: [core, debugging, troubleshooting, root-cause]
 ---
 
 # Debugging Skill
 
-Triggered by: test failures, runtime errors, or explicit "debug [problem]" requests.
+> Systematic approach to finding and fixing bugs. Reproduce first, isolate the cause, fix minimally, verify completely.
 
-## Process
+## Methodology
 
-0. **Rubberduck step**: Verbalize the problem in one sentence — what was expected, what actually happened, what you have already tried. This forces problem clarification before any fix attempt.
-1. **Read logs first** — check logs/ for recent entries
-2. **Form one hypothesis**: "The error occurs because X"
-3. **Apply one atomic fix** targeting that hypothesis
-4. **Verify**: run tests or reproduce the issue
-5. **Evaluate**:
-   - Fixed → continue with next task
-   - Not fixed → form a NEW hypothesis (never repeat the same fix)
-   - No new hypothesis → STOP and report
+### Step 1: Reproduce
+Before anything else, **reproduce the bug reliably**:
+- Write a failing test that demonstrates the bug
+- The test IS the acceptance criterion for the fix
+- If you can't reproduce it, gather more information before proceeding
 
-## Techniques
+### Step 2: Isolate
+Use binary search to narrow down the root cause:
+1. Identify the earliest point where behavior is correct
+2. Identify the latest point where behavior is incorrect
+3. Bisect: check the midpoint
+4. Repeat until the cause is a single function/line
 
-- Trace the first failing assertion, not the last emitted error
-- Isolate scope: reproduce with the smallest test or input surface
-- Use stack traces and boundary logs to validate assumptions
-- Bisect recent changes when a regression appears after a known good state
-- Prefer debugger breakpoints for state-dependent failures
+Techniques:
+- **Logging**: Add targeted log statements at bisection points
+- **Breakpoints**: Use debugger to inspect state at key locations
+- **Reduction**: Simplify the reproduction case to eliminate noise
+- **Git bisect**: If regression, find the introducing commit
 
-## Rules
+### Step 3: Understand
+Before fixing, understand:
+- **Root cause** — the real bug, not the symptom
+- **Impact scope** — what else might be affected?
+- **Why it wasn't caught** — missing test? Missing validation? Design flaw?
 
-- One hypothesis at a time
-- One atomic fix per hypothesis
-- Never repeat a fix that already failed
-- Always log what was tried and the result
-- Maximum 5 attempts before escalating to user
-- If behavior is unclear, write or update a failing test before another code change
+### Step 4: Fix
+- Minimal change that addresses the root cause
+- Do NOT fix symptoms — fix the cause
+- If the fix is large, break it into logical commits
 
-## Log Format
+### Step 5: Verify
+- The reproduction test must now pass
+- All existing tests must still pass
+- Add regression tests for the specific failure mode
+- Check related code paths for the same class of bug
 
-```
-[TIMESTAMP] [DEBUG] Hypothesis: [X]
-  Fix: [what was changed]
-  Result: [pass / still failing — new symptom]
-```
+## Common Bug Patterns
 
-## Performance Debugging
+| Pattern | Symptom | Root Cause |
+|---------|---------|------------|
+| Off-by-one | Works for N but fails for N+1 | Boundary condition in loop/array |
+| Race condition | Intermittent failures | Shared mutable state without synchronization |
+| Null reference | Random crashes | Missing null check on optional data |
+| Type coercion | Wrong results | Implicit type conversion (e.g., string "0" ≠ number 0) |
+| State leak | Test order dependent | Shared state between tests |
+| Encoding | Garbled text | UTF-8/ASCII mismatch |
 
-Apply only after a measured baseline shows a problem — never optimize before profiling.
+## Anti-Patterns
 
-1. Measure first: establish a baseline with profiling or benchmarks
-2. Identify the hot path: which function contributes most to total time?
-3. Form a hypothesis: "Reducing allocations in X will halve latency because Y"
-4. Apply one targeted change and re-measure
-5. Accept the change only if the measured improvement matches the hypothesis
-
-## Escalation
-
-After 5 failed hypotheses or when stuck:
-"I've tried [N] approaches. Here's what I know:
-- [hypothesis 1]: [result]
-- [hypothesis 2]: [result]
-What would you like to try?"
+- **Shotgun debugging**: Changing random things and hoping it works → Use binary search instead
+- **Print debugging only**: Console.log everywhere → Use a debugger for complex issues
+- **Fixing symptoms**: "Make the error go away" → Find and fix the root cause
+- **No reproduction test**: "I fixed it, trust me" → Write a test that proves it
 

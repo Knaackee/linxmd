@@ -1,62 +1,53 @@
 ---
 name: context-management
 type: skill
-version: 0.2.0
-description: Strategies for maintaining coherent context across long sessions and large codebases
-deps: []
-tags:
-  - context
-  - sessions
-  - token-budget
+level: core
+version: 2.0.0
+description: >
+  Manage LLM context windows effectively. Prioritize information, summarize
+  strategically, and avoid context overflow.
+tags: [core, context, llm, token-management]
 ---
 
 # Context Management Skill
 
-Triggered by: long sessions drifting, agent losing track of constraints, "start fresh", or any task that spans more than 3 commits.
+> LLM context windows are finite. Manage them like a scarce resource: prioritize, summarize, and drop what's not needed.
 
-## Techniques
+## Priority Stack
 
-### Summarize Before Starting a New Task
-Before beginning a new task, summarize all completed tasks into NOTES.md under `## Run Log`. Keep each entry to one line: what was done, what commit it landed in.
+Load information in this order (highest priority first):
 
-### Working Set Declaration
-At the start of each task, declare the working set: the minimal list of files relevant to this task. Only load those files. Do not scan the whole repository unless explicitly searching.
+1. **PROJECT.md** — always loaded, non-negotiable
+2. **Current task** — frontmatter, acceptance criteria, spec
+3. **Relevant source files** — files being modified
+4. **Recent traces** — last 1–2 sessions on the same task
+5. **ADRs** — only those relevant to the current task
+6. **Test files** — for the code being modified
+7. **Everything else** — only on demand
 
-```
-Working set for Task [N]:
-- src/[file] — reason
-- tests/[file] — reason
-```
+## Context Window Strategies
 
-### Token Budget Awareness
-Estimate token cost as you go. When context consumption exceeds 80% of the session limit:
-1. Write a checkpoint to NOTES.md (current task state, open decisions, next step)
-2. Shed unneeded context (close files no longer in working set)
-3. Reload only what the next step needs
+### Chunking
+When a file is too large to fit:
+- Load the relevant section (function, class, module)
+- Include 10–20 lines of surrounding context
+- Note what was omitted: "Lines 1–50 and 200–300 omitted"
 
-### Checkpoint Pattern
-Before any risky or long-running step, write a checkpoint to NOTES.md:
+### Summarization
+For long documents:
+- Extract key points as bullet list
+- Keep headings and first sentence of each section
+- Preserve any data tables or schemas in full
 
-```markdown
-## Checkpoint — [task name] — [timestamp]
-- Completed: [what is done]
-- In progress: [current step]
-- Next: [what comes after]
-- Open decisions: [list or "none"]
-```
+### Caching
+Between tool calls within a session:
+- Remember what you already read
+- Don't re-read unchanged files
+- Track which files have been modified this session
 
-This enables re-entry if the session is interrupted.
+## Anti-Patterns
 
-### Spec Drift Prevention
-Re-read SPEC.md at the start of each new task. Do not rely on memory of the spec from a previous task. Implementation tends to drift from the spec in long sessions.
-
-## Rules
-
-- Never assume context from a previous session is still accurate — verify by reading
-- NOTES.md is the durable memory — write to it, don't rely on in-context recall
-- When in doubt, read the file rather than recalling its content
-
-## When NOT to Use
-
-- Single-task sessions with a small, well-defined scope
-- When the entire codebase fits comfortably in one context window
+- **Loading everything** — reading 50 files "just in case" wastes context
+- **No prioritization** — treating all files as equally important
+- **Ignoring summaries** — re-reading full files when a summary from traces exists
+- **Context thrashing** — loading and unloading the same files repeatedly

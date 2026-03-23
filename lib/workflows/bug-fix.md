@@ -1,76 +1,130 @@
 ---
 name: bug-fix
 type: workflow
-version: 0.3.0
-description: Structured pipeline for reproducing, fixing, and verifying a confirmed bug — with a mandatory regression test and changelog entry so it never comes back silently
-deps:
-  - agent:implementer@>=0.2.0
-  - agent:test-writer@>=0.2.0
-  - agent:reviewer-quality@>=0.2.0
-  - agent:docs-writer@>=0.2.0
-  - agent:changelog-writer@>=0.3.0
-  - skill:debugging@>=0.2.0
-tags:
-  - bugfix
+version: 2.0.0
+description: >
+  Reproduce-first bug fixing workflow. Write a failing test before investigating,
+  fix minimally, add regression tests.
+agents:
+  - router
+  - implementer
+  - test-writer
+  - consistency-guardian
+  - reviewer-quality
+  - docs-writer
+  - changelog-writer
+skills:
   - debugging
-  - tdd
+  - trace-writing
+  - conventional-commits
+  - task-management
+gates: 3
+tags: [workflow, bug-fix, debugging, tdd]
 ---
 
 # Bug Fix Workflow
 
-## Overview
+> Reproduce first, investigate second, fix minimally. Every bug becomes a permanent regression test.
 
-A focused pipeline for fixing a confirmed bug. Unlike sdd-tdd, this workflow
-starts from broken behavior — not a greenfield spec. The regression test is
-the spec.
+## Flow Diagram
 
-## Start Conditions
+```
+TRIAGE → REPRODUCE → ★GATE 1★ → INVESTIGATE → FIX → REGRESSION
+→ CONSISTENCY → QUALITY → ★GATE 2★ → DOCS+CHANGELOG → ★GATE 3★ → MERGE
+```
 
-Triggered by: "fix", "broken", "regression", "failing test", or a specific error message.
+## Phases
 
-## Pipeline
+### 1. TRIAGE
+**Agent**: `router`
+**Action**:
+- Classify severity: critical / major / minor / cosmetic
+- Link to PROJECT.md context
+- Create task with bug type and priority
 
-1. **REPRODUCE** → `debugging` skill → Isolate the exact failure condition
-   - Characterize the bug: what input, what state, what output
-   - Identify the minimal reproduction case
-   - Do not proceed until the cause is understood
+Priority mapping:
+| Severity | Priority | Response |
+|----------|----------|----------|
+| Critical | P0 | Immediate — blocks users |
+| Major | P1 | This sprint — significant impact |
+| Minor | P2 | Next sprint — inconvenience |
+| Cosmetic | P3 | Backlog — visual only |
 
-2. **REGRESSION TEST** → `test-writer` → Write a failing test that captures the bug exactly
-   - The test must fail on the current code
-   - The test must pass only after the correct fix is applied
-   - Name the test descriptively: `[Scenario]_[Trigger]_[ExpectedBehavior]`
-   - Do not proceed until the regression test exists and fails
+---
 
-3. **FIX** → `implementer` → Minimal fix until the regression test passes
-   - All previously passing tests must still pass
-   - No unrelated changes allowed
+### 2. REPRODUCE
+**Agent**: `implementer` + `debugging` skill
+**Action**:
+- Write a failing test that **reproduces the exact bug**
+- The test must fail for the right reason (the actual bug)
+- This test IS the acceptance criterion for the fix
+- Commit: `test(scope): reproduce issue #NNN`
 
-4. **ROOT-CAUSE REVIEW** → `reviewer-quality` → Does the fix address the root cause, not just the symptom?
-   - Verify: all previously-passing tests still pass
-   - Verify: the fix does not introduce new issues
-   - If BLOCKER: route back to implementer
+### ★ GATE 1: Reproduction Confirmed ★
+**Reviewer**: Human
+**Validates**: Test reproduces the actual bug, not a different issue
+**Outcome**: Confirm / Adjust reproduction
 
-5. **QUALITY-REVIEW** → `reviewer-quality` → No new issues introduced
-   - If BLOCKER: route back to implementer
+---
 
-6. **DOCS** → `docs-writer` → Update any documentation affected by the behavior change
+### 3. INVESTIGATE
+**Agent**: `implementer` + `debugging` skill
+**Action**:
+- Use binary search to find root cause (see `debugging` skill)
+- Document root cause in trace
+- Identify impact scope — what else might be affected?
 
-7. **CHANGELOG** → `changelog-writer` → Append a `Fixed` entry to `CHANGELOG.md`
-   - Format: `- Fix [what was broken] ([reproduction context])`
-   - This step is never skipped
+---
 
-8. **COMMIT** → `fix: [description of what was broken]`
+### 4. FIX
+**Agent**: `implementer`
+**Action**:
+- Minimal change that makes the reproduction test pass
+- Fix the root cause, not the symptom
+- Commit: `fix(scope): resolve issue #NNN`
+- No scope creep — related issues get their own tasks
 
-## Max Iterations
+---
 
-If the FIX → SPEC-REVIEW cycle fails 3 times for the same bug, stop and report a root cause analysis. Wait for user decision before continuing.
+### 5. REGRESSION
+**Agent**: `test-writer`
+**Action**:
+- Add additional regression tests for:
+  - The specific failure mode
+  - Related edge cases
+  - Similar patterns in the codebase
 
-## Execution Modes
+---
 
-- **autonomous**: Runs all steps without pausing. Only stops on BLOCKER or max iterations.
-- **guided**: Waits after each step for "next step".
+### 6. CONSISTENCY + QUALITY
+**Agents**: `consistency-guardian`, `reviewer-quality`
+**Action**: Quick sweep — did the fix introduce side effects?
 
-## When NOT to Use
+### ★ GATE 2: Fix Verified ★
+**Reviewer**: Human
+**Validates**: Root cause addressed, no side effects, regression tests adequate
+**Outcome**: Approve / Request changes
 
-- When the "bug" is actually missing functionality → route to `workflow:sdd-tdd`
-- When the fix requires a new spec and new tests from scratch → route to `workflow:sdd-tdd`
+---
+
+### 7. DOCS + CHANGELOG
+**Agents**: `docs-writer`, `changelog-writer`
+**Action**: Update changelog, update docs if the bug affected documented behavior.
+
+### ★ GATE 3: Final Acceptance ★
+**Reviewer**: Human
+**Validates**: Fix complete, documented, ready to merge
+**Outcome**: Approve to merge
+
+---
+
+### 8. MERGE
+**Agent**: `implementer`
+**Action**: Merge, close task, write trace, clean up branch.
+
+## Incident-to-Learning Loop
+
+After merge, the `memory-distiller` agent extracts:
+- **Root cause** → learning entry
+- **Why it wasn't caught** → antipattern entry
+- **Prevention** → suggested process improvement

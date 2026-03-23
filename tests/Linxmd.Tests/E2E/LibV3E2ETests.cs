@@ -163,7 +163,7 @@ public class LibV3E2ETests : IDisposable
     // ─── New agents ─────────────────────────────────────────────────────────────
 
     [Fact]
-    public void Add_ChangelogWriter_Agent_InstallsSuccessfully_WithProjectMemoryDep()
+    public void Add_ChangelogWriter_Agent_InstallsSuccessfully_WithConventionalCommitsDep()
     {
         RunCli("init");
         UseLocalSource();
@@ -172,13 +172,13 @@ public class LibV3E2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed agent 'changelog-writer'");
-        stdout.Should().Contain("Installed skill 'project-memory'");
+        stdout.Should().Contain("Installed skill 'conventional-commits'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "changelog-writer.md")).Should().BeTrue();
-        Directory.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "project-memory")).Should().BeTrue();
+        Directory.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "conventional-commits")).Should().BeTrue();
     }
 
     [Fact]
-    public void Add_Architect_Agent_InstallsSuccessfully_WithProjectMemoryDep()
+    public void Add_Architect_Agent_InstallsSuccessfully_WithApiDesignDep()
     {
         RunCli("init");
         UseLocalSource();
@@ -187,9 +187,9 @@ public class LibV3E2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed agent 'architect'");
-        stdout.Should().Contain("Installed skill 'project-memory'");
+        stdout.Should().Contain("Installed skill 'api-design'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "architect.md")).Should().BeTrue();
-        Directory.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "project-memory")).Should().BeTrue();
+        Directory.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "api-design")).Should().BeTrue();
     }
 
     // ─── New workflows ──────────────────────────────────────────────────────────
@@ -204,11 +204,11 @@ public class LibV3E2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'quality-baseline'");
-        stdout.Should().Contain("Installed agent 'test-writer'");
         stdout.Should().Contain("Installed agent 'reviewer-quality'");
-        stdout.Should().Contain("Installed skill 'observability'");
-        stdout.Should().Contain("Installed skill 'debugging'");
-        stdout.Should().Contain("Installed skill 'task-management'");
+        stdout.Should().Contain("Installed agent 'consistency-guardian'");
+        stdout.Should().Contain("Installed agent 'performance-monitor'");
+        stdout.Should().Contain("Installed agent 'fact-checker'");
+        stdout.Should().Contain("Installed agent 'docs-writer'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "quality-baseline.md")).Should().BeTrue();
     }
 
@@ -224,8 +224,9 @@ public class LibV3E2ETests : IDisposable
         stdout.Should().Contain("Installed workflow 'release'");
         stdout.Should().Contain("Installed agent 'changelog-writer'");
         stdout.Should().Contain("Installed agent 'docs-writer'");
-        // project-memory dep was removed from workflow:release in v0.3.0
-        stdout.Should().Contain("Installed skill 'task-management'");
+        stdout.Should().Contain("Installed agent 'reviewer-quality'");
+        stdout.Should().Contain("Installed agent 'performance-monitor'");
+        stdout.Should().Contain("Installed agent 'implementer'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "release.md")).Should().BeTrue();
     }
 
@@ -241,7 +242,7 @@ public class LibV3E2ETests : IDisposable
         stdout.Should().Contain("Installed workflow 'bug-fix'");
         stdout.Should().Contain("Installed agent 'test-writer'");
         stdout.Should().Contain("Installed agent 'changelog-writer'");
-        stdout.Should().Contain("Installed skill 'debugging'");
+        stdout.Should().Contain("Installed agent 'implementer'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "bug-fix.md")).Should().BeTrue();
     }
 
@@ -256,13 +257,12 @@ public class LibV3E2ETests : IDisposable
 
         code.Should().Be(0);
         stderr.Should().BeEmpty();
-        // workflow:sdd-tdd and its transitive deps
-        stdout.Should().Contain("Installed workflow 'sdd-tdd'");
+        // workflow:feature-development and its transitive deps
+        stdout.Should().Contain("Installed workflow 'feature-development'");
         // agent:router
         stdout.Should().Contain("Installed agent 'router'");
         // skill:context-management
         stdout.Should().Contain("Installed skill 'context-management'");
-        // Note: observability is NOT a member/dep of fullstack-tdd pack
 
         // Pack itself must NOT appear in installed.json
         var (listCode, listOut, _) = RunCli("list --json");
@@ -274,7 +274,7 @@ public class LibV3E2ETests : IDisposable
             .ToList();
         names.Should().NotContain("fullstack-tdd");
         names.Should().Contain("router");
-        names.Should().Contain("sdd-tdd");
+        names.Should().Contain("feature-development");
     }
 
     [Fact]
@@ -287,9 +287,10 @@ public class LibV3E2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'content-review'");
-        // content-pipeline pack: drafter, fact-checker, editor, content-review (no router)
+        // content-pipeline pack: drafter, fact-checker, editor, content-review
         stdout.Should().Contain("Installed agent 'drafter'");
-        stdout.Should().Contain("Installed skill 'task-management'");
+        stdout.Should().Contain("Installed agent 'fact-checker'");
+        stdout.Should().Contain("Installed agent 'editor'");
 
         // Pack must not be in installed list
         var (_, listOut, _) = RunCli("list --json");
@@ -358,35 +359,35 @@ public class LibV3E2ETests : IDisposable
         // router was already installed — should not appear again in the output
         stdout.Should().NotContain("Installed agent 'router'");
         // other members still installed
-        stdout.Should().Contain("Installed workflow 'sdd-tdd'");
+        stdout.Should().Contain("Installed workflow 'feature-development'");
     }
 
     // ─── Dependency enforcement: v0.3.0 deps ────────────────────────────────────
 
     [Fact]
-    public void Remove_ProjectMemory_BlockedBy_ChangelogWriter_Agent()
+    public void Remove_ConventionalCommits_BlockedBy_ChangelogWriter_Agent()
     {
         RunCli("init");
         UseLocalSource();
         RunCli("add agent:changelog-writer --yes");
 
-        var (_, stdout, stderr) = RunCli("remove skill:project-memory --yes");
+        var (_, stdout, stderr) = RunCli("remove skill:conventional-commits --yes");
 
         (stdout + stderr).Should().Contain("Cannot uninstall due to active dependencies");
-        (stdout + stderr).Should().Contain("agent:changelog-writer depends on skill:project-memory");
+        (stdout + stderr).Should().Contain("agent:changelog-writer depends on skill:conventional-commits");
     }
 
     [Fact]
-    public void Remove_ProjectMemory_BlockedBy_Architect_Agent()
+    public void Remove_ApiDesign_BlockedBy_Architect_Agent()
     {
         RunCli("init");
         UseLocalSource();
         RunCli("add agent:architect --yes");
 
-        var (_, stdout, stderr) = RunCli("remove skill:project-memory --yes");
+        var (_, stdout, stderr) = RunCli("remove skill:api-design --yes");
 
         (stdout + stderr).Should().Contain("Cannot uninstall due to active dependencies");
-        (stdout + stderr).Should().Contain("agent:architect depends on skill:project-memory");
+        (stdout + stderr).Should().Contain("agent:architect depends on skill:api-design");
     }
 
     [Fact]

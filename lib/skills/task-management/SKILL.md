@@ -1,123 +1,103 @@
 ---
 name: task-management
 type: skill
-version: 0.2.0
-description: Task system with backlog, specs, and task tracking
-deps: []
-tags:
-  - tasks
-  - backlog
-  - management
+level: core
+version: 2.0.0
+description: >
+  Unified task frontmatter v2 schema, task lifecycle, status transitions,
+  and task file management in .linxmd/tasks/.
+tags: [core, tasks, frontmatter, lifecycle, kanban]
 ---
 
 # Task Management Skill
 
-## Structure
+> Every unit of work is a task with machine-readable frontmatter. Tasks flow through a defined lifecycle with clear status transitions.
+
+## Task Frontmatter v2 Schema
+
+```yaml
+---
+id: TASK-NNN
+title: "Short descriptive title"
+type: feature          # feature | bug | spike | chore | research | review
+status: backlog        # backlog | planned | in-progress | review | done | blocked
+priority: critical     # critical | high | medium | low
+sprint: 2026-S13
+branch: feat/short-desc
+spec: .linxmd/specs/SPEC-NNN.md
+estimate: 2h           # 1h | 2h | 4h (max per task)
+blocked-by: []
+blocks: []
+acceptance:
+  - "Criterion one"
+  - "Criterion two"
+tags: [relevant, tags]
+assigned: implementer
+created: 2026-03-23
+updated: 2026-03-23
+---
+```
+
+## Status Transitions
 
 ```
-.linxmd/tasks/
-├── backlog/              ← one file per idea (free text or Issue: #NNN)
-└── in-progress/
-    └── [name]/
-        ├── SPEC.md       ← acceptance criteria, edge cases, non-goals
-        ├── TASKS.md      ← checklist — one task = one commit
-        └── NOTES.md      ← agent notes, blockers, open decisions
+backlog → planned → in-progress → review → done
+                  ↕                ↕
+               blocked          blocked
 ```
 
-## Show Backlog
+Valid transitions:
+| From | To | Triggered By |
+|------|----|-------------|
+| backlog | planned | Planner assigns to sprint |
+| planned | in-progress | Agent starts work |
+| in-progress | review | Agent completes implementation |
+| in-progress | blocked | Dependency unavailable |
+| review | done | Human approves at gate |
+| review | in-progress | Human requests changes |
+| blocked | in-progress | Blocker resolved |
+| blocked | planned | Re-prioritized |
 
-Triggered by: "backlog", "show backlog", "what's in the backlog"
-
-List `.linxmd/tasks/backlog/` and `.linxmd/tasks/in-progress/`:
+## Task File Location
 
 ```
-Backlog ([N] items):
-1. [filename] — [first line]
-2. [filename] — [first line]
-
-In progress:
-- [name] — Task [X]/[Y] complete
+.linxmd/tasks/TASK-NNN.md
 ```
 
-## Add to Backlog
+## Task Sizing Rules
 
-Triggered by: "add to backlog [text]"
+| Estimate | Guidance |
+|----------|----------|
+| 1h | Trivial: rename, config change, copy update |
+| 2h | Small: single function, single endpoint, single component |
+| 4h | Medium: feature slice, multi-file change, integration work |
+| > 4h | Break it down into subtasks |
 
-Create `.linxmd/tasks/backlog/[slug].md` with the provided text.
-Output: "Added to backlog: [name]"
-
-## SPEC.md Format
+## Task Body Template
 
 ```markdown
-# SPEC: [Feature Name]
-**Mode**: [autonomous | guided]
-**Source**: [backlog file]
-**Created**: [date]
+# TASK-NNN: <Title>
 
-## What we're building
-[2-3 sentences from the user's perspective]
+## Description
+What needs to be done and why.
 
-## Acceptance Criteria
-- [ ] [concrete, testable criterion]
+## Affected Files
+- `path/to/file.ts` — create/modify: description
+- `path/to/test.ts` — create: tests for the above
 
-## Edge Cases
-- [empty / null / missing inputs]
+## Subtasks (if applicable)
+- [ ] Subtask 1
+- [ ] Subtask 2
 
-## Non-Goals
-- [explicitly out of scope]
+## Risks
+- Risk description and mitigation
 
-## Open Questions
-- [decisions needed]
+## Notes
+Additional context, links, references.
 ```
 
-## TASKS.md Format
-
-```markdown
-# TASKS: [Feature Name]
-
-Each task = RED → GREEN → SPEC-REVIEW → QUALITY-REVIEW → DOCS → COMMIT
-
-- [ ] **Task 1**: [name]
-  - Criteria: [which Acceptance Criteria this covers]
-  - Tests:    [unit / integration / E2E]
-  - Docs:     [which file to update, or "none"]
-  - Commit:   `[type]: [message]`
-```
-
-## NOTES.md Structure
-
-```markdown
-# NOTES: [Feature Name]
-
-## Open Decisions
-- [question] — waiting on: [person/date]
-
-## Blocked
-- [task name] — blocked by: [exact blocker] — unblocks when: [condition]
-
-## Run Log
-[STEP] agent:name — STATUS — summary
-
-## Agent Notes
-[free text observations from agents during execution]
-```
-
-**Blocked rule**: A blocked item must name the exact blocker and the condition that would unblock it. Vague entries ("blocked on stuff") are not valid.
-
-## Definition of Done
-
-**Code task**: All AC tests green + no regressions + reviewer-spec PASS + reviewer-quality PASS + docs updated
-**Docs task**: File updated + all links resolve + code examples verified + reviewed by one other agent or person
-**Design/Spec task**: SPEC.md approved + all Open Questions resolved + Non-Goals explicitly listed
-
-## Status
-
-Triggered by: "status", "progress", "what are we working on"
-
-Show all in-progress features with their progress.
-
-## Done
-
-Done = all tasks checked off + PR open + docs updated + tests green.
-No "done" folder — done lives in git history.
+## ID Assignment
+- Use sequential numbering: TASK-001, TASK-002, ...
+- Check `.linxmd/tasks/` for the highest existing number before assigning.
+- Never reuse IDs, even for deleted tasks.
 

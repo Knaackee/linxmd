@@ -1,62 +1,109 @@
 ---
 name: observability
 type: skill
-version: 0.2.0
-description: Structured logging and reasoning traces for agentic pipelines
-deps: []
-tags:
-  - logging
-  - observability
-  - tracing
+level: governance
+version: 2.0.0
+description: >
+  Code-level observability standards: structured logging, distributed tracing,
+  error tracking, and health signals. Defines what "observable" code looks like.
+tags: [governance, observability, logging, tracing, monitoring]
 ---
 
 # Observability Skill
 
-Triggered by: pipeline debugging, "why did it do that", long autonomous runs, or any workflow with 3+ agent steps.
+> Observable code tells you what's happening without reading source. Logging, tracing, error tracking, and health signals — all mandatory.
 
-## Principles
+## The Four Pillars
 
-1. **Reason before concluding**: Show reasoning steps before the conclusion, not after. The trace is evidence; the conclusion is the output.
-2. **Typed outputs**: Every agent step emits a typed status (PASS / BLOCKER / WARNING / INFO) with structured data — never narrative-only.
-3. **Durable log**: All run entries land in NOTES.md under `## Run Log`. This survives session restarts.
+### 1. Structured Logging
 
-## Log Entry Format
+Every significant operation emits a log entry with context:
 
-```
-[STEP] agent:{name} — {STATUS} — {one-line summary}
-  input:  {brief description of what was passed in}
-  output: {brief description of what was produced}
-  reason: {why this status was assigned}
-```
-
-Example:
-```
-[STEP] agent:reviewer-spec — BLOCKER — Criterion "user can export CSV" not covered
-  input:  Task 3 implementation + SPEC.md
-  output: BLOCKER — missing test for export edge case
-  reason: No test asserts on empty export; criterion 3 only implicitly covered
+```json
+{
+  "timestamp": "2026-03-23T14:30:00Z",
+  "level": "info",
+  "message": "User authenticated",
+  "context": {
+    "userId": "usr_123",
+    "method": "JWT",
+    "ip": "192.168.1.1",
+    "duration_ms": 12
+  }
+}
 ```
 
-## Pipeline Summary
+**Log Levels**:
+| Level | When |
+|-------|------|
+| `error` | Something failed that shouldn't have. Needs attention. |
+| `warn` | Something concerning but handled. Should be monitored. |
+| `info` | Significant business operations (user actions, state changes). |
+| `debug` | Technical details useful during development/debugging. |
 
-After each completed pipeline run, append a summary block to NOTES.md:
+**Rules**:
+- Always structured (JSON), never printf-style strings
+- Always include context (who, what, when, result)
+- Never log secrets, tokens, passwords, or PII
+- Use consistent field names across the project
 
-```markdown
-## Run Summary — [workflow name] — [date]
-| Step | Agent | Status | Summary |
-|---|---|---|---|
-| 1 | test-writer | PASS | 4 tests written |
-| 2 | implementer | PASS | 3 files changed |
-| 3 | reviewer-spec | BLOCKER | criterion 3 missing |
+### 2. Distributed Tracing
+
+Request flows must be traceable end-to-end:
+
+```
+[Client] → [API Gateway] → [Auth Service] → [User Service] → [Database]
+   │           │                │                │                │
+   └── trace_id: abc123 ───────────────────────────────────────────┘
 ```
 
-## Rules
+**Rules**:
+- Every incoming request gets a trace ID (generate if not present)
+- Pass trace ID through all service calls
+- Each significant operation is a **span** within the trace
+- Span names follow: `<service>.<operation>` (e.g., `auth.validateJwt`)
+- Record span duration, status, and key attributes
 
-- Log immediately when a step completes — do not batch logs
-- BLOCKER entries must include `reason:` — a BLOCKER without reasoning cannot be acted on
-- If a step is skipped (fast-path, "Docs: none"), log it: `[SKIP] agent:{name} — reason`
+### 3. Error Tracking
 
-## When NOT to Use
+Every error must be captured with context for reproduction:
 
-- Lightweight single-agent tasks where log overhead exceeds benefit
-- Interactive, conversational tasks with no pipeline structure
+```json
+{
+  "error": "NullReferenceException",
+  "message": "User profile was null after auth",
+  "stack": "...",
+  "context": {
+    "userId": "usr_123",
+    "endpoint": "GET /profile",
+    "trace_id": "abc123"
+  }
+}
+```
+
+**Rules**:
+- No silent `catch` blocks — every caught exception must be logged
+- Include enough context to reproduce the error
+- Categorize: transient (retry) vs. permanent (fix needed)
+- Link errors to traces via trace_id
+
+### 4. Health Signals
+
+Critical paths expose observable health:
+
+| Signal Type | Example | Purpose |
+|-------------|---------|---------|
+| Health endpoint | `GET /health` → `{ "status": "healthy" }` | Load balancer / monitoring |
+| Readiness probe | `GET /ready` → checks DB, cache, deps | Kubernetes / orchestration |
+| Metrics | Request count, error rate, latency p50/p95/p99 | Dashboards, alerting |
+| Heartbeat | Periodic "I'm alive" log entry | Long-running processes |
+
+## Quality Checklist
+
+For every feature, verify:
+- [ ] Significant operations have log entries at appropriate levels
+- [ ] Request flows have trace spans with durations
+- [ ] Error paths capture context, not just the exception message
+- [ ] No silent catch blocks
+- [ ] No secrets in log output
+- [ ] Health endpoints exist for all services

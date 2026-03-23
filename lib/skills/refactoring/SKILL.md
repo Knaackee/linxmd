@@ -1,52 +1,94 @@
 ---
 name: refactoring
 type: skill
-version: 0.2.0
-description: Safe refactoring with test coverage
-deps: []
-tags:
-  - refactoring
-  - cleanup
+level: core
+version: 2.0.0
+description: >
+  Safe code transformation techniques. Extract, rename, simplify, restructure —
+  always with tests as safety net. Never change behavior.
+tags: [core, refactoring, code-quality, clean-code]
 ---
 
 # Refactoring Skill
 
-Triggered by: "refactor [target]", "cleanup [target]", "simplify [target]",
-or during QUALITY-REVIEW when reviewer suggests REFACTOR changes.
+> Change the design without changing the behavior. Every refactoring must be safe, incremental, and test-backed.
 
-**Works best with:** `agent:implementer` (apply changes) and `agent:reviewer-quality` (final check) — not required but strongly recommended for non-trivial refactorings.
+## Golden Rules
 
-## Process
+1. **Tests must pass before, during, and after** — never refactor without a safety net
+2. **One refactoring at a time** — commit each transformation separately
+3. **Never change behavior** — if behavior changes, it's not a refactoring, it's a feature
+4. **Small steps** — prefer 10 tiny safe steps over 1 big risky step
 
-1. **Ensure tests exist** — run full test suite, confirm green
-2. **Identify scope** — what exactly needs to change?
-3. **Small steps** — one refactoring at a time, run tests after each
-4. **No behavior changes** — tests must stay green throughout
-5. **Quality review** — run reviewer-quality when done
-6. **Commit** — one commit per logical refactoring step
+## Common Refactoring Patterns
 
-## Rules
+### Extract Function
+**When**: A block of code does a distinct thing within a larger function.
+```
+Before: 30-line function with 3 responsibilities
+After:  3 functions of 10 lines each, called from the original
+```
 
-- Never refactor without passing tests first
-- Never change behavior during refactoring
-- Run tests after EVERY change, no matter how small
-- If a test fails: undo the last change, rethink approach
-- Keep commits small and focused
+### Extract Variable
+**When**: A complex expression is hard to read inline.
+```
+Before: if (user.age >= 18 && user.verified && !user.banned)
+After:  const isEligible = user.age >= 18 && user.verified && !user.banned
+```
 
-## Common Refactorings
+### Rename
+**When**: A name doesn't reveal intent.
+- Variables, functions, classes, files
+- The cheapest refactoring with the highest readability payoff
 
-- **Extract method** — long method → smaller focused methods
-- **Rename** — unclear names → self-documenting names
-- **Remove duplication** — repeated code → shared helper
-- **Simplify conditionals** — nested ifs → guard clauses or pattern matching
-- **Move responsibility** — code in wrong class → move to correct location
+### Inline
+**When**: An abstraction adds complexity without value.
+```
+Before: function getAge(user) { return user.age; }
+After:  user.age (direct access, no wrapper)
+```
 
-## Commit Convention
+### Move
+**When**: Code is in the wrong file/module.
+- Move closer to where it's used
+- Move to align with domain boundaries
 
-- Use focused messages like `refactor: extract parser normalization`
-- Do not mix behavior changes into refactor commits
+### Replace Conditional with Polymorphism
+**When**: A switch/if chain selects behavior based on type.
+```
+Before: if (type === 'A') doA() else if (type === 'B') doB() ...
+After:  type.execute() — each type knows its own behavior
+```
 
-## Report
+### Simplify Conditional
+**When**: Boolean logic is tangled.
+- Guard clauses instead of nested if/else
+- Early returns for error cases
+- De Morgan's laws for simplification
 
-"Refactored [target]: [what changed]. All tests green. [N] commits."
+## Refactoring Checklist
+
+1. [ ] All tests pass (baseline)
+2. [ ] Identify the specific refactoring to apply
+3. [ ] Apply the transformation
+4. [ ] Run tests — they must still pass
+5. [ ] Commit: `refactor(scope): description`
+6. [ ] Repeat for next transformation
+
+## Thresholds for Refactoring
+
+| Metric | Threshold | Action |
+|--------|-----------|--------|
+| Function length | > 30 lines | Extract function |
+| File length | > 300 lines | Extract module/class |
+| Nesting depth | > 3 levels | Guard clauses, extract function |
+| Parameters | > 4 | Introduce parameter object |
+| Duplication | > 2 copies | Extract shared function |
+
+## Anti-Patterns
+
+- **Refactoring without tests** — you will break things and not know it
+- **Big bang refactoring** — "let me rewrite this whole module" → do it incrementally
+- **Refactoring and changing behavior** — that's two things, do them separately
+- **Refactoring for aesthetics** — only refactor to solve a real problem (readability, maintainability, performance)
 

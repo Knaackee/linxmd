@@ -1,157 +1,256 @@
-# 📦 Linxmd Library
+# Linxmd Library — v2.0
 
-> The curated collection of reusable Agents, Skills, and Workflows that power every Linxmd-enabled project.
+> AI-augmented development framework: agents, skills, workflows, and packs.
 
-Install anything with a single command:
+## What Is This?
+
+Linxmd is a curated library of **agents**, **skills**, **workflows**, and **packs** that turn LLM-based coding assistants into structured, auditable, human-guided development partners.
+
+This is not "let the AI do everything." This is "give the AI clear roles, rules, memory, and human oversight so it produces reliable, high-quality work."
+
+## Quick Install
 
 ```bash
-linxmd add workflow:sdd-tdd --yes
-linxmd add agent:router --yes
-linxmd add skill:context-management --yes
+linxmd install packs/fullstack-tdd        # Complete TDD development bundle
+linxmd install packs/new-project-kickstart # Onboarding bundle for new projects
+linxmd install agents/implementer          # Or install individual artifacts
 ```
 
 ---
 
-## ✨ What's Inside
+## Getting Started
 
-- 🔄 **4 Workflows** — End-to-end pipelines for software development, content creation, and bug fixing
-- 🤖 **10 Agents** — Focused specialists that each handle exactly one job
-- 🛠️ **6 Skills** — Reusable capability modules shared across agents and workflows
-- 🔗 **Dependency-aware** — Every install automatically resolves what else it needs
-- 🏷️ **Versioned** — Semantic versions ensure compatibility and safe updates
+### First Time Ever? (Global Setup)
 
----
+The very first time you use Linxmd, the system needs to know who you are. This happens **once** and is shared across all projects.
 
-## 🔄 Workflows
+```
+┌─────────────────────────────────────────────────────────────┐
+│  YOU                          ONBOARDER AGENT               │
+│                                                             │
+│  "Set up Linxmd"  ──────────► Creates ~/.linxmd/            │
+│                               Creates ~/.linxmd/global/     │
+│                                                             │
+│                    ◄────────  "What's your name and role?"  │
+│  "Ben, senior dev" ────────►                                │
+│                    ◄────────  "Preferred language? TDD?"     │
+│  "Deutsch, strict" ────────►                                │
+│                    ◄────────  "Review depth? Auto-fix?"      │
+│  "Thorough, yes"   ────────►                                │
+│                                                             │
+│                    ◄────────  📄 ~/.linxmd/user-profile.md  │
+│  "Looks good ✓"    ────────►  ★ GATE 0 passed              │
+└─────────────────────────────────────────────────────────────┘
+```
 
-Workflows orchestrate multiple agents and skills into a complete, opinionated pipeline. Install a workflow and everything it needs comes with it.
-
-| Artifact | Version | Description | Auto-installs |
-|---|---|---|---|
-| `workflow:sdd-tdd` | 0.2.0 | Full Spec-Driven Development with TDD — from spec to green tests to reviewed, documented code | 8 artifacts |
-| `workflow:content-review` | 0.2.0 | Draft → fact-check → edit pipeline for high-quality content of any kind | 4 artifacts |
-| `workflow:bug-fix` | 0.2.0 | Reproduce, fix, verify, and document a confirmed bug end-to-end | 5 artifacts |
-| `workflow:artifact-factory` | 0.2.0 | Author new agents, skills, and workflows as reusable lib building blocks | 2 artifacts |
-
-> `workflow:echo-test` is a smoke-test fixture — safe to ignore.
-
----
-
-## 🤖 Agents
-
-Agents are focused AI specialists you assign to one task. Mix and match them to build custom pipelines, or let workflows wire them together automatically.
-
-| Artifact | Version | Description | Depends on |
-|---|---|---|---|
-| `agent:router` | 0.2.0 | Triages any request and routes it to the right workflow or agent | — |
-| `agent:planner` | 0.2.0 | Decomposes a SPEC.md into a structured, sequenced TASKS.md | `skill:task-management` |
-| `agent:test-writer` | 0.2.0 | Writes failing tests from acceptance criteria (RED phase) | — |
-| `agent:implementer` | 0.2.0 | Writes minimal code until tests pass (GREEN phase) | `skill:debugging` |
-| `agent:reviewer-spec` | 0.2.0 | Verifies every acceptance criterion is met before merge | — |
-| `agent:reviewer-quality` | 0.2.0 | Audits code quality, design patterns, and security posture | — |
-| `agent:docs-writer` | 0.2.0 | Updates READMEs, changelogs, and API docs after reviews pass | `skill:task-management` |
-| `agent:drafter` | 0.2.0 | Produces a structured first draft from task context and target audience | — |
-| `agent:editor` | 0.2.0 | Polishes content for clarity, flow, and consistency | — |
-| `agent:fact-checker` | 0.2.0 | Verifies claims, links, numbers, and references in any document | — |
-
-> `agent:echo-test` is a smoke-test fixture — safe to ignore.
+**Result:** `~/.linxmd/user-profile.md` exists. All agents now adapt to your preferences (language, verbosity, review depth, coding style). This step is auto-skipped for future projects.
 
 ---
 
-## 🛠️ Skills
+### Starting a New Project (Green-Field)
 
-Skills are reusable capability modules that agents and workflows import. They encode best practices that would otherwise need to be re-explained in every prompt.
+Use the **`new-project-kickstart`** pack or the **`project-start`** workflow.
 
-| Artifact | Version | Description | Depends on |
-|---|---|---|---|
-| `skill:task-management` | 0.2.0 | Backlog, spec files, and task-tracking conventions for any project | — |
-| `skill:context-management` | 0.2.0 | Strategies for maintaining coherent context across long sessions and large codebases | — |
-| `skill:debugging` | 0.2.0 | Systematic fault isolation with structured hypothesis tracking | — |
-| `skill:refactoring` | 0.2.0 | Safe, test-backed refactoring with rollback checkpoints | `agent:implementer`, `agent:reviewer-quality` |
-| `skill:observability` | 0.2.0 | Structured logging and reasoning traces for agentic pipelines | — |
-| `skill:preview-delivery` | 0.1.0 | Build previews, share links or binaries, collect feedback, and iterate | — |
+```
+Phase 0 ─ GLOBAL ENV CHECK       (onboarder)
+          ~/.linxmd/ exists? → skip or interview
+          ★ GATE 0: Profile confirmed
 
-> `skill:echo-test` is a smoke-test fixture — safe to ignore.
+Phase 1 ─ ANALYZE                (start-state-creator)
+          Scans directory structure
+          Detects tech stack from config files
+          Reads existing README, CHANGELOG
+          Generates draft PROJECT.md
+          ★ GATE 1: You review PROJECT.md
 
----
+Phase 2 ─ INIT MEMORY            (project-memory skill)
+          Creates .linxmd/ directory:
+          ├── memory/decisions/
+          ├── memory/learnings/
+          ├── tasks/
+          ├── traces/
+          ├── specs/
+          └── inbox/
 
-## 🗺️ Dependency Map
+Phase 3 ─ SEED TASKS             (planner)
+          Creates initial task backlog from:
+          • TODOs/FIXMEs found in code
+          • Missing test coverage
+          • Missing documentation
+          • Security gaps
 
-```text
-workflow:sdd-tdd
-  ├── agent:planner          → skill:task-management
-  ├── agent:test-writer
-  ├── agent:implementer      → skill:debugging
-  ├── agent:reviewer-spec
-  ├── agent:reviewer-quality
-  ├── agent:docs-writer      → skill:task-management
-  ├── skill:task-management
-  └── skill:preview-delivery
+Phase 4 ─ VERIFY                 (reviewer-spec)
+          Cross-checks everything
+          ★ GATE 2: You approve the full setup
+```
 
-workflow:content-review
-  ├── agent:drafter
-  ├── agent:fact-checker
-  ├── agent:editor
-  └── skill:task-management
-
-workflow:bug-fix
-  ├── agent:implementer      → skill:debugging
-  ├── agent:reviewer-spec
-  ├── agent:reviewer-quality
-  ├── agent:docs-writer      → skill:task-management
-  └── skill:debugging
-
-workflow:artifact-factory
-  ├── skill:task-management
-  └── skill:preview-delivery
-
-skill:refactoring
-  ├── agent:implementer      → skill:debugging
-  └── agent:reviewer-quality
+**Result after `project-start`:**
+```
+your-project/
+├── PROJECT.md              ← Every agent reads this first
+├── .linxmd/
+│   ├── memory/             ← Project knowledge base
+│   ├── tasks/TASK-001.md   ← Seeded backlog
+│   ├── traces/             ← Session records
+│   └── specs/              ← Future specifications
+└── (your existing code)
 ```
 
 ---
 
-## 🔗 How Artifacts Work Together
+### Onboarding an Existing Project (Brown-Field)
 
-### Software Development
+Identical flow, but the **`start-state-creator`** agent does more work:
 
-The `workflow:sdd-tdd` is the flagship pipeline:
+| What it detects | How |
+|---|---|
+| Tech stack | Reads `package.json`, `*.csproj`, `Cargo.toml`, `go.mod`, etc. |
+| Architecture | Maps directory structure, identifies patterns |
+| Test setup | Finds test framework, coverage config, existing tests |
+| Existing docs | Imports README, CHANGELOG, docs/ folder content |
+| Code debt | Finds TODO/FIXME/HACK comments, outdated deps |
+| CI/CD | Reads `.github/workflows/`, `Jenkinsfile`, etc. |
 
-1. `agent:router` — understands the request and routes it to the right pipeline
-2. `agent:planner` — breaks the spec into a sequenced task list (`TASKS.md`)
-3. `agent:test-writer` — writes the failing tests (RED phase)
-4. `agent:implementer` — writes code until tests pass (GREEN phase)
-5. `agent:reviewer-spec` + `agent:reviewer-quality` — dual code review gate
-6. `agent:docs-writer` — updates all documentation
-
-For bug reproduction and fixing, `workflow:bug-fix` provides a tighter loop with `skill:debugging` for structured hypothesis tracking.
-
-### Content & Documentation
-
-The `workflow:content-review` pipeline:
-
-1. `agent:drafter` — produces a structured first draft
-2. `agent:fact-checker` — verifies every claim, link, and number
-3. `agent:editor` — polishes for clarity, flow, and style
-
-### Extending the Library
-
-Use `workflow:artifact-factory` to author new agents, skills, and workflows and contribute them back.
+Use the **`existing-project-rescue`** pack if the codebase needs cleanup — it bundles a quality audit on top of the onboarding.
 
 ---
 
-## 🤝 Contributing
+### After Setup: Daily Development
 
-1. **Install the factory**: `linxmd add workflow:artifact-factory --yes`
-2. **Scaffold** your new artifact using the factory workflow
-3. **Add an entry** to `lib/index.json` with correct `version`, `deps`, and `tags`
-4. **Open a pull request**
+Once a project is onboarded, you work through **workflows**. The **Router** agent classifies your request and picks the right one:
 
-All artifacts follow the frontmatter schema defined in `src/Agentsmd/Models/FrontMatter.cs`. Use existing artifacts in `lib/` as reference implementations.
+```
+You say                        → Workflow               → What happens
+──────────────────────────────────────────────────────────────────────────
+"Add dark mode"                → feature-development    → Spec → Plan → Test → Code → Review → Merge
+"Login is broken"              → bug-fix                → Reproduce → Fix → Regression test → Merge
+"Should we use Postgres?"      → research-spike         → Research → ADR → Decision
+"Release v2.1.0"               → release                → Changelog → Build → Tag → Publish
+"Clean up dead code"           → consistency-sprint     → Scan → Auto-fix → Manual fix → Review
+"Write a blog post"            → content-review         → Draft → Edit → Fact-check → Publish
+"How healthy is this project?" → quality-baseline       → Full audit → Report → Action plan
+```
+
+### Example: Building a Feature
+
+```
+ You: "Add dark mode toggle"
+  │
+  ▼
+ Router → feature-development workflow
+  │
+  ├─ 1. spec-writer     writes SPEC-042.md with acceptance criteria
+  │     ★ GATE: You approve the spec
+  │
+  ├─ 2. planner         breaks spec into TASK-042a, 042b, 042c (1-4h each)
+  │     ★ GATE: You approve the plan
+  │
+  ├─ 3. architect       writes ADR if design decisions needed
+  │
+  ├─ 4. test-writer     writes failing tests (RED phase)
+  │     ★ GATE: You approve test strategy
+  │
+  ├─ 5. implementer     makes tests pass (GREEN phase)
+  │     consistency-guardian sweeps for cleanup
+  │     reviewer-quality checks security + quality
+  │     ★ GATE: You approve the code
+  │
+  ├─ 6. preview         you see the result in context
+  │     ★ GATE: You confirm it works
+  │
+  └─ 7. merge           docs-writer updates docs, changelog-writer updates CHANGELOG
+        ★ GATE: You approve the merge
+```
+
+Every step produces a **trace** in `.linxmd/traces/` — full audit trail of what happened, what was decided, and what was learned.
 
 ---
 
-## 📌 Version
+## Core Concepts
 
-Library version: **0.2.0** · [Changelog](../CHANGELOG.md)
+| Concept | What It Is | Count | Example |
+|---------|-----------|-------|---------|
+| **Agent** | A persona with a specific role, rules, and skills | 20 | `implementer`, `reviewer-quality` |
+| **Skill** | Reusable knowledge an agent applies. Stateless, composable. | 25 | `debugging`, `conventional-commits` |
+| **Workflow** | Ordered agent sequence with mandatory human gates | 8 | `feature-development`, `bug-fix` |
+| **Pack** | Pre-assembled bundle of agents + skills + workflow | 6 | `fullstack-tdd`, `quality-sprint` |
+
+## Architecture Overview
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full system design, including:
+- The 12 governing principles
+- Memory architecture (3 tiers: Session → Project → Global)
+- Gate system (mandatory human checkpoints)
+- Agent categories (Core / Control / Delivery)
+- Skill levels (Core / Governance / Growth)
+
+See [PRINCIPLES.md](PRINCIPLES.md) for the non-negotiable rules every artifact follows.
+
+## Directory Structure
+
+```
+lib/
+├── PRINCIPLES.md           ← The 12 governing principles
+├── ARCHITECTURE.md         ← Full system design document
+├── README.md               ← This file
+├── index.json              ← Machine-readable registry of all artifacts
+│
+├── agents/                 ← 20 agent definitions
+│   ├── Core (7):    implementer, test-writer, architect, planner,
+│   │                spec-writer, drafter, editor
+│   ├── Control (4): reviewer-quality, reviewer-spec,
+│   │                consistency-guardian, fact-checker
+│   └── Delivery (9): router, docs-writer, changelog-writer, onboarder,
+│                     brainstormer, researcher, start-state-creator,
+│                     performance-monitor, memory-distiller
+│
+├── skills/                 ← 25 skill definitions (SKILL.md per folder)
+│   ├── Core (11):       debugging, refactoring, task-management, api-design,
+│   │                    project-memory, user-profile, context-management,
+│   │                    code-translator, design-tokens, i18n, text-translator
+│   ├── Governance (6):  observability, conventional-commits, trace-writing,
+│   │                    preview-delivery, consistency-check, performance-profiling
+│   └── Growth (8):      worktree-management, feature-branch, e2e-testing,
+│                        brainstorming, research, market-analysis,
+│                        quicknote, start-state-creation
+│
+├── workflows/              ← 8 workflow orchestrations
+│   └── feature-development, bug-fix, project-start, research-spike,
+│       release, consistency-sprint, content-review, quality-baseline
+│
+└── packs/                  ← 6 ready-to-use bundles
+    └── fullstack-tdd, quality-sprint, content-pipeline, i18n-ready,
+        new-project-kickstart, existing-project-rescue
+```
+
+## Key Standards
+
+| Standard | What | Where |
+|----------|------|-------|
+| **PROJECT.md** | Agent orientation document — every agent reads this first | Project root |
+| **User Profile** | Personal preferences — language, style, review depth | `~/.linxmd/user-profile.md` |
+| **Trace Files** | Per-session audit trail of every agent action | `.linxmd/traces/` |
+| **Task Frontmatter v2** | Unified YAML schema for all tasks | `.linxmd/tasks/` |
+| **Conventional Commits** | `type(scope): message` on every commit | Enforced by agents |
+| **Memory** | 3-tier knowledge system (Session → Project → Global) | `.linxmd/memory/` + `~/.linxmd/` |
+
+## Principles (Summary)
+
+1. Human-in-the-loop is constitutional
+2. Four hard gates: Spec, Safety, Preview, Benchmark
+3. Memory is the operating system (3 tiers)
+4. Dual traceability (agent traces + code observability)
+5. Preview before ship
+6. Eval-driven development
+7. Security and policy are first-class
+8. Git discipline is enforced
+9. Clear role separation (Core / Control / Delivery)
+10. Skills in three levels (Core / Governance / Growth)
+11. Incident-to-learning loop
+12. Metrics-driven steering
+
+See [PRINCIPLES.md](PRINCIPLES.md) for the full version.
+
+---
+
+*Linxmd v2.0 — Built 2026-03-23 after researching 20+ state-of-the-art agent frameworks.*

@@ -1,288 +1,113 @@
 ---
 name: project-memory
 type: skill
-version: 1.0.0
-description: Query and maintain a structured project knowledge base (ADRs, changelog, known issues) via the linxmd memory CLI — decisions survive context resets, new sessions, and team turnover
-deps: []
-tags:
-  - memory
-  - decisions
-  - changelog
-  - adr
+level: core
+version: 2.0.0
+description: >
+  Three-tier memory architecture: Session (traces), Project (.linxmd/memory/),
+  and Global (~/.linxmd/). How to read, write, and maintain project memory.
+tags: [core, memory, knowledge-management, context, persistence]
 ---
 
 # Project Memory Skill
 
-Triggered by: "record this decision", "update the changelog", "why did we…", "what was decided about…", "search the project history", or any long-running project that needs durable, searchable history.
+> Memory bridges the gap between sessions. Three tiers ensure nothing valuable is lost and agents start every session with full context.
 
-## Why This Exists
+## Three-Tier Architecture
 
-Both LLMs and teams suffer from context amnesia. Decisions made months ago get revisited, bugs are fixed twice, and new members have no way to understand *why* the codebase is the way it is. This skill creates a durable, file-based knowledge base that survives context resets, new sessions, and team churn — with a full-text CLI search layer on top.
-
-## Agent Protocol
-
-Run this protocol at the start of every session where project history is relevant:
-
-### 1. Ensure the index is fresh
-
-```bash
-linxmd memory index
-```
-
-This is idempotent and always safe to run. It scans all memory source files and rebuilds the SQLite index from scratch. If `.linxmd/memory.db` does not exist yet, this creates it.
-
-### 2. Orient: what was recently recorded?
-
-```bash
-linxmd memory recent --limit 5
-```
-
-Shows the 5 most recently indexed entries across all types. Use this to catch decisions made since your last session without needing specific keywords.
-
-### 3. Before any architectural decision — search first
-
-```bash
-linxmd memory search "<topic keywords>"
-```
-
-If results appear: read the matched source `.md` file(s) before deciding — the snippet shows context, but the full ADR has the rationale.
-If no results: no prior decision on this topic exists — proceed, then record a new ADR.
-
-### 4. After recording a new ADR
-
-```bash
-linxmd memory index   # rebuild so the new ADR is immediately searchable
-```
-
-### 5. Recovery: index missing or corrupt
-
-```bash
-linxmd memory index   # always recreates from the markdown source files
-```
-
-The markdown files are the canonical source of truth. The db is always derived.
-
----
-
-## CLI Command Reference
-
-All commands accept `--project <dir>` (alias `-p`) to specify the project root when running from a subdirectory.
-
-| Command | Use when | Default |
-|---------|----------|---------|
-| `linxmd memory index` | Session start; after writing new ADR/changelog entry | — |
-| `linxmd memory search <query>` | You know the topic — keyword-driven lookup | `--limit 5` |
-| `linxmd memory recent` | Session start orientation; "what changed lately?" | `--limit 10` |
-| `linxmd memory stats` | Sanity check — how many entries are indexed? | — |
-
-### Options
+### Tier 1 — Session Memory (Ephemeral)
 
 ```
-linxmd memory search <query> [--limit|-n <N>]
-linxmd memory recent         [--limit|-n <N>] [--type decision|changelog|issue]
-linxmd memory index          [--project|-p <dir>]
-linxmd memory stats          [--project|-p <dir>]
+.linxmd/traces/<session>.md
 ```
 
-### Example: stats output
+- Written by every agent at the end of every session
+- Contains: what was done, decisions made, files modified, still-open items
+- Cleared after distillation by `memory-distiller` (marked, not deleted)
+- Format: see `trace-writing` skill
+
+### Tier 2 — Project Memory (Persistent)
 
 ```
-  changelog        120
-  decision          42
-  issue              8
+.linxmd/memory/
+├── decisions/          ← ADRs (Architecture Decision Records)
+│   ├── ADR-001.md
+│   └── ADR-002.md
+├── learnings/          ← "We tried X, it failed because Y"
+│   └── 2026-03-23-auth-approach.md
+├── patterns.md         ← Recurring patterns worth codifying
+├── antipatterns.md     ← Mistakes to avoid (with context)
+└── benchmarks/         ← Performance baselines
+    └── baseline.json
 ```
 
-(One line per type, sorted alphabetically — not a summary sentence.)
-
----
-
-## FTS5 Quick Reference
-
-`linxmd memory search` uses SQLite FTS5. Use these patterns for precise queries:
-
-| Pattern | Example | Matches |
-|---------|---------|---------|
-| Keyword | `postgres` | any entry containing "postgres" |
-| Phrase | `"event sourcing"` | exact phrase |
-| Boolean AND | `auth jwt` | both words (space = AND) |
-| Boolean OR | `auth OR oauth` | either word |
-| Boolean NOT | `auth NOT ldap` | first but not second |
-| Prefix | `deploy*` | "deploy", "deployment", "deployer" |
-| Column filter | `title:postgres` | keyword only in title field |
-
-**Tip:** Start with a single keyword. Narrow with phrases or AND if too many results appear.
-
----
-
-## What Gets Indexed
-
-The indexer scans exactly these paths (relative to project root):
-
-| Path | Indexed as | Notes |
-|------|-----------|-------|
-| `docs/decisions/*.md` | `decision` | One entry per file; `README.md` is skipped |
-| `CHANGELOG.md` | `changelog` | One entry per `## [version]` block |
-| `KNOWN_ISSUES.md` | `issue` | One entry per table row |
-
-Custom paths (e.g. `docs/notes/*.md`) are **not** indexed in the current version. Adding custom source paths requires a CLI upgrade.
-
----
-
-## Memory File Structure
-
-```
-docs/
-├── decisions/                  ← Architecture Decision Records (ADRs)
-│   ├── 0001-use-postgres.md
-│   ├── 0002-adopt-event-sourcing.md
-│   └── README.md               ← index table of all decisions
-CHANGELOG.md                    ← keep-a-changelog format (repo root)
-KNOWN_ISSUES.md                 ← open, deferred, resolved issues (repo root)
-.linxmd/
-└── memory.db                   ← derived SQLite index (git-ignorable)
-```
-
----
-
-## Architecture Decision Records (ADRs)
-
-### When to Write an ADR
-
-Write an ADR when the decision is:
-- Hard to reverse
-- Confusing to a future team member without context
-- The result of a debate where a non-obvious choice was made
-- A pattern that will be repeated
-
-**Skip the ADR** for: trivial choices with obvious rationale, short-lived experiments.
-
-### ADR Format
-
-File: `docs/decisions/[NNNN]-[slug].md`
-
+**Decisions** — When you choose between alternatives, document it:
 ```markdown
-# [NNNN] [Title]
-
-**Status**: Proposed | Accepted | Deprecated | Superseded by [NNNN]
-**Date**: YYYY-MM-DD
-**Deciders**: [who was involved]
-
-## Context
-
-[What problem were we solving? What constraints existed?]
-
-## Options Considered
-
-### Option A: [Name]
-[description, pros, cons]
-
-### Option B: [Name]
-[description, pros, cons]
-
-## Decision
-
-We chose **Option A** because [rationale].
-
-## Consequences
-
-**Good**: [what improves]
-**Bad**: [what gets harder or is now a constraint]
-**Neutral**: [trade-offs with no clear winner]
+---
+id: ADR-NNN
+title: "Why we chose X"
+status: accepted       # proposed | accepted | deprecated | superseded
+date: 2026-03-23
+---
+## Context → ## Decision → ## Consequences
 ```
 
-### ADR Index (`docs/decisions/README.md`)
-
+**Learnings** — When something worked or failed, capture it:
 ```markdown
-| # | Title | Status | Date |
-|---|-------|--------|------|
-| 0001 | Use PostgreSQL | Accepted | 2025-01-15 |
+## Learning: <title>
+- Context: What were we doing?
+- What happened: What went right/wrong?
+- Lesson: What should we do next time?
 ```
 
-**Index size limit:** If this file exceeds 200 rows, move ADRs older than 2 years to `docs/decisions/archive/` and create `docs/decisions/README-archive.md`. Never delete ADRs — only archive them.
+### Tier 3 — Global Memory (Cross-Project)
 
----
-
-## CHANGELOG.md (Keep a Changelog Format)
-
-```markdown
-# Changelog
-
-All notable changes to this project will be documented in this file.
-Format: [Keep a Changelog](https://keepachangelog.com/) | [SemVer](https://semver.org/)
-
-## [Unreleased]
-
-### Added
-- [description of new feature]
-
-## [1.2.0] — 2025-03-01
-[...]
+```
+~/.linxmd/
+├── user-profile.md     ← Identity, preferences, communication style (see user-profile skill)
+├── global/
+│   ├── patterns.md     ← Patterns that work across all your projects
+│   └── antipatterns.md ← Mistakes to avoid everywhere
+└── config.md           ← Tool defaults (optional)
 ```
 
-CHANGELOG entries are written at change time, not retroactively at release.
-Use `agent:changelog-writer` to write entries automatically.
+Global memory is personal and persists across all projects. Agents read it at startup to personalize their behavior.
 
----
+#### Global Environment Bootstrap
 
-## KNOWN_ISSUES.md
+The `~/.linxmd/` directory is created during `project-start` workflow (Phase 0) or manually. The `onboarder` agent checks for its existence and runs the `user-profile` skill interview if `user-profile.md` is missing.
 
-```markdown
-# Known Issues
+#### Promoting Project Knowledge to Global
 
-## Open
-| # | Summary | Severity | Since | Workaround |
-|---|---------|----------|-------|-----------|
-| KI-001 | Login fails if email contains + | Medium | v1.1.0 | URL-encode email |
+When a learning or pattern proves useful across multiple projects:
+1. `memory-distiller` flags the candidate (tag: `promote-candidate`)
+2. Human reviews and approves promotion
+3. Entry is copied to `~/.linxmd/global/patterns.md` or `antipatterns.md`
+4. Original project entry gets a `promoted: true` marker
 
-## Deferred
-| # | Summary | Target | Reason |
-|---|---------|--------|--------|
+Never auto-promote. Cross-project patterns require human judgment.
 
-## Resolved
-| # | Summary | Fixed In |
-|---|---------|---------|
-```
+## Agent Startup Protocol
 
----
+Every agent follows this at session start:
+1. Read `PROJECT.md` (mandatory — stop if missing)
+2. Read `~/.linxmd/user-profile.md` (optional — adapt if present)
+3. Read relevant `.linxmd/memory/decisions/` ADRs
+4. Read relevant `.linxmd/memory/learnings/`
+5. Read recent `.linxmd/traces/` for ongoing task context
 
-## Fallback: Pure Markdown (no linxmd installed)
+## Agent Shutdown Protocol
 
-Use only when `linxmd` is not available in the project. Load files **selectively** — never load the entire `docs/decisions/` directory at once:
+Every agent follows this at session end:
+1. Write session trace to `.linxmd/traces/`
+2. Update task status in `.linxmd/tasks/`
+3. If a significant decision was made, write an ADR
+4. If something was learned, write a learning
 
-1. Load `docs/decisions/README.md` — scan the index table for relevant titles
-2. Load only the 1–3 ADR files whose titles match your question
-3. For CHANGELOG: load only the `## [Unreleased]` block
-4. For KNOWN_ISSUES: read only the `## Open` table rows; skip Resolved
-5. Hard cap: at most 3 full ADR files per question. If you need more, the problem is too broad for a single context window.
+## Memory Hygiene
 
----
-
-## Rules
-
-- Every significant architectural decision gets an ADR — not just tech stack choices
-- ADR status must be updated when decisions are revisited (`Deprecated` or `Superseded by NNNN`)
-- Never delete an ADR — supersede or deprecate it
-- CHANGELOG entries are written at the time of the change, not retroactively at release
-- KNOWN_ISSUES.md is updated every time a bug is found or fixed
-- Always run `linxmd memory search` before asking "why did we…" or making a reversible decision
-
-## When NOT to Use
-
-- For trivial decisions with obvious rationale — no ADR needed
-- For operational secrets or credentials — use a secrets manager, not markdown
-- For temporary notes that don't outlive the current session — use `NOTES.md` in task-management instead
-
-## Stability Contract
-
-This skill's file and directory names are a **public API**. Every workflow that records or queries project memory depends on the exact paths below.
-
-| Path | Role |
-|------|------|
-| `docs/decisions/` | ADR directory — never rename |
-| `docs/decisions/README.md` | ADR index — never delete |
-| `docs/decisions/[NNNN]-*.md` | ADR naming pattern — never change |
-| `CHANGELOG.md` | Changelog — always at project root |
-| `KNOWN_ISSUES.md` | Issue log — always at project root |
-| `.linxmd/memory.db` | Derived SQLite index — gitignore-able, safe to delete/rebuild |
-
-Breaking changes to any path above require a major version bump and a migration note.
+- **Don't hoard** — only distill genuinely useful information
+- **Deduplicate** — check before adding a new learning/pattern
+- **Keep it scannable** — entries should be readable in seconds
+- **Link back** — every memory entry traces to its source
+- **Review periodically** — deprecated decisions should be marked

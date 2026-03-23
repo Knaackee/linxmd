@@ -121,10 +121,9 @@ public class LibV2E2ETests : IDisposable
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'bug-fix'");
         stdout.Should().Contain("Installed agent 'implementer'");
-        // reviewer-spec was removed from bug-fix deps in v0.3.0 (replaced by reviewer-quality)
         stdout.Should().Contain("Installed agent 'reviewer-quality'");
         stdout.Should().Contain("Installed agent 'docs-writer'");
-        stdout.Should().Contain("Installed skill 'debugging'");
+        stdout.Should().Contain("Installed agent 'changelog-writer'");
         File.Exists(Path.Combine(_tempDir, ".linxmd", "workflows", "bug-fix.md")).Should().BeTrue();
     }
 
@@ -176,17 +175,16 @@ public class LibV2E2ETests : IDisposable
     // ─── Version-bumped existing artifacts ─────────────────────────────────────
 
     [Fact]
-    public void Add_SddTdd_Workflow_V2_IncludesPlannerDep()
+    public void Add_FeatureDevelopment_Workflow_IncludesPlannerDep()
     {
         RunCli("init");
         UseLocalSource();
-        var (code, stdout, stderr) = RunCli("add workflow:sdd-tdd --yes");
+        var (code, stdout, stderr) = RunCli("add workflow:feature-development --yes");
 
         code.Should().Be(0);
         stderr.Should().BeEmpty();
-        // planner is a new dep in v0.2.0 — must be installed
         stdout.Should().Contain("Installed agent 'planner'");
-        stdout.Should().Contain("Installed workflow 'sdd-tdd'");
+        stdout.Should().Contain("Installed workflow 'feature-development'");
     }
 
     [Fact]
@@ -247,16 +245,16 @@ public class LibV2E2ETests : IDisposable
     // ─── Dependency enforcement: remove blocked by v0.2 dependents ─────────────
 
     [Fact]
-    public void Remove_Debugging_BlockedBy_BugFix_Workflow()
+    public void Remove_Debugging_BlockedBy_Implementer_Agent()
     {
         RunCli("init");
         UseLocalSource();
-        RunCli("add workflow:bug-fix --yes");
+        RunCli("add agent:implementer --yes");
 
         var (_, stdout, stderr) = RunCli("remove skill:debugging --yes");
 
         (stdout + stderr).Should().Contain("Cannot uninstall due to active dependencies");
-        (stdout + stderr).Should().Contain("workflow:bug-fix depends on skill:debugging");
+        (stdout + stderr).Should().Contain("agent:implementer depends on skill:debugging");
     }
 
     [Fact]

@@ -1,120 +1,116 @@
 ---
 name: release
 type: workflow
-version: 0.3.0
-description: Cut a clean, documented release in one pipeline — calculates the right SemVer bump, finalizes the CHANGELOG, updates version refs, commits, tags, and drafts release notes
-deps:
-  - agent:changelog-writer@>=0.3.0
-  - agent:docs-writer@>=0.2.0
-  - skill:task-management@>=0.2.0
-tags:
-  - release
-  - semver
-  - changelog
-  - git
+version: 2.0.0
+description: >
+  Prepare and ship a release. Version bump, changelog finalization, build,
+  tag, and publish with human sign-off.
+agents:
+  - changelog-writer
+  - docs-writer
+  - reviewer-quality
+  - performance-monitor
+  - implementer
+skills:
+  - conventional-commits
+  - preview-delivery
+  - trace-writing
+gates: 2
+tags: [workflow, release, publish, deploy, versioning]
 ---
 
 # Release Workflow
 
-## Overview
+> Ship with confidence. Every release is versioned, documented, tested, and approved.
 
-A structured pipeline for producing a clean, documented release. Every step is explicit and reversible until the final git tag is pushed.
-
-## Start Conditions
-
-Triggered by: "release", "cut a release", "release [version]", or "prepare v[X.Y.Z]".
-
-## Pipeline
-
-### Step 1: Determine Version Bump
-
-1. Read `CHANGELOG.md` → `[Unreleased]` section
-2. Classify the highest-severity change present:
-   - `Removed` or breaking API change → **MAJOR** bump
-   - `Added` (new backward-compatible feature) → **MINOR** bump
-   - `Fixed`, `Security`, `Changed` (non-breaking) → **PATCH** bump
-3. Read current version from: `package.json`, `pyproject.toml`, `*.csproj`, or ask
-4. Calculate new version
-5. Output: `Bump: [current] → [new] ([MAJOR|MINOR|PATCH])`
-6. **Wait for confirmation** before proceeding
-
-### Step 2: Update Version References
-
-Update the version number in all version-bearing files:
-- `package.json` → `"version": "[new]"`
-- `pyproject.toml` → `version = "[new]"`
-- `*.csproj` → `<Version>[new]</Version>`
-- Any version constant file
-
-If no version file is found, ask the user where the version is stored.
-
-### Step 3: Finalize CHANGELOG
-
-Call `agent:changelog-writer`:
-1. Move `[Unreleased]` content to a new `## [[new version]] — YYYY-MM-DD` section
-2. Add a fresh empty `## [Unreleased]` section at the top
-3. Add comparison link at the bottom if the repo supports it:
-   `[new]: https://github.com/[owner]/[repo]/compare/v[prev]...v[new]`
-
-### Step 4: Update Documentation
-
-Call `agent:docs-writer`:
-1. Verify README version badge or "current version" references are updated
-2. Verify any "installation" sections reference the new version
-3. Flag any API docs that describe removed or changed behavior
-
-### Step 5: Release Commit
-
-Produce a single release commit staged with only version files and CHANGELOG.md:
+## Flow Diagram
 
 ```
-chore: release v[version]
+PREPARE → QUALITY CHECK → BENCHMARK → ★GATE 1★ → BUILD → TAG
+→ CHANGELOG → DOCS → ★GATE 2★ → PUBLISH
 ```
 
-No code changes allowed in a release commit.
+## Phases
 
-### Step 6: Tag
-
-Output the tag command for user review:
-
-```bash
-git tag -a v[version] -m "Release v[version]"
-```
-
-In **autonomous mode**: execute after confirmation.
-In **guided mode**: print the command and wait.
-
-### Step 7: Release Notes
-
-Draft release notes from the CHANGELOG entry for this version:
-
-```markdown
-## What's New in v[version]
-
-### Highlights
-[2-3 sentences summarizing the most important changes]
-
-### Added
-- [bullet points from CHANGELOG]
-
-### Fixed
-- [bullet points from CHANGELOG]
+### 1. PREPARE
+**Agent**: `changelog-writer`
+**Action**:
+- Review all entries in `[Unreleased]` section of CHANGELOG.md
+- Determine version bump (major/minor/patch) based on changes:
+  - Breaking changes → major
+  - New features → minor
+  - Bug fixes only → patch
+- Move entries to new version section: `## [X.Y.Z] - YYYY-MM-DD`
 
 ---
-**Full Changelog**: [link to CHANGELOG.md]
-**Install**: [install one-liner for the package manager]
-```
 
-## Max Iterations
+### 2. QUALITY CHECK
+**Agent**: `reviewer-quality`
+**Action**:
+- All tests pass
+- No critical or major issues in last review
+- No known regressions
+- Security audit clean
 
-If the version bump determination is ambiguous (e.g., breaking change hidden in a patch PR), stop and ask the user to classify manually before proceeding.
+---
 
-## Execution Modes
+### 3. BENCHMARK
+**Agent**: `performance-monitor`
+**Action**:
+- Run full benchmark suite
+- Compare against last release baseline
+- Flag any regressions
 
-- **autonomous**: Runs all steps; pauses only at Step 1 (version confirm) and Step 6 (tag confirm)
-- **guided**: Waits after each step for "next step"
+### ★ GATE 1: Release Readiness ★
+**Reviewer**: Human
+**Validates**: Quality check clean, benchmarks acceptable, changelog accurate
+**Outcome**: Ready / Fix issues first / Delay release
 
-## When NOT to Use
+---
 
-- For pre-release / RC tags — agree on the pre-release versioning format first
-- For hotfix releases on older version branches — this workflow assumes single-trunk releases
+### 4. BUILD
+**Agent**: `implementer`
+**Action**:
+- Update version in project config files
+- Run full test suite one more time
+- Build release artifacts
+- Commit: `chore(release): bump version to X.Y.Z`
+
+---
+
+### 5. TAG
+**Agent**: `implementer`
+**Action**: `git tag vX.Y.Z`
+
+---
+
+### 6. CHANGELOG + DOCS
+**Agents**: `changelog-writer`, `docs-writer`
+**Action**:
+- Finalize changelog with version number and date
+- Update any version references in documentation
+- Write release summary
+
+### ★ GATE 2: Publish Approval ★
+**Reviewer**: Human
+**Validates**: Everything looks correct, ready to make public
+**Outcome**: Publish / Hold
+
+---
+
+### 7. PUBLISH
+**Agent**: `implementer`
+**Action**:
+- Push tag
+- Publish to registry (npm, NuGet, crates.io, etc.)
+- Create GitHub release with notes
+- Update performance baselines for next cycle
+
+## Exit Criteria
+
+- [ ] Version bumped
+- [ ] All tests and benchmarks pass
+- [ ] Changelog finalized
+- [ ] Tag created
+- [ ] Published to registry
+- [ ] GitHub release created

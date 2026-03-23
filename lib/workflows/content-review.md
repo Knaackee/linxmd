@@ -1,74 +1,102 @@
 ---
 name: content-review
 type: workflow
-version: 0.2.0
-description: Content creation with review pipeline
-deps:
-  - agent:drafter@>=0.2.0
-  - agent:fact-checker@>=0.2.0
-  - agent:editor@>=0.2.0
-  - skill:task-management@>=0.2.0
-tags:
-  - content
-  - writing
-  - review
+version: 2.0.0
+description: >
+  Create and review content: articles, blog posts, documentation pages.
+  Draft → Edit → Fact-check → Review → Publish.
+agents:
+  - router
+  - drafter
+  - editor
+  - fact-checker
+  - reviewer-quality
+skills:
+  - trace-writing
+gates: 3
+tags: [workflow, content, writing, review, publishing]
 ---
 
 # Content Review Workflow
 
-## Overview
+> From blank page to published content. Structured drafting, editing, fact-checking, and review.
 
-A workflow for content creation with a structured review pipeline.
-Not tied to programming — works for any content that needs drafting,
-fact-checking, and editing.
+## Flow Diagram
 
-## Pipeline
+```
+BRIEF → DRAFT → ★GATE 1★ → EDIT → FACT-CHECK → ★GATE 2★ → FINAL POLISH → ★GATE 3★ → PUBLISH
+```
 
-1. **DRAFT** → `drafter` creates initial draft from backlog item
-2. **FACT-CHECK** → `fact-checker` verifies claims, links, and numbers
-3. **TONE-REVIEW** → Inline check (no separate agent): Is the tone appropriate for the target audience? Is the voice consistent throughout? Are any statements likely to alienate or confuse the reader?
-4. **EDIT** → `editor` improves language, flow, and structure
-5. **METADATA** → For web-published content only: verify title, description, tags, and canonical URL are complete
-6. **PUBLISH** → Final version prepared for release
+## Phases
 
-## Stage Contracts
+### 1. BRIEF
+**Agent**: `router`
+**Action**:
+- Define: topic, audience, tone, length, format, deadline
+- Record brief in `.linxmd/inbox/`
 
-- DRAFT output:
-  - Title
-  - Audience
-  - Core message
-  - First full draft
-- FACT-CHECK output:
-  - Verified claims
-  - Unverified claims
-  - Required corrections
-- EDIT output:
-  - Revised content
-  - Changelog summary
-  - Open issues (if any)
+---
 
-## Execution Modes
+### 2. DRAFT
+**Agent**: `drafter`
+**Action**:
+- Create outline first
+- Write first draft with `[TODO]`, `[VERIFY]`, `[REVIEW]` markers
+- Save to specified location
 
-- **autonomous**: Runs all stages without pausing
-- **guided**: Waits after each stage for review
+### ★ GATE 1: Draft Review ★
+**Reviewer**: Human
+**Validates**: Structure, coverage, tone direction, missing topics
+**Outcome**: Approve for editing / Rewrite sections / Redirect
 
-Guided prompts:
-- "Draft complete. Say 'next stage' for fact-check."
-- "Fact-check complete. Say 'next stage' for tone-review."
-- "Tone-review complete. Say 'next stage' for edit."
-- "Edit complete. Say 'next stage' for metadata check (or 'publish' to skip)."
-- "Metadata complete. Say 'publish' to finalize."
+---
 
-## When NOT to Use
+### 3. EDIT
+**Agent**: `editor`
+**Action**:
+- Improve clarity, conciseness, flow
+- Resolve `[TODO]` markers
+- Fix grammar, style, consistency
+- Produce edit summary
 
-- For short internal notes or comments with no review requirement — write directly
-- For code documentation → use `agent:docs-writer`
+---
 
-## Getting Started
+### 4. FACT-CHECK
+**Agent**: `fact-checker`
+**Action**:
+- Verify all `[VERIFY]` markers
+- Cross-reference technical claims against code/docs
+- Check links, version numbers, examples
+- Produce fact-check report
 
-1. `linxmd init` → Initialize project
-2. `linxmd add workflow:content-review --yes` → Install workflow
-3. `linxmd sync` → Generate tool wrappers
-4. Add content task to `.linxmd/tasks/backlog/`
-5. Start with "begin content review" or "write content: [topic]"
+### ★ GATE 2: Edited Content Review ★
+**Reviewer**: Human
+**Validates**: Content quality, accuracy, fact-check results
+**Outcome**: Approve / Request changes
+
+---
+
+### 5. FINAL POLISH
+**Agent**: `editor`
+**Action**:
+- Final formatting pass
+- Remove all remaining markers
+- Ensure consistent style
+
+### ★ GATE 3: Publish Approval ★
+**Reviewer**: Human
+**Validates**: Ready for publication
+**Outcome**: Publish / Hold
+
+---
+
+### 6. PUBLISH
+**Action**: Move to final location, update any indexes or links.
+
+## Exit Criteria
+
+- [ ] All markers resolved
+- [ ] Fact-check passed
+- [ ] Human approved all 3 gates
+- [ ] Content in final location
 
