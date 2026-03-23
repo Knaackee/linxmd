@@ -1,694 +1,537 @@
 {
-  "version": 2,
-  "generated": "2026-03-23T14:00:00Z",
+  "version": 1,
+  "generated": "2026-03-23T17:54:09Z",
   "artifacts": [
-    {
-      "name": "implementer",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Makes failing tests pass with minimal, clean code. GREEN phase of TDD.",
-      "path": "agents/implementer.md",
-      "deps": [
-        "skill:debugging",
-        "skill:refactoring",
-        "skill:conventional-commits",
-        "skill:trace-writing",
-        "skill:observability"
-      ],
-      "tags": ["core", "tdd", "implementation"]
-    },
-    {
-      "name": "test-writer",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Writes failing tests BEFORE implementation. RED phase of TDD.",
-      "path": "agents/test-writer.md",
-      "deps": [
-        "skill:debugging",
-        "skill:e2e-testing",
-        "skill:task-management",
-        "skill:trace-writing",
-        "skill:conventional-commits"
-      ],
-      "tags": ["core", "tdd", "testing"]
-    },
     {
       "name": "architect",
       "type": "agent",
       "version": "2.0.0",
-      "description": "Makes and documents architectural decisions. Writes ADRs.",
+      "description": ">",
       "path": "agents/architect.md",
-      "deps": [
-        "skill:api-design",
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["core", "architecture", "design"]
-    },
-    {
-      "name": "planner",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Breaks specs into ordered subtasks with estimates and dependencies.",
-      "path": "agents/planner.md",
-      "deps": [
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["core", "planning", "tasks"]
-    },
-    {
-      "name": "spec-writer",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Turns raw ideas into structured specs with acceptance criteria.",
-      "path": "agents/spec-writer.md",
-      "deps": [
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["core", "specification", "requirements"]
-    },
-    {
-      "name": "drafter",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Creates first drafts of content: articles, docs, proposals.",
-      "path": "agents/drafter.md",
-      "deps": [
-        "skill:trace-writing"
-      ],
-      "tags": ["core", "writing", "drafting"]
-    },
-    {
-      "name": "editor",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Refines drafts for clarity, accuracy, tone, and consistency.",
-      "path": "agents/editor.md",
-      "deps": [
-        "skill:trace-writing"
-      ],
-      "tags": ["core", "writing", "editing"]
-    },
-    {
-      "name": "reviewer-quality",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Reviews code for quality, security (OWASP), performance, and standards.",
-      "path": "agents/reviewer-quality.md",
-      "deps": [
-        "skill:observability",
-        "skill:consistency-check",
-        "skill:performance-profiling",
-        "skill:trace-writing"
-      ],
-      "tags": ["control", "review", "quality", "security"]
-    },
-    {
-      "name": "reviewer-spec",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Reviews specifications for completeness, clarity, and testability.",
-      "path": "agents/reviewer-spec.md",
-      "deps": [
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["control", "review", "specification"]
-    },
-    {
-      "name": "consistency-guardian",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Post-feature sweep: naming, dead code, imports, pattern violations.",
-      "path": "agents/consistency-guardian.md",
-      "deps": [
-        "skill:consistency-check",
-        "skill:refactoring",
-        "skill:trace-writing"
-      ],
-      "tags": ["control", "consistency", "cleanup"]
-    },
-    {
-      "name": "fact-checker",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Verifies factual claims in docs and content against source of truth.",
-      "path": "agents/fact-checker.md",
-      "deps": [
-        "skill:research",
-        "skill:trace-writing"
-      ],
-      "tags": ["control", "verification", "accuracy"]
-    },
-    {
-      "name": "router",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Entry point for all requests. Classifies and routes to the right workflow.",
-      "path": "agents/router.md",
-      "deps": [
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "routing", "intake"]
-    },
-    {
-      "name": "docs-writer",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Creates and maintains documentation: READMEs, API docs, PROJECT.md.",
-      "path": "agents/docs-writer.md",
-      "deps": [
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "documentation"]
-    },
-    {
-      "name": "changelog-writer",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Maintains CHANGELOG.md with conventional commit format at every merge.",
-      "path": "agents/changelog-writer.md",
-      "deps": [
-        "skill:conventional-commits",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "changelog", "release-notes"]
-    },
-    {
-      "name": "onboarder",
-      "type": "agent",
-      "version": "2.0.0",
-      "description": "Creates and maintains PROJECT.md and ~/.linxmd/user-profile.md.",
-      "path": "agents/onboarder.md",
-      "deps": [
-        "skill:start-state-creation",
-        "skill:user-profile",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "onboarding", "global-setup"]
+      "deps": [],
+      "tags": []
     },
     {
       "name": "brainstormer",
       "type": "agent",
       "version": "2.0.0",
-      "description": "Structured ideation: HMW, SCAMPER, ranking, actionable ideas.",
+      "description": ">",
       "path": "agents/brainstormer.md",
-      "deps": [
-        "skill:brainstorming",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "ideation"]
+      "deps": [],
+      "tags": []
     },
     {
-      "name": "researcher",
+      "name": "changelog-writer",
       "type": "agent",
       "version": "2.0.0",
-      "description": "Deep-dives topics, produces structured research reports with sources.",
-      "path": "agents/researcher.md",
-      "deps": [
-        "skill:research",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "research", "investigation"]
+      "description": ">",
+      "path": "agents/changelog-writer.md",
+      "deps": [],
+      "tags": []
     },
     {
-      "name": "start-state-creator",
+      "name": "consistency-guardian",
       "type": "agent",
       "version": "2.0.0",
-      "description": "Analyzes existing codebases, generates PROJECT.md and task backlog.",
-      "path": "agents/start-state-creator.md",
-      "deps": [
-        "skill:start-state-creation",
-        "skill:task-management",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "onboarding", "initialization"]
+      "description": ">",
+      "path": "agents/consistency-guardian.md",
+      "deps": [],
+      "tags": []
     },
     {
-      "name": "performance-monitor",
+      "name": "docs-writer",
       "type": "agent",
       "version": "2.0.0",
-      "description": "Runs benchmarks, compares to baselines, detects regressions.",
-      "path": "agents/performance-monitor.md",
-      "deps": [
-        "skill:performance-profiling",
-        "skill:trace-writing"
-      ],
-      "tags": ["delivery", "performance", "benchmarks"]
+      "description": ">",
+      "path": "agents/docs-writer.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "drafter",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/drafter.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "editor",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/editor.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "fact-checker",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/fact-checker.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "implementer",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/implementer.md",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "memory-distiller",
       "type": "agent",
       "version": "2.0.0",
-      "description": "Compacts session traces into long-term project memory.",
+      "description": ">",
       "path": "agents/memory-distiller.md",
-      "deps": [
-        "skill:trace-writing",
-        "skill:task-management"
-      ],
-      "tags": ["delivery", "memory", "distillation"]
+      "deps": [],
+      "tags": []
     },
     {
-      "name": "debugging",
-      "type": "skill",
+      "name": "onboarder",
+      "type": "agent",
       "version": "2.0.0",
-      "description": "Systematic debugging: reproduce, isolate, fix, verify.",
-      "path": "skills/debugging/",
+      "description": ">",
+      "path": "agents/onboarder.md",
       "deps": [],
-      "tags": ["core", "debugging", "troubleshooting"]
+      "tags": []
     },
     {
-      "name": "refactoring",
-      "type": "skill",
+      "name": "performance-monitor",
+      "type": "agent",
       "version": "2.0.0",
-      "description": "Safe code transformations with tests as safety net.",
-      "path": "skills/refactoring/",
+      "description": ">",
+      "path": "agents/performance-monitor.md",
       "deps": [],
-      "tags": ["core", "refactoring", "clean-code"]
+      "tags": []
     },
     {
-      "name": "task-management",
-      "type": "skill",
+      "name": "planner",
+      "type": "agent",
       "version": "2.0.0",
-      "description": "Unified task frontmatter v2, lifecycle, and status transitions.",
-      "path": "skills/task-management/",
+      "description": ">",
+      "path": "agents/planner.md",
       "deps": [],
-      "tags": ["core", "tasks", "lifecycle"]
+      "tags": []
+    },
+    {
+      "name": "researcher",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/researcher.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "reviewer-quality",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/reviewer-quality.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "reviewer-spec",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/reviewer-spec.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "router",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/router.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "spec-writer",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/spec-writer.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "start-state-creator",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/start-state-creator.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "test-writer",
+      "type": "agent",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "agents/test-writer.md",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "api-design",
       "type": "skill",
       "version": "2.0.0",
-      "description": "REST/HTTP API design: resources, methods, status codes, pagination.",
+      "description": ">",
       "path": "skills/api-design/",
       "deps": [],
-      "tags": ["core", "api", "rest"]
-    },
-    {
-      "name": "project-memory",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Three-tier memory architecture: Session, Project, Global.",
-      "path": "skills/project-memory/",
-      "deps": [],
-      "tags": ["core", "memory", "knowledge-management"]
-    },
-    {
-      "name": "context-management",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "LLM context window management: prioritize, summarize, avoid overflow.",
-      "path": "skills/context-management/",
-      "deps": [],
-      "tags": ["core", "context", "llm"]
-    },
-    {
-      "name": "code-translator",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Translate code between languages idiomatically.",
-      "path": "skills/code-translator/",
-      "deps": [],
-      "tags": ["core", "translation", "language"]
-    },
-    {
-      "name": "design-tokens",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Design token management: colors, spacing, typography as structured tokens.",
-      "path": "skills/design-tokens/",
-      "deps": [],
-      "tags": ["core", "design", "tokens", "ui"]
-    },
-    {
-      "name": "i18n",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Internationalization: string externalization, locale management, RTL.",
-      "path": "skills/i18n/",
-      "deps": [],
-      "tags": ["core", "i18n", "localization"]
-    },
-    {
-      "name": "text-translator",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Human-language translation preserving tone and cultural context.",
-      "path": "skills/text-translator/",
-      "deps": [],
-      "tags": ["core", "translation", "content"]
-    },
-    {
-      "name": "user-profile",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Schema, creation, and maintenance of ~/.linxmd/user-profile.md for agent personalization.",
-      "path": "skills/user-profile/",
-      "deps": [],
-      "tags": ["core", "profile", "preferences", "onboarding", "global"]
-    },
-    {
-      "name": "observability",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Code-level observability: structured logging, tracing, error tracking, health.",
-      "path": "skills/observability/",
-      "deps": [],
-      "tags": ["governance", "observability", "logging", "tracing"]
-    },
-    {
-      "name": "conventional-commits",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Commit message format: type(scope): message. Enforced on every commit.",
-      "path": "skills/conventional-commits/",
-      "deps": [],
-      "tags": ["governance", "git", "commits"]
-    },
-    {
-      "name": "trace-writing",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Session trace file format, mandatory content, archival rules.",
-      "path": "skills/trace-writing/",
-      "deps": [],
-      "tags": ["governance", "traces", "audit"]
-    },
-    {
-      "name": "preview-delivery",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Preview packages for human acceptance: artifact bundles, live URLs.",
-      "path": "skills/preview-delivery/",
-      "deps": [],
-      "tags": ["governance", "preview", "delivery"]
-    },
-    {
-      "name": "consistency-check",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Naming conventions, dead code, import hygiene, pattern matching.",
-      "path": "skills/consistency-check/",
-      "deps": [],
-      "tags": ["governance", "consistency", "quality"]
-    },
-    {
-      "name": "performance-profiling",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Before/after benchmarks, regression detection, profiling methodology.",
-      "path": "skills/performance-profiling/",
-      "deps": [],
-      "tags": ["governance", "performance", "benchmarks"]
-    },
-    {
-      "name": "worktree-management",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Git worktree create, switch, merge, cleanup for isolated work.",
-      "path": "skills/worktree-management/",
-      "deps": [],
-      "tags": ["growth", "git", "worktree"]
-    },
-    {
-      "name": "feature-branch",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "Branch naming, PR strategy, merge strategy, cleanup.",
-      "path": "skills/feature-branch/",
-      "deps": [],
-      "tags": ["growth", "git", "branching"]
-    },
-    {
-      "name": "e2e-testing",
-      "type": "skill",
-      "version": "2.0.0",
-      "description": "End-to-end test strategy, Playwright/Cypress, coverage tracking.",
-      "path": "skills/e2e-testing/",
-      "deps": [],
-      "tags": ["growth", "testing", "e2e"]
+      "tags": []
     },
     {
       "name": "brainstorming",
       "type": "skill",
       "version": "2.0.0",
-      "description": "Structured ideation: HMW, SCAMPER, mind maps, impact/effort ranking.",
+      "description": ">",
       "path": "skills/brainstorming/",
       "deps": [],
-      "tags": ["growth", "ideation", "creativity"]
+      "tags": []
     },
     {
-      "name": "research",
+      "name": "code-translator",
       "type": "skill",
       "version": "2.0.0",
-      "description": "Structured research: source collection, synthesis, findings reports.",
-      "path": "skills/research/",
+      "description": ">",
+      "path": "skills/code-translator/",
       "deps": [],
-      "tags": ["growth", "research", "investigation"]
+      "tags": []
+    },
+    {
+      "name": "consistency-check",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/consistency-check/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "context-management",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/context-management/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "conventional-commits",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/conventional-commits/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "debugging",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/debugging/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "design-tokens",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/design-tokens/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "e2e-testing",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/e2e-testing/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "feature-branch",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/feature-branch/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "i18n",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/i18n/",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "market-analysis",
       "type": "skill",
       "version": "2.0.0",
-      "description": "Competitive research, feature gap analysis, positioning frameworks.",
+      "description": ">",
       "path": "skills/market-analysis/",
       "deps": [],
-      "tags": ["growth", "market", "competitive-analysis"]
+      "tags": []
+    },
+    {
+      "name": "observability",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/observability/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "performance-profiling",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/performance-profiling/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "preview-delivery",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/preview-delivery/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "project-memory",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/project-memory/",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "quicknote",
       "type": "skill",
       "version": "2.0.0",
-      "description": "Fast capture of ideas, links, thoughts to .linxmd/notes/.",
+      "description": ">",
       "path": "skills/quicknote/",
       "deps": [],
-      "tags": ["growth", "notes", "capture"]
+      "tags": []
+    },
+    {
+      "name": "refactoring",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/refactoring/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "research",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/research/",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "start-state-creation",
       "type": "skill",
       "version": "2.0.0",
-      "description": "Codebase analysis, tech stack detection, PROJECT.md generation.",
+      "description": ">",
       "path": "skills/start-state-creation/",
       "deps": [],
-      "tags": ["growth", "onboarding", "initialization"]
+      "tags": []
     },
     {
-      "name": "feature-development",
-      "type": "workflow",
+      "name": "task-management",
+      "type": "skill",
       "version": "2.0.0",
-      "description": "Primary dev workflow: idea to merge with 6 human gates.",
-      "path": "workflows/feature-development.md",
-      "deps": [
-        "agent:router",
-        "agent:spec-writer",
-        "agent:planner",
-        "agent:architect",
-        "agent:test-writer",
-        "agent:implementer",
-        "agent:consistency-guardian",
-        "agent:reviewer-quality",
-        "agent:docs-writer",
-        "agent:changelog-writer",
-        "agent:performance-monitor"
-      ],
-      "tags": ["workflow", "feature", "tdd", "primary"]
+      "description": ">",
+      "path": "skills/task-management/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "text-translator",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/text-translator/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "trace-writing",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/trace-writing/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "user-profile",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/user-profile/",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "worktree-management",
+      "type": "skill",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "skills/worktree-management/",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "bug-fix",
       "type": "workflow",
       "version": "2.0.0",
-      "description": "Reproduce-first bug fixing with regression tests.",
+      "description": ">",
       "path": "workflows/bug-fix.md",
-      "deps": [
-        "agent:router",
-        "agent:implementer",
-        "agent:test-writer",
-        "agent:consistency-guardian",
-        "agent:reviewer-quality",
-        "agent:docs-writer",
-        "agent:changelog-writer"
-      ],
-      "tags": ["workflow", "bug-fix", "debugging"]
-    },
-    {
-      "name": "project-start",
-      "type": "workflow",
-      "version": "2.0.0",
-      "description": "Onboard existing codebases: global env check, analyze, init memory, seed tasks.",
-      "path": "workflows/project-start.md",
-      "deps": [
-        "agent:start-state-creator",
-        "agent:onboarder",
-        "agent:planner",
-        "agent:reviewer-spec"
-      ],
-      "tags": ["workflow", "onboarding", "initialization", "global-setup"]
-    },
-    {
-      "name": "research-spike",
-      "type": "workflow",
-      "version": "2.0.0",
-      "description": "Structured investigation before committing to an approach.",
-      "path": "workflows/research-spike.md",
-      "deps": [
-        "agent:router",
-        "agent:researcher",
-        "agent:architect"
-      ],
-      "tags": ["workflow", "research", "spike"]
-    },
-    {
-      "name": "release",
-      "type": "workflow",
-      "version": "2.0.0",
-      "description": "Version bump, changelog, build, tag, and publish with sign-off.",
-      "path": "workflows/release.md",
-      "deps": [
-        "agent:changelog-writer",
-        "agent:docs-writer",
-        "agent:reviewer-quality",
-        "agent:performance-monitor",
-        "agent:implementer"
-      ],
-      "tags": ["workflow", "release", "publish"]
+      "deps": [],
+      "tags": []
     },
     {
       "name": "consistency-sprint",
       "type": "workflow",
       "version": "2.0.0",
-      "description": "Dedicated codebase sweep: dead code, naming, patterns, hygiene.",
+      "description": ">",
       "path": "workflows/consistency-sprint.md",
-      "deps": [
-        "agent:consistency-guardian",
-        "agent:reviewer-quality",
-        "agent:implementer"
-      ],
-      "tags": ["workflow", "consistency", "cleanup"]
+      "deps": [],
+      "tags": []
     },
     {
       "name": "content-review",
       "type": "workflow",
       "version": "2.0.0",
-      "description": "Content creation: draft, edit, fact-check, publish.",
+      "description": ">",
       "path": "workflows/content-review.md",
-      "deps": [
-        "agent:router",
-        "agent:drafter",
-        "agent:editor",
-        "agent:fact-checker",
-        "agent:reviewer-quality"
-      ],
-      "tags": ["workflow", "content", "writing"]
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "feature-development",
+      "type": "workflow",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "workflows/feature-development.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "project-start",
+      "type": "workflow",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "workflows/project-start.md",
+      "deps": [],
+      "tags": []
     },
     {
       "name": "quality-baseline",
       "type": "workflow",
       "version": "2.0.0",
-      "description": "Full project audit: quality, security, performance, documentation.",
+      "description": ">",
       "path": "workflows/quality-baseline.md",
-      "deps": [
-        "agent:reviewer-quality",
-        "agent:consistency-guardian",
-        "agent:performance-monitor",
-        "agent:fact-checker",
-        "agent:docs-writer"
-      ],
-      "tags": ["workflow", "quality", "audit"]
+      "deps": [],
+      "tags": []
     },
     {
-      "name": "fullstack-tdd",
-      "type": "pack",
+      "name": "release",
+      "type": "workflow",
       "version": "2.0.0",
-      "description": "Complete TDD-driven full-stack development bundle.",
-      "path": "packs/fullstack-tdd.md",
+      "description": ">",
+      "path": "workflows/release.md",
       "deps": [],
-      "tags": ["pack", "fullstack", "tdd"],
-      "artifacts": [
-        "workflow:feature-development",
-        "agent:router",
-        "skill:context-management",
-        "skill:project-memory"
-      ]
+      "tags": []
     },
     {
-      "name": "quality-sprint",
-      "type": "pack",
+      "name": "research-spike",
+      "type": "workflow",
       "version": "2.0.0",
-      "description": "Codebase cleanup and quality improvement bundle.",
-      "path": "packs/quality-sprint.md",
+      "description": ">",
+      "path": "workflows/research-spike.md",
       "deps": [],
-      "tags": ["pack", "quality", "cleanup"],
-      "artifacts": [
-        "workflow:quality-baseline",
-        "skill:project-memory",
-        "agent:router"
-      ]
+      "tags": []
     },
     {
       "name": "content-pipeline",
       "type": "pack",
       "version": "2.0.0",
-      "description": "Content creation: draft, edit, fact-check, publish.",
+      "description": ">",
       "path": "packs/content-pipeline.md",
       "deps": [],
-      "tags": ["pack", "content", "writing"],
-      "artifacts": [
-        "agent:drafter",
-        "agent:fact-checker",
-        "agent:editor",
-        "workflow:content-review"
-      ]
-    },
-    {
-      "name": "i18n-ready",
-      "type": "pack",
-      "version": "2.0.0",
-      "description": "Internationalization bundle with i18n-aware code review.",
-      "path": "packs/i18n-ready.md",
-      "deps": [],
-      "tags": ["pack", "i18n", "localization"],
-      "artifacts": [
-        "skill:i18n",
-        "skill:text-translator",
-        "skill:task-management",
-        "agent:docs-writer"
-      ]
-    },
-    {
-      "name": "new-project-kickstart",
-      "type": "pack",
-      "version": "2.0.0",
-      "description": "Start new projects or onboard existing codebases to Linxmd.",
-      "path": "packs/new-project-kickstart.md",
-      "deps": [],
-      "tags": ["pack", "new-project", "onboarding"],
-      "artifacts": [
-        "workflow:project-start",
-        "agent:onboarder",
-        "skill:project-memory",
-        "skill:user-profile"
-      ]
+      "tags": []
     },
     {
       "name": "existing-project-rescue",
       "type": "pack",
       "version": "2.0.0",
-      "description": "Rescue neglected codebases: audit, plan, fix, document.",
+      "description": ">",
       "path": "packs/existing-project-rescue.md",
       "deps": [],
-      "tags": ["pack", "rescue", "legacy"],
-      "artifacts": [
-        "workflow:quality-baseline",
-        "workflow:consistency-sprint",
-        "agent:start-state-creator",
-        "agent:onboarder",
-        "skill:project-memory"
-      ]
+      "tags": []
+    },
+    {
+      "name": "fullstack-tdd",
+      "type": "pack",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "packs/fullstack-tdd.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "i18n-ready",
+      "type": "pack",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "packs/i18n-ready.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "new-project-kickstart",
+      "type": "pack",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "packs/new-project-kickstart.md",
+      "deps": [],
+      "tags": []
+    },
+    {
+      "name": "quality-sprint",
+      "type": "pack",
+      "version": "2.0.0",
+      "description": ">",
+      "path": "packs/quality-sprint.md",
+      "deps": [],
+      "tags": []
     }
   ]
 }
