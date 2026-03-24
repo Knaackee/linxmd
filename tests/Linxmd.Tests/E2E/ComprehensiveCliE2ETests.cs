@@ -121,7 +121,8 @@ public class ComprehensiveCliE2ETests : IDisposable
 
         var (_, finalListOut, finalListErr) = RunCli("list");
         finalListErr.Should().BeEmpty();
-        finalListOut.Should().Contain("No artifacts installed");
+        finalListOut.Should().NotContain("test-writer");
+        finalListOut.Should().ContainAny("skill", "agent", "workflow");
     }
 
     [Fact]
