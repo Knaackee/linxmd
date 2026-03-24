@@ -16,6 +16,21 @@ skills:
   - task-management
   - trace-writing
 gates: 3
+quickActions:
+  - id: qa-project-md-audit
+    label: Audit PROJECT.md
+    prompt: Audit PROJECT.md for missing stack details, architecture notes, coding conventions, and operational run/test commands.
+    trigger:
+      fileMatch:
+        - '^PROJECT\.md$'
+      languageId: [markdown]
+  - id: qa-backlog-seed
+    label: Seed Backlog Items
+    prompt: Turn project context into initial backlog entries with clear titles, priority, and testable acceptance criteria.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/backlog/.*\.md$'
+      languageId: [markdown]
 tags: [workflow, onboarding, initialization, project-start, global-setup]
 ---
 

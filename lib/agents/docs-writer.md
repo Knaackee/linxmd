@@ -8,6 +8,15 @@ description: >
   Updates PROJECT.md when architecture changes. Clear, concise, accurate.
 skills:
   - trace-writing
+quickActions:
+  - id: qa-doc-update-plan
+    label: Documentation Update Plan
+    prompt: Create a prioritized documentation update plan based on current specs and implementation notes.
+    trigger:
+      fileMatch:
+        - '^PROJECT\.md$'
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
 tags: [delivery, documentation, readme, api-docs]
 ---
 

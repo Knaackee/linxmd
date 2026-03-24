@@ -13,6 +13,23 @@ skills:
   - research
   - trace-writing
 gates: 2
+quickActions:
+  - id: qa-research-question
+    label: Sharpen Research Question
+    prompt: Rewrite the research problem into a clear question with scope, hypotheses, decision criteria, and stop conditions.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'Problem Statement|Hypothesis|Open Questions'
+  - id: qa-decision-brief
+    label: Decision Brief
+    prompt: Summarize findings as options with trade-offs, risks, and a recommendation that can be approved quickly.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
 tags: [workflow, research, spike, investigation, analysis]
 ---
 

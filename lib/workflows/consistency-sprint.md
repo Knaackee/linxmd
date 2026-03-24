@@ -15,6 +15,15 @@ skills:
   - trace-writing
   - conventional-commits
 gates: 2
+quickActions:
+  - id: qa-consistency-pass
+    label: Consistency Pass
+    prompt: Scan for inconsistent terminology, status drift, missing references, and structure mismatches. Propose concrete fixes.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/.*\.md$'
+      languageId: [markdown]
 tags: [workflow, consistency, cleanup, dead-code, maintenance]
 ---
 

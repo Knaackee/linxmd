@@ -12,6 +12,23 @@ skills:
   - task-management
   - trace-writing
   - conventional-commits
+quickActions:
+  - id: qa-test-plan-from-spec
+    label: Generate Test Plan
+    prompt: Generate a test matrix from the spec with happy path, edge case, and error-path coverage tied to acceptance criteria.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'Acceptance Criteria|Out of Scope'
+  - id: qa-missing-tests
+    label: Find Missing Tests
+    prompt: Identify acceptance criteria and scenarios that are not yet covered by tests and propose concrete test cases.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/SPEC\.md$'
+      languageId: [markdown]
 tags: [core, tdd, testing, red-phase]
 ---
 

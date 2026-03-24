@@ -186,6 +186,12 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for the full system design, including:
 
 See [PRINCIPLES.md](PRINCIPLES.md) for the non-negotiable rules every artifact follows.
 
+Artifact structure and frontmatter specs:
+- Shared frontmatter schema: [FRONTMATTER-SPEC.md](FRONTMATTER-SPEC.md)
+- Agents: [agents/SPEC.md](agents/SPEC.md)
+- Skills: [skills/SPEC.md](skills/SPEC.md)
+- Workflows: [workflows/SPEC.md](workflows/SPEC.md)
+
 ## Directory Structure
 
 ```

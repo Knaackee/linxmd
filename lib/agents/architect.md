@@ -10,6 +10,17 @@ skills:
   - api-design
   - task-management
   - trace-writing
+quickActions:
+  - id: qa-adr-candidate
+    label: ADR Candidate Check
+    prompt: Identify decisions that should become ADRs and summarize options, trade-offs, and recommendation.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'Decision|Trade-off|Risk|Architecture'
 tags: [core, architecture, design, adr]
 ---
 

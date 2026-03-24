@@ -6,6 +6,16 @@ version: 2.0.0
 description: >
   Commit message format following Conventional Commits standard.
   type(scope): message — enforced on every commit.
+quickActions:
+  - id: qa-commit-message-from-task
+    label: Commit Message from Task
+    prompt: Propose a conventional commit message from the documented task outcome with optional body and breaking-change note when needed.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'TASK-|changed|fixed|added|removed'
 tags: [governance, git, commits, changelog, versioning]
 ---
 

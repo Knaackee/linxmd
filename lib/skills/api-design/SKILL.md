@@ -6,6 +6,16 @@ version: 2.0.0
 description: >
   REST/HTTP API design principles: resource naming, HTTP methods, status codes,
   versioning, pagination, error responses, and OpenAPI documentation.
+quickActions:
+  - id: qa-api-contract-review
+    label: API Contract Review
+    prompt: Review API contracts for endpoint consistency, payload shape, status codes, and error response clarity.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'API|endpoint|payload|status code|OpenAPI'
 tags: [core, api, rest, http, design]
 ---
 

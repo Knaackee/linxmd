@@ -281,6 +281,51 @@ Implement dark mode toggle component.
 - CSS custom properties cascade better for dynamic theming
 ```
 
+### 8.4 Artifact Frontmatter v2.1
+
+All artifact types (`agent`, `skill`, `workflow`, `pack`) share an extensible frontmatter schema.
+
+```yaml
+---
+name: example-artifact
+type: skill
+version: 2.1.0
+description: Example
+deps: []
+tags: []
+supported: []
+quickActions: []
+lifecycle: {}
+---
+```
+
+#### Quick Actions
+
+- `quickActions` are context-aware prompt shortcuts.
+- `trigger.fileMatch` is a list of regex patterns with OR semantics.
+- `trigger.fileExclude` is a list of regex patterns with OR semantics.
+- Trigger groups (`fileMatch`, `workspaceHas`, `languageId`, etc.) are combined with AND semantics.
+
+#### Lifecycle Hooks
+
+Supported events:
+
+- `preInstall`
+- `postInstall`
+- `preUninstall`
+- `postUninstall`
+- `preUpdate`
+- `postUpdate`
+
+Each hook supports `id`, `label`, `prompt`, `blocking`, and `requiresConfirmation`.
+
+Normative schema and examples are maintained in:
+
+- [FRONTMATTER-SPEC.md](FRONTMATTER-SPEC.md)
+- [agents/SPEC.md](agents/SPEC.md)
+- [skills/SPEC.md](skills/SPEC.md)
+- [workflows/SPEC.md](workflows/SPEC.md)
+
 ---
 
 ## 9. Directory Layout

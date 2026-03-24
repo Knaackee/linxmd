@@ -1,6 +1,8 @@
 using Linxmd.Models;
 using Linxmd.Parsing;
 using FluentAssertions;
+using System.IO;
+using System.Linq;
 
 namespace Linxmd.Tests.Parsing;
 
@@ -366,5 +368,185 @@ public class FrontMatterParserTests
 
         result.Should().NotBeNull();
         result!.Name.Should().Be("test");
+    }
+
+        [Fact]
+        public void Parse_QuickActions_FileMatchAsList_ParsesAllFields()
+        {
+                var markdown = "---\n"
+                        + "name: e2e-testing\n"
+                        + "type: skill\n"
+                        + "version: 2.1.0\n"
+                        + "quickActions:\n"
+                        + "  - id: write-e2e\n"
+                        + "    label: Generate E2E test\n"
+                        + "    prompt: Write an e2e test for the current page.\n"
+                        + "    trigger:\n"
+                        + "      fileMatch: [src/pages/.*, src/routes/.*]\n"
+                        + "      fileExclude: [spec/.*]\n"
+                        + "      workspaceHas: [playwright.config.ts]\n"
+                        + "      workspaceMissing: [PROJECT.md]\n"
+                        + "      languageId: [typescript, typescriptreact]\n"
+                        + "      contentMatch: [export default function]\n"
+                        + "---\n\n"
+                        + "# E2E Testing Skill\n";
+
+                var result = FrontMatterParser.Parse(markdown);
+
+                result.Should().NotBeNull();
+                result!.QuickActions.Should().HaveCount(1);
+                var quickAction = result.QuickActions[0];
+                quickAction.Id.Should().Be("write-e2e");
+                quickAction.Label.Should().Be("Generate E2E test");
+                quickAction.Prompt.Should().Be("Write an e2e test for the current page.");
+                quickAction.Trigger.FileMatch.Should().BeEquivalentTo(["src/pages/.*", "src/routes/.*"]);
+                quickAction.Trigger.FileExclude.Should().BeEquivalentTo(["spec/.*"]);
+                quickAction.Trigger.WorkspaceHas.Should().BeEquivalentTo(["playwright.config.ts"]);
+                quickAction.Trigger.WorkspaceMissing.Should().BeEquivalentTo(["PROJECT.md"]);
+                quickAction.Trigger.LanguageId.Should().BeEquivalentTo(["typescript", "typescriptreact"]);
+                quickAction.Trigger.ContentMatch.Should().BeEquivalentTo(["export default function"]);
+        }
+
+        [Fact]
+        public void Parse_LifecycleHooks_ParsesAllLifecycleEvents()
+        {
+                var markdown = "---\n"
+                        + "name: feature-development\n"
+                        + "type: workflow\n"
+                        + "version: 2.1.0\n"
+                        + "lifecycle:\n"
+                        + "  preInstall:\n"
+                        + "    - id: check-prereq\n"
+                        + "      label: Check prerequisites\n"
+                        + "      prompt: Validate required tooling.\n"
+                        + "      blocking: true\n"
+                        + "      requiresConfirmation: true\n"
+                        + "  postInstall:\n"
+                        + "    - id: kickoff\n"
+                        + "      label: Kickoff workflow\n"
+                        + "      prompt: Start onboarding workflow.\n"
+                        + "  preUninstall:\n"
+                        + "    - id: deps-check\n"
+                        + "      label: Check dependencies\n"
+                        + "      prompt: Verify dependent artifacts.\n"
+                        + "  postUninstall:\n"
+                        + "    - id: cleanup\n"
+                        + "      label: Cleanup hints\n"
+                        + "      prompt: Suggest cleanup steps.\n"
+                        + "  preUpdate:\n"
+                        + "    - id: backup\n"
+                        + "      label: Backup\n"
+                        + "      prompt: Create a backup.\n"
+                        + "  postUpdate:\n"
+                        + "    - id: changelog\n"
+                        + "      label: Read changelog\n"
+                        + "      prompt: Summarize update changes.\n"
+                        + "---\n\n"
+                        + "# Feature Development Workflow\n";
+
+                var result = FrontMatterParser.Parse(markdown);
+
+                result.Should().NotBeNull();
+                result!.Lifecycle.PreInstall.Should().HaveCount(1);
+                result.Lifecycle.PostInstall.Should().HaveCount(1);
+                result.Lifecycle.PreUninstall.Should().HaveCount(1);
+                result.Lifecycle.PostUninstall.Should().HaveCount(1);
+                result.Lifecycle.PreUpdate.Should().HaveCount(1);
+                result.Lifecycle.PostUpdate.Should().HaveCount(1);
+
+                var preInstall = result.Lifecycle.PreInstall[0];
+                preInstall.Id.Should().Be("check-prereq");
+                preInstall.Blocking.Should().BeTrue();
+                preInstall.RequiresConfirmation.Should().BeTrue();
+        }
+
+            [Fact]
+            public void Parse_QuickAction_MissingFileMatch_ReturnsNull()
+            {
+                var markdown = "---\n"
+                    + "name: invalid-skill\n"
+                    + "type: skill\n"
+                    + "version: 2.1.0\n"
+                    + "quickActions:\n"
+                    + "  - id: invalid\n"
+                    + "    label: Missing fileMatch\n"
+                    + "    prompt: Should fail.\n"
+                    + "    trigger:\n"
+                    + "      workspaceHas: [playwright.config.ts]\n"
+                    + "---\n\n"
+                    + "# Invalid Skill\n";
+
+                var result = FrontMatterParser.Parse(markdown);
+
+                result.Should().BeNull();
+            }
+
+    [Fact]
+    public void Parse_ExtendedLibArtifacts_QuickActionsAreValid()
+    {
+        var repoRoot = FindRepoRoot();
+        var files = new[]
+        {
+            "lib/workflows/feature-development.md",
+            "lib/workflows/bug-fix.md",
+            "lib/workflows/project-start.md",
+            "lib/workflows/research-spike.md",
+            "lib/workflows/quality-baseline.md",
+            "lib/workflows/release.md",
+            "lib/workflows/consistency-sprint.md",
+            "lib/workflows/content-review.md",
+            "lib/agents/router.md",
+            "lib/agents/spec-writer.md",
+            "lib/agents/planner.md",
+            "lib/agents/test-writer.md",
+            "lib/agents/reviewer-spec.md",
+            "lib/agents/reviewer-quality.md",
+            "lib/agents/consistency-guardian.md",
+            "lib/agents/docs-writer.md",
+            "lib/agents/changelog-writer.md",
+            "lib/agents/architect.md",
+            "lib/agents/implementer.md",
+            "lib/skills/task-management/SKILL.md",
+            "lib/skills/debugging/SKILL.md",
+            "lib/skills/refactoring/SKILL.md",
+            "lib/skills/api-design/SKILL.md",
+            "lib/skills/project-memory/SKILL.md",
+            "lib/skills/consistency-check/SKILL.md",
+            "lib/skills/conventional-commits/SKILL.md"
+        };
+
+        foreach (var relativePath in files)
+        {
+            var fullPath = Path.Combine(repoRoot, relativePath);
+            var markdown = File.ReadAllText(fullPath);
+
+            var result = FrontMatterParser.Parse(markdown);
+
+            result.Should().NotBeNull($"{relativePath} should parse as valid frontmatter");
+            result!.QuickActions.Should().NotBeEmpty($"{relativePath} should expose quickActions");
+            result.QuickActions.Should().OnlyContain(action => action.Trigger.FileMatch.Count > 0,
+                $"{relativePath} quickActions must have non-empty fileMatch");
+
+            var actionIds = result.QuickActions
+                .Where(action => !string.IsNullOrWhiteSpace(action.Id))
+                .Select(action => action.Id);
+            actionIds.Should().OnlyHaveUniqueItems($"{relativePath} quickAction ids should be unique");
+        }
+    }
+
+    private static string FindRepoRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "Linxmd.sln")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repo root from test runtime directory.");
     }
 }

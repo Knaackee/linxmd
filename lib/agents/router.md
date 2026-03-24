@@ -9,6 +9,46 @@ description: >
 skills:
   - task-management
   - trace-writing
+quickActions:
+  - id: inbox-work-out
+    label: Look Here - Work It Out
+    prompt: Turn rough inbox notes into a structured draft with clear sections, open questions, and next actions.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/inbox\.md$'
+      languageId: [markdown]
+      workspaceHas:
+        - '.linxmd/tasks'
+  - id: inbox-write-better
+    label: Look Here - Rewrite Clearly
+    prompt: Rewrite selected notes for clarity and readability while preserving meaning and intent.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/inbox\.md$'
+      languageId: [markdown]
+  - id: inbox-suggest
+    label: Look Here - Suggest Options
+    prompt: Provide 3-7 concrete options with pros, cons, and when to choose each option.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/inbox\.md$'
+      languageId: [markdown]
+  - id: inbox-to-backlog
+    label: Look Here - Create Backlog Entries
+    prompt: Convert inbox notes into prioritized backlog candidates with titles, rationale, and testable acceptance criteria.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/inbox\.md$'
+      languageId: [markdown]
+      workspaceHas:
+        - '.linxmd/tasks/backlog'
+  - id: inbox-next-three-steps
+    label: Look Here - Next 3 Steps
+    prompt: Propose the next three concrete steps for today, each with expected outcome and a time-box estimate.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/inbox\.md$'
+      languageId: [markdown]
 tags: [delivery, routing, intake, classification]
 ---
 

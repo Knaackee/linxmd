@@ -6,6 +6,16 @@ version: 2.0.0
 description: >
   Systematic debugging methodology: reproduce first, isolate, fix, verify.
   Binary search for root cause, minimal reproduction cases.
+quickActions:
+  - id: qa-debug-hypothesis-table
+    label: Hypothesis Table
+    prompt: Produce a debugging hypothesis table with experiment, expected result, actual result, and next step.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'error|stack trace|hypothesis|reproduce'
 tags: [core, debugging, troubleshooting, root-cause]
 ---
 

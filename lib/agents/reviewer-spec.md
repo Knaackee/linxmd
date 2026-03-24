@@ -9,6 +9,14 @@ description: >
 skills:
   - task-management
   - trace-writing
+quickActions:
+  - id: qa-spec-verdict
+    label: Spec Review Verdict
+    prompt: Provide PASS or CHANGES_REQUIRED with precise findings and proposed edits mapped to affected sections.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
 tags: [control, review, specification, quality-gate]
 ---
 

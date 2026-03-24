@@ -9,6 +9,23 @@ description: >
 skills:
   - task-management
   - trace-writing
+quickActions:
+  - id: qa-plan-estimates
+    label: Validate Estimates
+    prompt: Review task estimates for realism, split oversized tasks, and highlight underestimated work with reasons.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/TASKS\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'estimate|blocked-by|blocks|TASK-'
+  - id: qa-plan-dependencies
+    label: Dependency Sanity
+    prompt: Validate task ordering and dependencies, detect cycles or conflicts, and suggest a corrected execution sequence.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/TASKS\.md$'
+      languageId: [markdown]
 tags: [core, planning, tasks, breakdown]
 ---
 

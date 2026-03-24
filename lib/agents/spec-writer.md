@@ -9,6 +9,23 @@ description: >
 skills:
   - task-management
   - trace-writing
+quickActions:
+  - id: qa-spec-acceptance-criteria
+    label: Improve Acceptance Criteria
+    prompt: Improve acceptance criteria so each one is specific, testable, and measurable. Rewrite ambiguous criteria.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'Acceptance Criteria|Given|When|Then'
+  - id: qa-spec-edge-cases
+    label: Add Edge Cases
+    prompt: Add edge cases, failure scenarios, and abort conditions that are currently missing from the spec.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+      languageId: [markdown]
 tags: [core, specification, requirements, acceptance-criteria]
 ---
 

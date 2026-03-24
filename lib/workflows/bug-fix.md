@@ -19,6 +19,24 @@ skills:
   - conventional-commits
   - task-management
 gates: 3
+quickActions:
+  - id: qa-repro-template
+    label: Create Repro Steps
+    prompt: Create a reproducible bug report template with environment, exact steps, expected behavior, actual behavior, and affected scope.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'bug|error|stack trace|reproduce'
+  - id: qa-regression-tests
+    label: Regression Test Scope
+    prompt: Propose a regression test scope from the bug context, prioritize by risk, and include at least one failing-first scenario.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/SPEC\.md$'
+      languageId: [markdown]
 tags: [workflow, bug-fix, debugging, tdd]
 ---
 

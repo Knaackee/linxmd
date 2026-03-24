@@ -14,6 +14,17 @@ agents:
 skills:
   - trace-writing
 gates: 3
+quickActions:
+  - id: qa-content-fact-check-queue
+    label: Fact Check Queue
+    prompt: Extract all statements that need verification, assign confidence levels, and propose validation sources.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'claim|source|fact|citation'
 tags: [workflow, content, writing, review, publishing]
 ---
 

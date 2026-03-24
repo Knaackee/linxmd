@@ -90,6 +90,13 @@ The onboarding prompt does not call `linxmd init` again.
 
 The full artifact catalog with dependency graphs and usage notes lives in [`lib/`](lib/README.md). Quick overview:
 
+Artifact structure and frontmatter specs:
+
+- Shared frontmatter schema (quick actions + lifecycle hooks): [`lib/FRONTMATTER-SPEC.md`](lib/FRONTMATTER-SPEC.md)
+- Agent artifact spec: [`lib/agents/SPEC.md`](lib/agents/SPEC.md)
+- Skill artifact spec: [`lib/skills/SPEC.md`](lib/skills/SPEC.md)
+- Workflow artifact spec: [`lib/workflows/SPEC.md`](lib/workflows/SPEC.md)
+
 ### 🔄 Workflows
 
 | Artifact | Description |

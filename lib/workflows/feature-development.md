@@ -28,6 +28,34 @@ skills:
   - observability
   - e2e-testing
 gates: 6
+quickActions:
+  - id: qa-spec-gap-check
+    label: Spec Gap Check
+    prompt: Review the current specification for missing acceptance criteria, unclear scope, and unanswered questions. Propose concrete fixes as checklist items.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/SPEC\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'Acceptance Criteria|Open Questions|Out of Scope'
+  - id: qa-task-split
+    label: Split Into Task Units
+    prompt: Break down the selected task plan into 1-4h implementation tasks with dependencies, risks, and a test note per task.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/TASKS\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - '## Tasks|- \[ \]'
+  - id: qa-ready-for-impl
+    label: Ready for Implementer
+    prompt: Evaluate implementation readiness and return GO or NO-GO with a short reason, missing inputs, and the next concrete step.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/SPEC\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/TASKS\.md$'
+      languageId: [markdown]
 tags: [workflow, feature, tdd, development, primary]
 ---
 

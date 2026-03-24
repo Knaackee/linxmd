@@ -6,6 +6,15 @@ version: 2.0.0
 description: >
   Codebase consistency verification: naming conventions, dead code detection,
   import hygiene, pattern compliance, and structural rules.
+quickActions:
+  - id: qa-consistency-batch
+    label: Batch Consistency Check
+    prompt: Find inconsistent terminology, IDs, status values, and references across current docs and task artifacts.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/.*\.md$'
+      languageId: [markdown]
 tags: [governance, consistency, naming, dead-code, imports, patterns]
 ---
 

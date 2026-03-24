@@ -17,6 +17,22 @@ skills:
   - performance-profiling
   - trace-writing
 gates: 2
+quickActions:
+  - id: qa-quality-checklist
+    label: Quality Checklist
+    prompt: Build a quality checklist for correctness, security, performance, observability, and documentation from the current context.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/specs/.*\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+  - id: qa-risk-register
+    label: Risk Register
+    prompt: Create a risk register with probability, impact, owner, and mitigation actions. Prioritize top risks first.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
 tags: [workflow, quality, baseline, audit, security]
 ---
 

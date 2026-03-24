@@ -11,6 +11,14 @@ skills:
   - consistency-check
   - performance-profiling
   - trace-writing
+quickActions:
+  - id: qa-quality-verdict
+    label: Quality Review Verdict
+    prompt: Provide PASS or CHANGES_REQUIRED for quality gates with findings on test coverage, security, maintainability, and required follow-up tasks.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
 tags: [control, review, quality, security, owasp]
 ---
 

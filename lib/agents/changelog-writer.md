@@ -9,6 +9,15 @@ description: >
 skills:
   - conventional-commits
   - trace-writing
+quickActions:
+  - id: qa-changelog-entry
+    label: Generate Changelog Entry
+    prompt: Generate changelog-ready entries from completed work with user-facing impact and concise technical notes.
+    trigger:
+      fileMatch:
+        - '^CHANGELOG\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
 tags: [delivery, changelog, release-notes, conventional-commits]
 ---
 

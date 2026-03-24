@@ -13,6 +13,15 @@ skills:
   - worktree-management
   - trace-writing
   - observability
+quickActions:
+  - id: qa-impl-checklist
+    label: Implementation Checklist
+    prompt: Build an implementation checklist in execution order with prerequisites, validation steps, and expected completion evidence.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/in-progress/.*/SPEC\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/TASKS\.md$'
+      languageId: [markdown]
 tags: [core, tdd, implementation, green-phase]
 ---
 

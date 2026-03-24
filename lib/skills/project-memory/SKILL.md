@@ -6,6 +6,17 @@ version: 2.0.0
 description: >
   Three-tier memory architecture: Session (traces), Project (.linxmd/memory/),
   and Global (~/.linxmd/). How to read, write, and maintain project memory.
+quickActions:
+  - id: qa-memory-entry
+    label: Record Decision
+    prompt: Extract lasting decisions and lessons into concise memory entries with context, outcome, and when to revisit.
+    trigger:
+      fileMatch:
+        - '^PROJECT\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'Decision|Learning|Risk|Assumption'
 tags: [core, memory, knowledge-management, context, persistence]
 ---
 

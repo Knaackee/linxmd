@@ -45,6 +45,24 @@ public class ComprehensiveCliE2ETests : IDisposable
         return (process.ExitCode, stdout, stderr);
     }
 
+        private void UseLocalSource()
+        {
+                var sourcesPath = Path.Combine(_tempDir, ".linxmd", "sources.json");
+                var localLibPath = Path.Combine(_repoRoot, "lib").Replace("\\", "\\\\");
+                var json = $$"""
+                        {
+                            "sources": [
+                                {
+                                    "id": "default",
+                                    "kind": "local",
+                                    "localPath": "{{localLibPath}}"
+                                }
+                            ]
+                        }
+                        """;
+                File.WriteAllText(sourcesPath, json);
+        }
+
     [Fact]
     public void FullLifecycle_EndToEnd_Run_CoversAllMainCommands()
     {
@@ -192,7 +210,7 @@ public class ComprehensiveCliE2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("test-writer");
-        stdout.Should().Contain("sdd-tdd");
+        stdout.Should().Contain("feature-development");
     }
 
     [Fact]
@@ -220,7 +238,7 @@ public class ComprehensiveCliE2ETests : IDisposable
     {
         RunCli("init");
 
-        var (code, stdout, stderr) = RunCli("add tdd --install --yes");
+        var (code, stdout, stderr) = RunCli("add test --install --yes");
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed ");
@@ -243,11 +261,13 @@ public class ComprehensiveCliE2ETests : IDisposable
     public void Remove_Blocks_WhenDependencyExists()
     {
         RunCli("init");
-        RunCli("add workflow:sdd-tdd --yes");
+        UseLocalSource();
+        RunCli("add skill:task-management --yes");
+        RunCli("add agent:planner --yes");
 
         var (_, stdout, stderr) = RunCli("remove skill:task-management --yes");
         (stdout + stderr).Should().Contain("Cannot uninstall due to active dependencies");
-        (stdout + stderr).Should().Contain("workflow:sdd-tdd depends on skill:task-management");
+        (stdout + stderr).Should().Contain("agent:planner depends on skill:task-management");
     }
 
     [Fact]

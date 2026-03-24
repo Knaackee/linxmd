@@ -10,6 +10,16 @@ skills:
   - consistency-check
   - refactoring
   - trace-writing
+quickActions:
+  - id: qa-frontmatter-consistency
+    label: Frontmatter Consistency
+    prompt: Validate task frontmatter and status consistency, list schema issues, and suggest exact corrections.
+    trigger:
+      fileMatch:
+        - '^\.linxmd/tasks/.*\.md$'
+      languageId: [markdown]
+      contentMatch:
+        - 'status:|priority:|blocked-by:|blocks:'
 tags: [control, consistency, quality, dead-code, naming]
 ---
 

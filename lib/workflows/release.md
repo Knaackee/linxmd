@@ -16,6 +16,22 @@ skills:
   - preview-delivery
   - trace-writing
 gates: 2
+quickActions:
+  - id: qa-release-readiness
+    label: Release Readiness
+    prompt: Evaluate release readiness and list blockers, open gates, unresolved risks, and required sign-offs.
+    trigger:
+      fileMatch:
+        - '^PROJECT\.md$'
+        - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
+      languageId: [markdown]
+  - id: qa-release-notes-draft
+    label: Draft Release Notes
+    prompt: Draft release notes grouped by Added, Changed, Fixed, and Removed, based on completed tasks and notable technical impact.
+    trigger:
+      fileMatch:
+        - '^CHANGELOG\.md$'
+      languageId: [markdown]
 tags: [workflow, release, publish, deploy, versioning]
 ---
 
