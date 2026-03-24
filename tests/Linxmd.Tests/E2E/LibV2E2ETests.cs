@@ -62,6 +62,7 @@ public class LibV2E2ETests : IDisposable
     private void UseLocalSource()
     {
         var sourcesPath = Path.Combine(_tempDir, ".linxmd", "sources.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(sourcesPath)!);
         // Escape backslashes for JSON
         var escapedPath = _localLibPath.Replace("\\", "\\\\");
         var json = $$"""

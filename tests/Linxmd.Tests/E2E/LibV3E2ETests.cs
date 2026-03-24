@@ -59,6 +59,7 @@ public class LibV3E2ETests : IDisposable
     private void UseLocalSource()
     {
         var sourcesPath = Path.Combine(_tempDir, ".linxmd", "sources.json");
+        Directory.CreateDirectory(Path.GetDirectoryName(sourcesPath)!);
         var escapedPath = _localLibPath.Replace("\\", "\\\\");
         var json = $$"""
             {
@@ -280,7 +281,11 @@ public class LibV3E2ETests : IDisposable
     [Fact]
     public void Add_Pack_ContentPipeline_InstallsAllMemberArtifacts()
     {
-        RunCli("init");
+        var (initCode, initOut, initErr) = RunCli("init");
+        initCode.Should().Be(0, $"init output: {initOut}\ninit error: {initErr}");
+        initErr.Should().BeEmpty();
+        Directory.Exists(Path.Combine(_tempDir, ".linxmd", "tasks")).Should().BeTrue();
+
         UseLocalSource();
         var (code, stdout, stderr) = RunCli("add pack:content-pipeline --yes");
 

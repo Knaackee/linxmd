@@ -48,6 +48,7 @@ public class ComprehensiveCliE2ETests : IDisposable
         private void UseLocalSource()
         {
                 var sourcesPath = Path.Combine(_tempDir, ".linxmd", "sources.json");
+            Directory.CreateDirectory(Path.GetDirectoryName(sourcesPath)!);
                 var localLibPath = Path.Combine(_repoRoot, "lib").Replace("\\", "\\\\");
                 var json = $$"""
                         {

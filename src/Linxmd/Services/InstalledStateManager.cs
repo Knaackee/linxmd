@@ -21,7 +21,6 @@ public sealed class InstalledStateManager
     public string InProgressDir => Path.Combine(TasksDir, "in-progress");
     public string InstalledJsonPath => Path.Combine(LinxmdDir, "installed.json");
     public string SourcesJsonPath => Path.Combine(LinxmdDir, "sources.json");
-    public string MemoryDbPath => Path.Combine(LinxmdDir, "memory.db");
 
     public bool IsInitialized =>
         Directory.Exists(AgentsDir) &&

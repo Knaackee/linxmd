@@ -58,10 +58,6 @@ linxmd list [type|type:name] [--json]
 linxmd update [--yes]
 linxmd sync
 linxmd status
-linxmd memory index
-linxmd memory search <query> [--limit <n>]
-linxmd memory stats
-linxmd memory recent [--type decision|changelog|issue] [--limit <n>]
 ```
 
 **Examples**
@@ -218,12 +214,11 @@ your-project/
 │   │   ├── backlog/
 │   │   └── in-progress/
 │   ├── installed.json
-│   ├── sources.json
-│   └── memory.db          ← SQLite FTS5 index (git-ignorable)
+│   └── sources.json
 ├── docs/
-│   └── decisions/         ← ADRs (indexed by linxmd memory)
-├── CHANGELOG.md           ← indexed by linxmd memory
-├── KNOWN_ISSUES.md        ← indexed by linxmd memory
+│   └── decisions/
+├── CHANGELOG.md
+├── KNOWN_ISSUES.md
 ├── .github/agents/
 ├── .claude/agents/
 ├── .claude/skills/
