@@ -10,7 +10,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <PublishTrimmed>true</PublishTrimmed>
-    <Version>0.6.1</Version>
+    <Version>0.8.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

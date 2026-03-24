@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.0] - 2026-03-24
+
+### Added
+
+- Frontmatter extension docs and specs: `lib/FRONTMATTER-SPEC.md`, `lib/agents/SPEC.md`, `lib/skills/SPEC.md`, `lib/workflows/SPEC.md`
+- Rollout plan for existing artifacts: `existing-lib-extension.md`
+- Parser regression coverage for quickActions and lifecycle frontmatter parsing
+
+### Changed
+
+- Added role-specific `quickActions` to core workflows, agents, and skills for markdown-driven execution contexts
+- Updated docs and architecture references to include the new frontmatter fields and extension guidance
+
+### Fixed
+
+- Coverage task command hardened for PowerShell quoting and stable coverage file copy behavior
+- E2E local-source setup made more robust by ensuring source config directories exist before writing
+
+### Removed
+
+- SQLite memory indexing implementation and related tests were removed from the current codebase (`MemoryDb`, `MemoryIndexer`)
+
+---
+
+## [0.7.0] - 2026-03-23
+
+### Added
+
+- Rebuilt and expanded library content set across agents, skills, workflows, and packs
+
+### Changed
+
+- Updated artifact content quality, structure, and metadata to align with the v2 library baseline
+
+---
+
 ## [0.6.1] - 2026-03-22
 
 ### Added
