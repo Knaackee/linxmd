@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-03-24T16:50:00Z",
+  "generated": "2026-03-24T17:12:57Z",
   "artifacts": [
     {
       "name": "architect",
@@ -8,7 +8,11 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/architect.md",
-      "deps": [],
+      "deps": [
+        "skill:api-design",
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -17,7 +21,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/brainstormer.md",
-      "deps": [],
+      "deps": [
+        "skill:brainstorming",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -26,7 +33,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/changelog-writer.md",
-      "deps": [],
+      "deps": [
+        "skill:conventional-commits",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -35,7 +45,11 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/consistency-guardian.md",
-      "deps": [],
+      "deps": [
+        "skill:consistency-check",
+        "skill:refactoring",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -44,7 +58,9 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/docs-writer.md",
-      "deps": [],
+      "deps": [
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -53,7 +69,9 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/drafter.md",
-      "deps": [],
+      "deps": [
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -62,7 +80,9 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/editor.md",
-      "deps": [],
+      "deps": [
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -71,7 +91,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/fact-checker.md",
-      "deps": [],
+      "deps": [
+        "skill:research",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -80,7 +103,14 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/implementer.md",
-      "deps": [],
+      "deps": [
+        "skill:debugging",
+        "skill:refactoring",
+        "skill:conventional-commits",
+        "skill:worktree-management",
+        "skill:trace-writing",
+        "skill:observability"
+      ],
       "tags": []
     },
     {
@@ -89,7 +119,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/memory-distiller.md",
-      "deps": [],
+      "deps": [
+        "skill:trace-writing",
+        "skill:task-management"
+      ],
       "tags": []
     },
     {
@@ -98,7 +131,11 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/onboarder.md",
-      "deps": [],
+      "deps": [
+        "skill:start-state-creation",
+        "skill:user-profile",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -107,7 +144,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/performance-monitor.md",
-      "deps": [],
+      "deps": [
+        "skill:performance-profiling",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -116,7 +156,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/planner.md",
-      "deps": [],
+      "deps": [
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -125,7 +168,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/researcher.md",
-      "deps": [],
+      "deps": [
+        "skill:research",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -134,7 +180,12 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/reviewer-quality.md",
-      "deps": [],
+      "deps": [
+        "skill:observability",
+        "skill:consistency-check",
+        "skill:performance-profiling",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -143,7 +194,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/reviewer-spec.md",
-      "deps": [],
+      "deps": [
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -152,7 +206,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/router.md",
-      "deps": [],
+      "deps": [
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -161,7 +218,10 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/spec-writer.md",
-      "deps": [],
+      "deps": [
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -170,7 +230,11 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/start-state-creator.md",
-      "deps": [],
+      "deps": [
+        "skill:start-state-creation",
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -179,7 +243,13 @@
       "version": "2.0.0",
       "description": ">",
       "path": "agents/test-writer.md",
-      "deps": [],
+      "deps": [
+        "skill:debugging",
+        "skill:e2e-testing",
+        "skill:task-management",
+        "skill:trace-writing",
+        "skill:conventional-commits"
+      ],
       "tags": []
     },
     {
@@ -413,7 +483,19 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/bug-fix.md",
-      "deps": [],
+      "deps": [
+        "agent:router",
+        "agent:implementer",
+        "agent:test-writer",
+        "agent:consistency-guardian",
+        "agent:reviewer-quality",
+        "agent:docs-writer",
+        "agent:changelog-writer",
+        "skill:debugging",
+        "skill:trace-writing",
+        "skill:conventional-commits",
+        "skill:task-management"
+      ],
       "tags": []
     },
     {
@@ -422,7 +504,15 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/consistency-sprint.md",
-      "deps": [],
+      "deps": [
+        "agent:consistency-guardian",
+        "agent:reviewer-quality",
+        "agent:implementer",
+        "skill:consistency-check",
+        "skill:refactoring",
+        "skill:trace-writing",
+        "skill:conventional-commits"
+      ],
       "tags": []
     },
     {
@@ -431,7 +521,14 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/content-review.md",
-      "deps": [],
+      "deps": [
+        "agent:router",
+        "agent:drafter",
+        "agent:editor",
+        "agent:fact-checker",
+        "agent:reviewer-quality",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -440,7 +537,28 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/feature-development.md",
-      "deps": [],
+      "deps": [
+        "agent:router",
+        "agent:onboarder",
+        "agent:spec-writer",
+        "agent:planner",
+        "agent:architect",
+        "agent:test-writer",
+        "agent:implementer",
+        "agent:consistency-guardian",
+        "agent:reviewer-quality",
+        "agent:docs-writer",
+        "agent:changelog-writer",
+        "agent:performance-monitor",
+        "skill:task-management",
+        "skill:trace-writing",
+        "skill:conventional-commits",
+        "skill:worktree-management",
+        "skill:feature-branch",
+        "skill:preview-delivery",
+        "skill:observability",
+        "skill:e2e-testing"
+      ],
       "tags": []
     },
     {
@@ -449,7 +567,16 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/project-start.md",
-      "deps": [],
+      "deps": [
+        "agent:start-state-creator",
+        "agent:onboarder",
+        "agent:planner",
+        "agent:reviewer-spec",
+        "skill:start-state-creation",
+        "skill:project-memory",
+        "skill:task-management",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -458,7 +585,17 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/quality-baseline.md",
-      "deps": [],
+      "deps": [
+        "agent:reviewer-quality",
+        "agent:consistency-guardian",
+        "agent:performance-monitor",
+        "agent:fact-checker",
+        "agent:docs-writer",
+        "skill:observability",
+        "skill:consistency-check",
+        "skill:performance-profiling",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -467,7 +604,16 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/release.md",
-      "deps": [],
+      "deps": [
+        "agent:changelog-writer",
+        "agent:docs-writer",
+        "agent:reviewer-quality",
+        "agent:performance-monitor",
+        "agent:implementer",
+        "skill:conventional-commits",
+        "skill:preview-delivery",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -476,7 +622,13 @@
       "version": "2.0.0",
       "description": ">",
       "path": "workflows/research-spike.md",
-      "deps": [],
+      "deps": [
+        "agent:router",
+        "agent:researcher",
+        "agent:architect",
+        "skill:research",
+        "skill:trace-writing"
+      ],
       "tags": []
     },
     {
@@ -486,7 +638,17 @@
       "description": ">",
       "path": "packs/content-pipeline.md",
       "deps": [],
-      "tags": []
+      "tags": [],
+      "artifacts": [
+        "workflow:content-review",
+        "agent:router",
+        "agent:drafter",
+        "agent:editor",
+        "agent:fact-checker",
+        "skill:research",
+        "skill:trace-writing",
+        "skill:text-translator"
+      ]
     },
     {
       "name": "existing-project-rescue",
@@ -495,7 +657,28 @@
       "description": ">",
       "path": "packs/existing-project-rescue.md",
       "deps": [],
-      "tags": []
+      "tags": [],
+      "artifacts": [
+        "workflow:quality-baseline",
+        "agent:start-state-creator",
+        "agent:onboarder",
+        "agent:consistency-guardian",
+        "agent:reviewer-quality",
+        "agent:performance-monitor",
+        "agent:fact-checker",
+        "agent:docs-writer",
+        "agent:planner",
+        "agent:implementer",
+        "skill:start-state-creation",
+        "skill:project-memory",
+        "skill:consistency-check",
+        "skill:refactoring",
+        "skill:observability",
+        "skill:performance-profiling",
+        "skill:task-management",
+        "skill:trace-writing",
+        "skill:conventional-commits"
+      ]
     },
     {
       "name": "fullstack-tdd",
@@ -504,7 +687,37 @@
       "description": ">",
       "path": "packs/fullstack-tdd.md",
       "deps": [],
-      "tags": []
+      "tags": [],
+      "artifacts": [
+        "workflow:feature-development",
+        "agent:router",
+        "agent:onboarder",
+        "agent:spec-writer",
+        "agent:planner",
+        "agent:architect",
+        "agent:test-writer",
+        "agent:implementer",
+        "agent:consistency-guardian",
+        "agent:reviewer-quality",
+        "agent:docs-writer",
+        "agent:changelog-writer",
+        "agent:performance-monitor",
+        "skill:debugging",
+        "skill:refactoring",
+        "skill:task-management",
+        "skill:api-design",
+        "skill:observability",
+        "skill:project-memory",
+        "skill:conventional-commits",
+        "skill:worktree-management",
+        "skill:feature-branch",
+        "skill:e2e-testing",
+        "skill:trace-writing",
+        "skill:preview-delivery",
+        "skill:consistency-check",
+        "skill:performance-profiling",
+        "skill:context-management"
+      ]
     },
     {
       "name": "i18n-ready",
@@ -513,7 +726,18 @@
       "description": ">",
       "path": "packs/i18n-ready.md",
       "deps": [],
-      "tags": []
+      "tags": [],
+      "artifacts": [
+        "workflow:feature-development",
+        "agent:implementer",
+        "agent:test-writer",
+        "agent:reviewer-quality",
+        "skill:i18n",
+        "skill:text-translator",
+        "skill:code-translator",
+        "skill:trace-writing",
+        "skill:conventional-commits"
+      ]
     },
     {
       "name": "new-project-kickstart",
@@ -522,7 +746,22 @@
       "description": ">",
       "path": "packs/new-project-kickstart.md",
       "deps": [],
-      "tags": []
+      "tags": [],
+      "artifacts": [
+        "workflow:project-start",
+        "agent:start-state-creator",
+        "agent:onboarder",
+        "agent:planner",
+        "agent:reviewer-spec",
+        "agent:spec-writer",
+        "agent:architect",
+        "skill:start-state-creation",
+        "skill:project-memory",
+        "skill:task-management",
+        "skill:trace-writing",
+        "skill:brainstorming",
+        "skill:research"
+      ]
     },
     {
       "name": "quality-sprint",
@@ -531,7 +770,24 @@
       "description": ">",
       "path": "packs/quality-sprint.md",
       "deps": [],
-      "tags": []
+      "tags": [],
+      "artifacts": [
+        "workflow:quality-baseline",
+        "agent:consistency-guardian",
+        "agent:reviewer-quality",
+        "agent:performance-monitor",
+        "agent:fact-checker",
+        "agent:docs-writer",
+        "agent:planner",
+        "agent:implementer",
+        "skill:consistency-check",
+        "skill:refactoring",
+        "skill:observability",
+        "skill:performance-profiling",
+        "skill:trace-writing",
+        "skill:conventional-commits",
+        "skill:task-management"
+      ]
     }
   ]
 }

@@ -665,10 +665,12 @@ Use CLI help to discover commands and flags when needed.
         AnsiConsole.MarkupLine($"  {Cli.TypeIcon(artifact.Type)} [{Cli.Primary}]{Markup.Escape(artifact.Name)}[/] v{Markup.Escape(artifact.Version)}");
         if (!string.IsNullOrEmpty(artifact.Description))
             AnsiConsole.MarkupLine($"  [{Cli.Muted}]{Markup.Escape(artifact.Description)}[/]");
-        if (artifact.Type.Equals("pack", StringComparison.OrdinalIgnoreCase) && artifact.Artifacts.Count > 0)
-            AnsiConsole.MarkupLine($"  [{Cli.Muted}]Includes: {Markup.Escape(string.Join(", ", artifact.Artifacts))}[/]");
-        else if (artifact.Deps.Count > 0)
-            AnsiConsole.MarkupLine($"  [{Cli.Muted}]Dependencies: {Markup.Escape(string.Join(", ", artifact.Deps))}[/]");
+        var artifacts = artifact.Artifacts ?? [];
+        var deps = artifact.Deps ?? [];
+        if (artifact.Type.Equals("pack", StringComparison.OrdinalIgnoreCase) && artifacts.Count > 0)
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]Includes: {Markup.Escape(string.Join(", ", artifacts))}[/]");
+        else if (deps.Count > 0)
+            AnsiConsole.MarkupLine($"  [{Cli.Muted}]Dependencies: {Markup.Escape(string.Join(", ", deps))}[/]");
     }
 
     private static ILibClient CreateClient(LibSource source)
@@ -689,8 +691,9 @@ Use CLI help to discover commands and flags when needed.
     {
         if (artifact.Type.Equals("pack", StringComparison.OrdinalIgnoreCase))
         {
-            AnsiConsole.MarkupLine($"  [{Cli.Primary}]Installing pack '{Markup.Escape(artifact.Name)}' ({artifact.Artifacts.Count} artifact(s))...[/]");
-            foreach (var artId in artifact.Artifacts)
+            var members = artifact.Artifacts ?? [];
+            AnsiConsole.MarkupLine($"  [{Cli.Primary}]Installing pack '{Markup.Escape(artifact.Name)}' ({members.Count} artifact(s))...[/]");
+            foreach (var artId in members)
             {
                 var parsedMember = ParseArtifactId(artId);
                 if (parsedMember is null) { Console.Error.WriteLine($"  Cannot parse pack member id '{artId}'."); continue; }

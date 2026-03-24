@@ -20,6 +20,19 @@ def get_list_field(fm, key):
     return [line.strip().lstrip("- ") for line in match.group(1).strip().split("\n")]
 
 
+def unique(values):
+    out = []
+    seen = set()
+    for value in values:
+        if not value:
+            continue
+        if value in seen:
+            continue
+        seen.add(value)
+        out.append(value)
+    return out
+
+
 def main():
     artifacts = []
     lib = "lib"
@@ -41,6 +54,28 @@ def main():
             tags = get_list_field(fm, "tags")
             supported = get_list_field(fm, "supported")
             pack_artifacts = get_list_field(fm, "artifacts")
+
+            # Frontmatter v2 keeps role relations as explicit fields.
+            # Convert them into index dependencies/member ids used by installer logic.
+            agent_members = get_list_field(fm, "agents")
+            skill_members = get_list_field(fm, "skills")
+            workflow_member = get_field(fm, "workflow")
+
+            if atype == "agent":
+                deps = unique(deps + [f"skill:{name}" for name in skill_members])
+            elif atype == "workflow":
+                deps = unique(
+                    deps
+                    + [f"agent:{name}" for name in agent_members]
+                    + [f"skill:{name}" for name in skill_members]
+                )
+            elif atype == "pack":
+                synthesized = []
+                if workflow_member:
+                    synthesized.append(f"workflow:{workflow_member}")
+                synthesized.extend([f"agent:{name}" for name in agent_members])
+                synthesized.extend([f"skill:{name}" for name in skill_members])
+                pack_artifacts = unique(pack_artifacts + synthesized)
 
             rel = os.path.relpath(f, lib).replace("\\", "/")
             path = os.path.dirname(rel) + "/" if atype == "skill" else rel

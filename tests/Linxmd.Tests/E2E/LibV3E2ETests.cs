@@ -316,9 +316,9 @@ public class LibV3E2ETests : IDisposable
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed workflow 'quality-baseline'");
-        stdout.Should().Contain("Installed skill 'project-memory'");
-        // quality-sprint: quality-baseline + project-memory + router (no changelog-writer)
-        stdout.Should().Contain("Installed agent 'router'");
+        // quality-sprint includes planning and implementation members
+        stdout.Should().Contain("Installed agent 'planner'");
+        stdout.Should().Contain("Installed agent 'implementer'");
 
         var (_, listOut, _) = RunCli("list --json");
         var doc = JsonDocument.Parse(listOut.Trim());
