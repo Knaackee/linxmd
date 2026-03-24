@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.8.1] - 2026-03-24
+
+### Fixed
+
+- Restored dependency and pack-member synthesis in `lib/index.json` generation from frontmatter role fields (`agents`, `skills`, `workflow`)
+- Fixed pack installation null-safety in CLI artifact preview/install flow
+- Updated E2E expectations to match transitive dependency behavior in current install/remove lifecycle
+- Resolved macOS CI regressions in comprehensive and lib-v2/v3 E2E scenarios
+
+---
+
 ## [0.8.0] - 2026-03-24
 
 ### Added
