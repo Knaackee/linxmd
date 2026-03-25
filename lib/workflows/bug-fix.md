@@ -21,6 +21,7 @@ skills:
 gates: 3
 quickActions:
   - id: qa-repro-template
+    icon: "🐛"
     label: Create Repro Steps
     prompt: Create a reproducible bug report template with environment, exact steps, expected behavior, actual behavior, and affected scope.
     trigger:
@@ -30,6 +31,7 @@ quickActions:
       contentMatch:
         - 'bug|error|stack trace|reproduce'
   - id: qa-regression-tests
+    icon: "🛡️"
     label: Regression Test Scope
     prompt: Propose a regression test scope from the bug context, prioritize by risk, and include at least one failing-first scenario.
     trigger:

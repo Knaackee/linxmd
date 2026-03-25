@@ -8,6 +8,7 @@ description: >
   and Global (~/.linxmd/). How to read, write, and maintain project memory.
 quickActions:
   - id: qa-memory-entry
+    icon: "🧠"
     label: Record Decision
     prompt: Extract lasting decisions and lessons into concise memory entries with context, outcome, and when to revisit.
     trigger:

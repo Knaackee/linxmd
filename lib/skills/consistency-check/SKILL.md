@@ -8,6 +8,7 @@ description: >
   import hygiene, pattern compliance, and structural rules.
 quickActions:
   - id: qa-consistency-batch
+    icon: "🧹"
     label: Batch Consistency Check
     prompt: Find inconsistent terminology, IDs, status values, and references across current docs and task artifacts.
     trigger:

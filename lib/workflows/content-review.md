@@ -16,6 +16,7 @@ skills:
 gates: 3
 quickActions:
   - id: qa-content-fact-check-queue
+    icon: "📚"
     label: Fact Check Queue
     prompt: Extract all statements that need verification, assign confidence levels, and propose validation sources.
     trigger:

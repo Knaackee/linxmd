@@ -11,6 +11,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-changelog-entry
+    icon: "📝"
     label: Generate Changelog Entry
     prompt: Generate changelog-ready entries from completed work with user-facing impact and concise technical notes.
     trigger:

@@ -12,6 +12,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-adr-candidate
+    icon: "🏛️"
     label: ADR Candidate Check
     prompt: Identify decisions that should become ADRs and summarize options, trade-offs, and recommendation.
     trigger:

@@ -16,6 +16,7 @@ public sealed class FrontMatter
 public sealed class QuickAction
 {
     public string Id { get; init; } = string.Empty;
+    public string Icon { get; init; } = string.Empty;
     public required string Label { get; init; }
     public required string Prompt { get; init; }
     public QuickActionTrigger Trigger { get; init; } = new();

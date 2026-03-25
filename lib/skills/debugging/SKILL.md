@@ -8,6 +8,7 @@ description: >
   Binary search for root cause, minimal reproduction cases.
 quickActions:
   - id: qa-debug-hypothesis-table
+    icon: "🐛"
     label: Hypothesis Table
     prompt: Produce a debugging hypothesis table with experiment, expected result, actual result, and next step.
     trigger:

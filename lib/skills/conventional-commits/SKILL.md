@@ -8,6 +8,7 @@ description: >
   type(scope): message — enforced on every commit.
 quickActions:
   - id: qa-commit-message-from-task
+    icon: "📌"
     label: Commit Message from Task
     prompt: Propose a conventional commit message from the documented task outcome with optional body and breaking-change note when needed.
     trigger:

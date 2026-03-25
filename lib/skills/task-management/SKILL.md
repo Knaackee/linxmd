@@ -8,6 +8,7 @@ description: >
   and task file management in .linxmd/tasks/.
 quickActions:
   - id: qa-task-frontmatter-fix
+    icon: "🔧"
     label: Fix Task Frontmatter
     prompt: Correct task frontmatter to match schema, preserve intent, and list assumptions where data is missing.
     trigger:
@@ -17,6 +18,7 @@ quickActions:
       contentMatch:
         - 'status:|priority:|estimate:'
   - id: qa-task-state-transition
+    icon: "🔀"
     label: Validate State Transition
     prompt: Validate allowed state transitions and flag conflicts between status, blockers, and dependency fields.
     trigger:

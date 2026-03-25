@@ -11,6 +11,7 @@ skills:
   - trace-writing
 quickActions:
   - id: inbox-work-out
+    icon: "📥"
     label: Look Here - Work It Out
     prompt: Turn rough inbox notes into a structured draft with clear sections, open questions, and next actions.
     trigger:
@@ -20,6 +21,7 @@ quickActions:
       workspaceHas:
         - '.linxmd/tasks'
   - id: inbox-write-better
+    icon: "✏️"
     label: Look Here - Rewrite Clearly
     prompt: Rewrite selected notes for clarity and readability while preserving meaning and intent.
     trigger:
@@ -27,6 +29,7 @@ quickActions:
         - '^\.linxmd/tasks/inbox\.md$'
       languageId: [markdown]
   - id: inbox-suggest
+    icon: "💡"
     label: Look Here - Suggest Options
     prompt: Provide 3-7 concrete options with pros, cons, and when to choose each option.
     trigger:
@@ -34,6 +37,7 @@ quickActions:
         - '^\.linxmd/tasks/inbox\.md$'
       languageId: [markdown]
   - id: inbox-to-backlog
+    icon: "📋"
     label: Look Here - Create Backlog Entries
     prompt: Convert inbox notes into prioritized backlog candidates with titles, rationale, and testable acceptance criteria.
     trigger:
@@ -43,6 +47,7 @@ quickActions:
       workspaceHas:
         - '.linxmd/tasks/backlog'
   - id: inbox-next-three-steps
+    icon: "👣"
     label: Look Here - Next 3 Steps
     prompt: Propose the next three concrete steps for today, each with expected outcome and a time-box estimate.
     trigger:

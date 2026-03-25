@@ -19,6 +19,7 @@ skills:
 gates: 2
 quickActions:
   - id: qa-quality-checklist
+    icon: "📋"
     label: Quality Checklist
     prompt: Build a quality checklist for correctness, security, performance, observability, and documentation from the current context.
     trigger:
@@ -27,6 +28,7 @@ quickActions:
         - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
       languageId: [markdown]
   - id: qa-risk-register
+    icon: "⚠️"
     label: Risk Register
     prompt: Create a risk register with probability, impact, owner, and mitigation actions. Prioritize top risks first.
     trigger:

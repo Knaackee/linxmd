@@ -11,6 +11,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-spec-acceptance-criteria
+    icon: "🎯"
     label: Improve Acceptance Criteria
     prompt: Improve acceptance criteria so each one is specific, testable, and measurable. Rewrite ambiguous criteria.
     trigger:
@@ -20,6 +21,7 @@ quickActions:
       contentMatch:
         - 'Acceptance Criteria|Given|When|Then'
   - id: qa-spec-edge-cases
+    icon: "⚠️"
     label: Add Edge Cases
     prompt: Add edge cases, failure scenarios, and abort conditions that are currently missing from the spec.
     trigger:

@@ -18,6 +18,7 @@ skills:
 gates: 2
 quickActions:
   - id: qa-release-readiness
+    icon: "📦"
     label: Release Readiness
     prompt: Evaluate release readiness and list blockers, open gates, unresolved risks, and required sign-offs.
     trigger:
@@ -26,6 +27,7 @@ quickActions:
         - '^\.linxmd/tasks/in-progress/.*/NOTES\.md$'
       languageId: [markdown]
   - id: qa-release-notes-draft
+    icon: "📝"
     label: Draft Release Notes
     prompt: Draft release notes grouped by Added, Changed, Fixed, and Removed, based on completed tasks and notable technical impact.
     trigger:

@@ -13,6 +13,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-quality-verdict
+    icon: "⚖️"
     label: Quality Review Verdict
     prompt: Provide PASS or CHANGES_REQUIRED for quality gates with findings on test coverage, security, maintainability, and required follow-up tasks.
     trigger:

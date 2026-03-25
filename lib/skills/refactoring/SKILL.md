@@ -8,6 +8,7 @@ description: >
   always with tests as safety net. Never change behavior.
 quickActions:
   - id: qa-refactor-scope
+    icon: "♻️"
     label: Refactor Scope Check
     prompt: Define a safe refactor scope, identify behavior lock tests, and call out risky changes that should be deferred.
     trigger:

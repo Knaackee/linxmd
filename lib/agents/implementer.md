@@ -15,6 +15,7 @@ skills:
   - observability
 quickActions:
   - id: qa-impl-checklist
+    icon: "✅"
     label: Implementation Checklist
     prompt: Build an implementation checklist in execution order with prerequisites, validation steps, and expected completion evidence.
     trigger:

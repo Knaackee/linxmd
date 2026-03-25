@@ -15,6 +15,7 @@ skills:
 gates: 2
 quickActions:
   - id: qa-research-question
+    icon: "🔭"
     label: Sharpen Research Question
     prompt: Rewrite the research problem into a clear question with scope, hypotheses, decision criteria, and stop conditions.
     trigger:
@@ -24,6 +25,7 @@ quickActions:
       contentMatch:
         - 'Problem Statement|Hypothesis|Open Questions'
   - id: qa-decision-brief
+    icon: "📊"
     label: Decision Brief
     prompt: Summarize findings as options with trade-offs, risks, and a recommendation that can be approved quickly.
     trigger:

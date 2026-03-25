@@ -8,6 +8,7 @@ description: >
   versioning, pagination, error responses, and OpenAPI documentation.
 quickActions:
   - id: qa-api-contract-review
+    icon: "🔌"
     label: API Contract Review
     prompt: Review API contracts for endpoint consistency, payload shape, status codes, and error response clarity.
     trigger:

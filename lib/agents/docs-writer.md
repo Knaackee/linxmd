@@ -10,6 +10,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-doc-update-plan
+    icon: "📖"
     label: Documentation Update Plan
     prompt: Create a prioritized documentation update plan based on current specs and implementation notes.
     trigger:

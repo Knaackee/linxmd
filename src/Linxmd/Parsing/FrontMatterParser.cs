@@ -88,6 +88,7 @@ public static class FrontMatterParser
         return new QuickAction
         {
             Id = raw.Id ?? string.Empty,
+            Icon = raw.Icon ?? string.Empty,
             Label = raw.Label!,
             Prompt = raw.Prompt!,
             Trigger = new QuickActionTrigger
@@ -164,6 +165,7 @@ public static class FrontMatterParser
     private sealed class RawQuickAction
     {
         public string? Id { get; set; }
+        public string? Icon { get; set; }
         public string? Label { get; set; }
         public string? Prompt { get; set; }
         public RawQuickActionTrigger? Trigger { get; set; }

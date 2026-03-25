@@ -12,6 +12,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-frontmatter-consistency
+    icon: "🛡️"
     label: Frontmatter Consistency
     prompt: Validate task frontmatter and status consistency, list schema issues, and suggest exact corrections.
     trigger:

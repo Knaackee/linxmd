@@ -17,6 +17,7 @@ skills:
 gates: 2
 quickActions:
   - id: qa-consistency-pass
+    icon: "🧹"
     label: Consistency Pass
     prompt: Scan for inconsistent terminology, status drift, missing references, and structure mismatches. Propose concrete fixes.
     trigger:

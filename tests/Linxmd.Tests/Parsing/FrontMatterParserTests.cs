@@ -379,6 +379,7 @@ public class FrontMatterParserTests
                         + "version: 2.1.0\n"
                         + "quickActions:\n"
                         + "  - id: write-e2e\n"
+                        + "    icon: \"\ud83e\uddea\"\n"
                         + "    label: Generate E2E test\n"
                         + "    prompt: Write an e2e test for the current page.\n"
                         + "    trigger:\n"
@@ -397,6 +398,7 @@ public class FrontMatterParserTests
                 result!.QuickActions.Should().HaveCount(1);
                 var quickAction = result.QuickActions[0];
                 quickAction.Id.Should().Be("write-e2e");
+                quickAction.Icon.Should().Be("\ud83e\uddea");
                 quickAction.Label.Should().Be("Generate E2E test");
                 quickAction.Prompt.Should().Be("Write an e2e test for the current page.");
                 quickAction.Trigger.FileMatch.Should().BeEquivalentTo(["src/pages/.*", "src/routes/.*"]);

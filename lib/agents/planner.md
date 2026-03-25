@@ -11,6 +11,7 @@ skills:
   - trace-writing
 quickActions:
   - id: qa-plan-estimates
+    icon: "⏱️"
     label: Validate Estimates
     prompt: Review task estimates for realism, split oversized tasks, and highlight underestimated work with reasons.
     trigger:
@@ -20,6 +21,7 @@ quickActions:
       contentMatch:
         - 'estimate|blocked-by|blocks|TASK-'
   - id: qa-plan-dependencies
+    icon: "🔗"
     label: Dependency Sanity
     prompt: Validate task ordering and dependencies, detect cycles or conflicts, and suggest a corrected execution sequence.
     trigger:

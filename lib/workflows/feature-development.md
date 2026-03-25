@@ -30,6 +30,7 @@ skills:
 gates: 6
 quickActions:
   - id: qa-spec-gap-check
+    icon: "🔬"
     label: Spec Gap Check
     prompt: Review the current specification for missing acceptance criteria, unclear scope, and unanswered questions. Propose concrete fixes as checklist items.
     trigger:
@@ -40,6 +41,7 @@ quickActions:
       contentMatch:
         - 'Acceptance Criteria|Open Questions|Out of Scope'
   - id: qa-task-split
+    icon: "✂️"
     label: Split Into Task Units
     prompt: Break down the selected task plan into 1-4h implementation tasks with dependencies, risks, and a test note per task.
     trigger:
@@ -49,6 +51,7 @@ quickActions:
       contentMatch:
         - '## Tasks|- \[ \]'
   - id: qa-ready-for-impl
+    icon: "🚀"
     label: Ready for Implementer
     prompt: Evaluate implementation readiness and return GO or NO-GO with a short reason, missing inputs, and the next concrete step.
     trigger:

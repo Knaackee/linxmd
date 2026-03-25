@@ -14,6 +14,7 @@ skills:
   - conventional-commits
 quickActions:
   - id: qa-test-plan-from-spec
+    icon: "🧪"
     label: Generate Test Plan
     prompt: Generate a test matrix from the spec with happy path, edge case, and error-path coverage tied to acceptance criteria.
     trigger:
@@ -23,6 +24,7 @@ quickActions:
       contentMatch:
         - 'Acceptance Criteria|Out of Scope'
   - id: qa-missing-tests
+    icon: "🔍"
     label: Find Missing Tests
     prompt: Identify acceptance criteria and scenarios that are not yet covered by tests and propose concrete test cases.
     trigger:

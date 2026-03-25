@@ -25,6 +25,7 @@ lifecycle: {}
 ```yaml
 quickActions:
   - id: write-e2e
+    icon: "🧪"
     label: Generate E2E test
     prompt: Write an E2E test for the current file.
     trigger:
@@ -43,6 +44,10 @@ quickActions:
       contentMatch:
         - "export default function"
 ```
+
+### Field Reference
+
+- `icon` is an optional emoji string displayed alongside the quick action label.
 
 ### Trigger Semantics
 

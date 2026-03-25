@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.9.0] - 2026-03-25
+
+### Added
+
+- `icon` field for `quickActions` in frontmatter spec (optional emoji string)
+- Parser and model support for `QuickAction.Icon` property
+- Emoji icons for all 41 quick actions across agents, workflows, and skills
+
+### Removed
+
+- Removed `existing-lib-extension.md` rollout plan (completed)
+
+---
+
 ## [0.8.1] - 2026-03-24
 
 ### Fixed
