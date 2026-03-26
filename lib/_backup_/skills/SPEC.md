@@ -39,10 +39,7 @@ Use quick actions for reusable operational prompts, for example:
 - "Generate OpenAPI from endpoint"
 - "Find missing i18n keys"
 
-Use one of these trigger modes:
-
-- File-scoped quick action: required non-empty `fileMatch` list
-- Chat quick action: set `chat: true` in `trigger`
+Always model file matching as a required non-empty `fileMatch` list.
 
 ## Lifecycle for Skills
 

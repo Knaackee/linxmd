@@ -343,6 +343,22 @@
       "tags": []
     },
     {
+      "name": "graph-memory",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": ">",
+      "path": "skills/graph-memory/",
+      "deps": [
+        "skill:project-memory"
+      ],
+      "tags": [
+        "memory",
+        "knowledge-graph",
+        "temporal",
+        "continue"
+      ]
+    },
+    {
       "name": "i18n",
       "type": "skill",
       "version": "2.0.0",

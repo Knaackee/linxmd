@@ -22,6 +22,8 @@ lifecycle: {}
 
 `quickActions` expose context-aware prompt shortcuts.
 
+Note: `quickActions` are intended for `agent`, `skill`, and `workflow` artifacts. Packs are collection artifacts and should omit `quickActions`.
+
 ```yaml
 quickActions:
   - id: write-e2e
@@ -29,6 +31,7 @@ quickActions:
     label: Generate E2E test
     prompt: Write an E2E test for the current file.
     trigger:
+      chat: false
       fileMatch:
         - "^src/pages/.*\\.(ts|tsx)$"
         - "^src/routes/.*\\.(ts|tsx)$"
@@ -51,7 +54,9 @@ quickActions:
 
 ### Trigger Semantics
 
-- `fileMatch` is required and must be a non-empty list of regex patterns. OR semantics.
+- `chat` is optional and defaults to `false`.
+- If `chat: true`, the quick action is available from chat context without requiring file matching.
+- If `chat: false` (or omitted), `fileMatch` is required and must be a non-empty list of regex patterns. OR semantics.
 - `fileExclude` is a list of regex patterns. OR semantics.
 - `workspaceHas` is a list of files/folders that must exist.
 - `workspaceMissing` is a list of files/folders that must not exist.
@@ -63,6 +68,8 @@ quickActions:
 ## `lifecycle`
 
 Lifecycle hooks define prompts around install/remove/update operations.
+
+Note: `lifecycle` hooks are intended for `agent`, `skill`, and `workflow` artifacts. Packs should omit `lifecycle`.
 
 ```yaml
 lifecycle:
