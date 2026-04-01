@@ -4,6 +4,14 @@ type: pack
 version: 3.0.0
 description: Bootstrap pack for Continue-first development. Starts with graph CLI interaction, graph memory policy, and product shaping as the first enterprise gate.
 deps: []
+agents:
+  - product-manager
+  - router
+  - spec-writer
+  - planner
+skills:
+  - graph
+  - graph-memory
 tags: [pack, continue, bootstrap, enterprise, graph-memory]
 ---
 

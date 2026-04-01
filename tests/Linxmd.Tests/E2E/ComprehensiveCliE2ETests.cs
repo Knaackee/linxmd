@@ -79,6 +79,8 @@ public class ComprehensiveCliE2ETests : IDisposable
         File.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
         File.Exists(Path.Combine(_tempDir, ".claude", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
 
+        UseLocalSource();
+
         var (_, promptOut, promptErr) = RunCli("init-prompt");
         promptErr.Should().BeEmpty();
         promptOut.Should().Contain("Base onboarding prompt:");
@@ -207,6 +209,7 @@ public class ComprehensiveCliE2ETests : IDisposable
     public void Add_WithoutQuery_ShowsBrowseResults_AfterInit()
     {
         RunCli("init");
+        UseLocalSource();
 
         var (code, stdout, stderr) = RunCli("add");
         code.Should().Be(0);
@@ -228,6 +231,7 @@ public class ComprehensiveCliE2ETests : IDisposable
     public void Add_AmbiguousName_ShowsTypedHint()
     {
         RunCli("init");
+        UseLocalSource();
 
         var (_, stdout, stderr) = RunCli("add reviewer --yes");
         // CLI shows a selection table when multiple matches are found
@@ -239,6 +243,7 @@ public class ComprehensiveCliE2ETests : IDisposable
     public void Add_BestMatch_Install_Works()
     {
         RunCli("init");
+        UseLocalSource();
 
         var (code, stdout, stderr) = RunCli("add test --install --yes");
         code.Should().Be(0);
@@ -251,6 +256,7 @@ public class ComprehensiveCliE2ETests : IDisposable
     public void Remove_NoQuery_NonInteractive_ListsInstalled()
     {
         RunCli("init");
+        UseLocalSource();
         RunCli("add agent:test-writer --yes");
 
         var (code, stdout, stderr) = RunCli("remove");
@@ -276,6 +282,7 @@ public class ComprehensiveCliE2ETests : IDisposable
     public void List_Filter_ByType_AndTypedId_Works()
     {
         RunCli("init");
+        UseLocalSource();
         RunCli("add agent:test-writer --yes");
         RunCli("add skill:debugging --yes");
 

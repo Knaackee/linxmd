@@ -14,10 +14,16 @@ def get_field(fm, key):
 
 
 def get_list_field(fm, key):
-    match = re.search(rf'^{key}:\s*\n((?:\s+-\s+.+\n?)*)', fm, re.MULTILINE)
-    if not match:
+    inline = re.search(rf'^{key}:\s*\[(.*?)\]\s*$', fm, re.MULTILINE)
+    if inline:
+        raw_items = [item.strip() for item in inline.group(1).split(",")]
+        return [item.strip("\"'") for item in raw_items if item]
+
+    block = re.search(rf'^{key}:\s*\n((?:\s+-\s+.+\n?)*)', fm, re.MULTILINE)
+    if not block:
         return []
-    return [line.strip().lstrip("- ") for line in match.group(1).strip().split("\n")]
+
+    return [line.strip().lstrip("- ") for line in block.group(1).strip().split("\n")]
 
 
 def unique(values):
@@ -34,10 +40,20 @@ def unique(values):
 
 
 def main():
-    artifacts = []
+    artifacts = {}
     lib = "lib"
+    patterns = [
+        "_backup_/agents/*.md",
+        "_backup_/skills/*/SKILL.md",
+        "_backup_/workflows/*.md",
+        "_backup_/packs/*.md",
+        "agents/*.md",
+        "skills/*/SKILL.md",
+        "workflows/*.md",
+        "packs/*.md",
+    ]
 
-    for pattern in ["agents/*.md", "skills/*/SKILL.md", "workflows/*.md", "packs/*.md"]:
+    for pattern in patterns:
         for f in sorted(glob.glob(os.path.join(lib, pattern))):
             with open(f, encoding="utf-8") as fh:
                 content = fh.read()
@@ -93,12 +109,12 @@ def main():
                 entry["supported"] = supported
             if pack_artifacts:
                 entry["artifacts"] = pack_artifacts
-            artifacts.append(entry)
+            artifacts[(atype, name)] = entry
 
     index = {
         "version": 1,
         "generated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "artifacts": artifacts,
+        "artifacts": sorted(artifacts.values(), key=lambda item: (item["type"], item["name"])),
     }
     with open(os.path.join(lib, "index.json"), "w", encoding="utf-8") as fh:
         json.dump(index, fh, indent=2, ensure_ascii=False)
