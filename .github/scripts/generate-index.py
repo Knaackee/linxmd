@@ -43,10 +43,6 @@ def main():
     artifacts = {}
     lib = "lib"
     patterns = [
-        "_backup_/agents/*.md",
-        "_backup_/skills/*/SKILL.md",
-        "_backup_/workflows/*.md",
-        "_backup_/packs/*.md",
         "agents/*.md",
         "skills/*/SKILL.md",
         "workflows/*.md",

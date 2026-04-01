@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "generated": "2026-04-01T12:00:00Z",
+  "artifacts": [
+    {
+      "name": "planner",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Stable test planner agent.",
+      "path": "agents/planner.md",
+      "deps": ["skill:graph", "skill:graph-memory", "skill:task-management", "skill:context-management", "skill:trace-writing"],
+      "tags": ["test", "planner"]
+    },
+    {
+      "name": "product-manager",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Stable test product manager agent.",
+      "path": "agents/product-manager.md",
+      "deps": ["skill:graph", "skill:graph-memory", "skill:research", "skill:task-management", "skill:trace-writing"],
+      "tags": ["test", "product"]
+    },
+    {
+      "name": "router",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Stable test router agent.",
+      "path": "agents/router.md",
+      "deps": ["skill:graph", "skill:graph-memory", "skill:task-management", "skill:context-management", "skill:trace-writing"],
+      "tags": ["test", "router"]
+    },
+    {
+      "name": "spec-writer",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Stable test spec writer agent.",
+      "path": "agents/spec-writer.md",
+      "deps": ["skill:graph", "skill:graph-memory", "skill:task-management", "skill:context-management", "skill:trace-writing"],
+      "tags": ["test", "spec"]
+    },
+    {
+      "name": "test-writer",
+      "type": "agent",
+      "version": "1.0.0",
+      "description": "Stable test writer agent.",
+      "path": "agents/test-writer.md",
+      "deps": ["skill:debugging", "skill:task-management"],
+      "tags": ["test", "writer"]
+    },
+    {
+      "name": "coninue",
+      "type": "pack",
+      "version": "1.0.0",
+      "description": "Stable test bootstrap pack.",
+      "path": "packs/coninue.md",
+      "deps": [],
+      "tags": ["test", "pack"],
+      "artifacts": [
+        "agent:product-manager",
+        "agent:router",
+        "agent:spec-writer",
+        "agent:planner",
+        "skill:graph",
+        "skill:graph-memory"
+      ]
+    },
+    {
+      "name": "context-management",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test context management skill.",
+      "path": "skills/context-management",
+      "deps": [],
+      "tags": ["test", "context"]
+    },
+    {
+      "name": "debugging",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test debugging skill.",
+      "path": "skills/debugging",
+      "deps": [],
+      "tags": ["test", "debugging"]
+    },
+    {
+      "name": "graph",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test graph skill.",
+      "path": "skills/graph",
+      "deps": [],
+      "tags": ["test", "graph"]
+    },
+    {
+      "name": "graph-memory",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test graph memory skill.",
+      "path": "skills/graph-memory",
+      "deps": [],
+      "tags": ["test", "graph", "memory"]
+    },
+    {
+      "name": "research",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test research skill.",
+      "path": "skills/research",
+      "deps": [],
+      "tags": ["test", "research"]
+    },
+    {
+      "name": "task-management",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test task management skill.",
+      "path": "skills/task-management",
+      "deps": [],
+      "tags": ["test", "tasks"]
+    },
+    {
+      "name": "trace-writing",
+      "type": "skill",
+      "version": "1.0.0",
+      "description": "Stable test trace writing skill.",
+      "path": "skills/trace-writing",
+      "deps": [],
+      "tags": ["test", "trace"]
+    }
+  ]
+}

@@ -12,6 +12,7 @@ quickActions:
     prompt: Classify the current request, select the best matching workflow, and produce a handoff contract for the next agent.
     trigger:
       chat: true
+      fileMatch: ["**/*"]
   - label: Route request from referenced file
     icon: "🗺️"
     prompt: Analyze only the referenced file, infer intent and readiness, choose the appropriate workflow, and output the next agent handoff.

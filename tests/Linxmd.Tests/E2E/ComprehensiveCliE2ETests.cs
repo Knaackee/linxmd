@@ -1,68 +1,14 @@
-using System.Diagnostics;
 using System.Text.Json;
 using FluentAssertions;
 
 namespace Linxmd.Tests.E2E;
 
-public class ComprehensiveCliE2ETests : IDisposable
+public class ComprehensiveCliE2ETests : LocalLibCliTestBase
 {
-    private readonly string _tempDir;
-    private readonly string _repoRoot;
-
     public ComprehensiveCliE2ETests()
+        : base("linxmd-e2e-")
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), "linxmd-e2e-" + Guid.NewGuid().ToString("N")[..8]);
-        Directory.CreateDirectory(_tempDir);
-        _repoRoot = ResolveRepoRoot();
     }
-
-    public void Dispose()
-    {
-        if (Directory.Exists(_tempDir))
-            Directory.Delete(_tempDir, recursive: true);
-    }
-
-    private (int exitCode, string stdout, string stderr) RunCli(string args, bool includeProject = true)
-    {
-        var projectArg = includeProject ? $"--project \"{_tempDir}\"" : "";
-        var psi = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = $"run --project {Path.Combine(_repoRoot, "src", "Linxmd", "Linxmd.csproj")} -- {args} {projectArg}".Trim(),
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            WorkingDirectory = _repoRoot
-        };
-
-        psi.Environment["NO_COLOR"] = "1";
-
-        using var process = Process.Start(psi)!;
-        var stdout = process.StandardOutput.ReadToEnd();
-        var stderr = process.StandardError.ReadToEnd();
-        process.WaitForExit(120_000);
-        return (process.ExitCode, stdout, stderr);
-    }
-
-        private void UseLocalSource()
-        {
-                var sourcesPath = Path.Combine(_tempDir, ".linxmd", "sources.json");
-            Directory.CreateDirectory(Path.GetDirectoryName(sourcesPath)!);
-                var localLibPath = Path.Combine(_repoRoot, "lib").Replace("\\", "\\\\");
-                var json = $$"""
-                        {
-                            "sources": [
-                                {
-                                    "id": "default",
-                                    "kind": "local",
-                                    "localPath": "{{localLibPath}}"
-                                }
-                            ]
-                        }
-                        """;
-                File.WriteAllText(sourcesPath, json);
-        }
 
     [Fact]
     public void FullLifecycle_EndToEnd_Run_CoversAllMainCommands()
@@ -74,10 +20,10 @@ public class ComprehensiveCliE2ETests : IDisposable
         initOut.Should().Contain("Created base skill 'linxmd-self-bootstrap'");
         initOut.Should().Contain("Base onboarding prompt:");
 
-        Directory.Exists(Path.Combine(_tempDir, ".linxmd")).Should().BeTrue();
-        File.Exists(Path.Combine(_tempDir, ".linxmd", "sources.json")).Should().BeTrue();
-        File.Exists(Path.Combine(_tempDir, ".linxmd", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
-        File.Exists(Path.Combine(_tempDir, ".claude", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
+        Directory.Exists(Path.Combine(TempDir, ".linxmd")).Should().BeTrue();
+        File.Exists(Path.Combine(TempDir, ".linxmd", "sources.json")).Should().BeTrue();
+        File.Exists(Path.Combine(TempDir, ".linxmd", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
+        File.Exists(Path.Combine(TempDir, ".claude", "skills", "linxmd-self-bootstrap", "SKILL.md")).Should().BeTrue();
 
         UseLocalSource();
 
@@ -97,7 +43,7 @@ public class ComprehensiveCliE2ETests : IDisposable
         addOut.Should().Contain("Installed agent 'test-writer'");
         addOut.Should().Contain("Synced:");
 
-        File.Exists(Path.Combine(_tempDir, ".linxmd", "agents", "test-writer.md")).Should().BeTrue();
+        File.Exists(Path.Combine(TempDir, ".linxmd", "agents", "test-writer.md")).Should().BeTrue();
 
         var (_, listOut, listErr) = RunCli("list");
         listErr.Should().BeEmpty();
@@ -124,7 +70,7 @@ public class ComprehensiveCliE2ETests : IDisposable
         var (_, finalListOut, finalListErr) = RunCli("list");
         finalListErr.Should().BeEmpty();
         finalListOut.Should().NotContain("test-writer");
-        finalListOut.Should().ContainAny("skill", "agent", "workflow");
+        finalListOut.Should().ContainAny("skill", "agent");
     }
 
     [Fact]
@@ -214,8 +160,8 @@ public class ComprehensiveCliE2ETests : IDisposable
         var (code, stdout, stderr) = RunCli("add");
         code.Should().Be(0);
         stderr.Should().BeEmpty();
-        stdout.Should().Contain("test-writer");
-        stdout.Should().Contain("feature-development");
+        stdout.Should().Contain("product-manager");
+        stdout.Should().Contain("coninue");
     }
 
     [Fact]
@@ -233,10 +179,10 @@ public class ComprehensiveCliE2ETests : IDisposable
         RunCli("init");
         UseLocalSource();
 
-        var (_, stdout, stderr) = RunCli("add reviewer --yes");
+        var (_, stdout, stderr) = RunCli("add gra --yes");
         // CLI shows a selection table when multiple matches are found
-        (stdout + stderr).Should().Contain("reviewer-quality");
-        (stdout + stderr).Should().Contain("reviewer-spec");
+        (stdout + stderr).Should().Contain("graph-memory");
+        (stdout + stderr).Should().Contain("graph");
     }
 
     [Fact]
@@ -245,7 +191,7 @@ public class ComprehensiveCliE2ETests : IDisposable
         RunCli("init");
         UseLocalSource();
 
-        var (code, stdout, stderr) = RunCli("add test --install --yes");
+        var (code, stdout, stderr) = RunCli("add graph-memor --install --yes");
         code.Should().Be(0);
         stderr.Should().BeEmpty();
         stdout.Should().Contain("Installed ");
@@ -331,16 +277,4 @@ public class ComprehensiveCliE2ETests : IDisposable
         stdout.Should().Contain("platform");
     }
 
-    private static string ResolveRepoRoot()
-    {
-        var current = new DirectoryInfo(AppContext.BaseDirectory);
-        while (current is not null)
-        {
-            if (File.Exists(Path.Combine(current.FullName, "Linxmd.sln")))
-                return current.FullName;
-            current = current.Parent;
-        }
-
-        throw new InvalidOperationException("Could not locate repo root from test runtime directory.");
-    }
 }

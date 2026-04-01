@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.10.0] - 2026-04-01
+
+### Changed
+
+- Library discovery and shipped artifact index now reflect only the active `lib/` contents; legacy `_backup_` artifacts are no longer indexed or documented as shipped content
+- E2E and parser tests now use a dedicated stable fixture library under `tests/Linxmd.Tests/TestLib` instead of depending on mutable production library content
+
+### Fixed
+
+- Restored parser and CI stability after removing legacy backup artifacts by moving fixed test assumptions into test-specific fixtures
+- Updated local-source CLI test coverage to share a common fixture-backed helper and avoid production-lib coupling
+
+### Removed
+
+- Removed the shipped `lib/_backup_/` artifact set and the obsolete `lib/lib-for-continue.md` document from the active library surface
+
 ## [0.9.0] - 2026-03-25
 
 ### Added

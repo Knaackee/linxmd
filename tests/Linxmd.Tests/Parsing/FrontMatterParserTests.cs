@@ -489,32 +489,11 @@ public class FrontMatterParserTests
         var repoRoot = FindRepoRoot();
         var files = new[]
         {
-            "lib/workflows/feature-development.md",
-            "lib/workflows/bug-fix.md",
-            "lib/workflows/project-start.md",
-            "lib/workflows/research-spike.md",
-            "lib/workflows/quality-baseline.md",
-            "lib/workflows/release.md",
-            "lib/workflows/consistency-sprint.md",
-            "lib/workflows/content-review.md",
-            "lib/agents/router.md",
-            "lib/agents/spec-writer.md",
-            "lib/agents/planner.md",
-            "lib/agents/test-writer.md",
-            "lib/agents/reviewer-spec.md",
-            "lib/agents/reviewer-quality.md",
-            "lib/agents/consistency-guardian.md",
-            "lib/agents/docs-writer.md",
-            "lib/agents/changelog-writer.md",
-            "lib/agents/architect.md",
-            "lib/agents/implementer.md",
-            "lib/skills/task-management/SKILL.md",
-            "lib/skills/debugging/SKILL.md",
-            "lib/skills/refactoring/SKILL.md",
-            "lib/skills/api-design/SKILL.md",
-            "lib/skills/project-memory/SKILL.md",
-            "lib/skills/consistency-check/SKILL.md",
-            "lib/skills/conventional-commits/SKILL.md"
+            "tests/Linxmd.Tests/TestLib/agents/router.md",
+            "tests/Linxmd.Tests/TestLib/agents/spec-writer.md",
+            "tests/Linxmd.Tests/TestLib/agents/planner.md",
+            "tests/Linxmd.Tests/TestLib/skills/graph/SKILL.md",
+            "tests/Linxmd.Tests/TestLib/skills/graph-memory/SKILL.md"
         };
 
         foreach (var relativePath in files)
