@@ -133,6 +133,29 @@ public class FrontMatterParserTests
     }
 
     [Fact]
+    public void Parse_ValidTemplateFrontMatter_ParsesTypeCorrectly()
+    {
+        var markdown = """
+            ---
+            name: agent-core
+            type: template
+            version: 1.0.0
+            description: Example template
+            tags:
+              - template
+            ---
+
+            # Agent Core Template
+            """;
+
+        var result = FrontMatterParser.Parse(markdown);
+
+        result.Should().NotBeNull();
+        result!.Type.Should().Be(ArtifactType.Template);
+        result.Name.Should().Be("agent-core");
+    }
+
+    [Fact]
     public void Parse_NoDeps_ReturnsEmptyList()
     {
         var markdown = """

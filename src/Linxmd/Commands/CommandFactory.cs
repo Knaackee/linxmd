@@ -360,7 +360,7 @@ public static class CommandFactory
 
     public static Command CreateListCommand()
     {
-        var filterArg = new Argument<string>("filter", () => "", "Optional type (agent|skill|workflow) or typed id (type:name)");
+        var filterArg = new Argument<string>("filter", () => "", "Optional type (agent|skill|workflow|template) or typed id (type:name)");
         var jsonOpt = new Option<bool>("--json", "Output as JSON");
         var cmd = new Command("list", "List installed artifacts") { filterArg };
         cmd.AddOption(jsonOpt);
@@ -400,6 +400,104 @@ public static class CommandFactory
 
             Cli.WriteInstalledTable(list.Select(a => (a.Type, a.Name, a.Version)));
         }, filterArg, jsonOpt, ProjectOption);
+
+        return cmd;
+    }
+
+    public static Command CreateNewCommand()
+    {
+        var queryArg = new Argument<string>("query", () => "", "Installed template id (template:name) or template name");
+        var forceOpt = new Option<bool>("--force", "Overwrite existing files when copying a template");
+        var cmd = new Command("new", "Copy installed template files into the project") { queryArg };
+        cmd.AddOption(forceOpt);
+
+        cmd.SetHandler((string query, bool force, string project) =>
+        {
+            var state = new InstalledStateManager(project);
+            if (!state.IsInitialized)
+            {
+                Console.Error.WriteLine("Not initialized. Run 'linxmd init' first.");
+                return;
+            }
+
+            var installed = state.Load();
+            var installedTemplates = installed.Artifacts
+                .Where(a => a.Type.Equals("template", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                if (installedTemplates.Count == 0)
+                {
+                    Console.WriteLine("No templates installed.");
+                    return;
+                }
+
+                Cli.WriteInstalledTable(installedTemplates.Select(a => (a.Type, a.Name, a.Version)));
+                return;
+            }
+
+            var parsed = ParseArtifactId(query);
+            var templateName = parsed?.name ?? query.Trim();
+            var templateType = parsed?.type;
+
+            if (templateType is not null && !templateType.Equals("template", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.Error.WriteLine("The 'new' command only supports templates. Use template:<name>.");
+                return;
+            }
+
+            var template = installedTemplates.FirstOrDefault(a => a.Name.Equals(templateName, StringComparison.OrdinalIgnoreCase));
+            if (template is null)
+            {
+                Console.Error.WriteLine($"Template '{templateName}' is not installed.");
+                return;
+            }
+
+            var sourceDir = Path.Combine(state.TemplatesDir, template.Name, "files");
+            if (!Directory.Exists(sourceDir))
+            {
+                Console.Error.WriteLine($"Installed template '{template.Name}' has no files directory.");
+                return;
+            }
+
+            var relativeFiles = Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories)
+                .Select(file => Path.GetRelativePath(sourceDir, file))
+                .ToList();
+
+            if (relativeFiles.Count == 0)
+            {
+                Console.Error.WriteLine($"Installed template '{template.Name}' contains no files to copy.");
+                return;
+            }
+
+            var conflicts = relativeFiles
+                .Select(relative => Path.Combine(project, relative))
+                .Where(File.Exists)
+                .ToList();
+
+            if (conflicts.Count > 0 && !force)
+            {
+                Console.Error.WriteLine("Template copy blocked because files already exist:");
+                foreach (var conflict in conflicts)
+                    Console.Error.WriteLine($"  {Path.GetRelativePath(project, conflict)}");
+                Console.Error.WriteLine("Re-run with --force to overwrite.");
+                return;
+            }
+
+            foreach (var relativeFile in relativeFiles)
+            {
+                var sourcePath = Path.Combine(sourceDir, relativeFile);
+                var targetPath = Path.Combine(project, relativeFile);
+                var targetDir = Path.GetDirectoryName(targetPath);
+                if (!string.IsNullOrEmpty(targetDir))
+                    Directory.CreateDirectory(targetDir);
+                File.Copy(sourcePath, targetPath, overwrite: force);
+            }
+
+            Cli.WriteSuccess($"Copied template '{template.Name}' ({relativeFiles.Count} file(s)).");
+            Cli.WriteFileTree("template", [(template.Name, relativeFiles.Select(path => path.Replace('\\', '/')))]);
+        }, queryArg, forceOpt, ProjectOption);
 
         return cmd;
     }
@@ -453,6 +551,7 @@ public static class CommandFactory
             var agentCount = installed.Artifacts.Count(a => a.Type == "agent");
             var skillCount = installed.Artifacts.Count(a => a.Type == "skill");
             var workflowCount = installed.Artifacts.Count(a => a.Type == "workflow");
+            var templateCount = installed.Artifacts.Count(a => a.Type == "template");
 
             var backlogDir = state.BacklogDir;
             var inProgressDir = state.InProgressDir;
@@ -473,6 +572,7 @@ public static class CommandFactory
             sb.AppendLine($"  {Cli.AgentIcon} Agents:    {agentCount}");
             sb.AppendLine($"  {Cli.SkillIcon} Skills:    {skillCount}");
             sb.AppendLine($"  {Cli.WorkflowIcon} Workflows: {workflowCount}");
+            sb.AppendLine($"  {Cli.TemplateIcon} Templates: {templateCount}");
             sb.AppendLine($"  {Cli.BacklogIcon} Backlog:       {backlogCount}");
             sb.AppendLine($"  {Cli.InProgressIcon} In Progress:   {inProgressCount}");
             sb.Append($"  {Cli.ToolsIcon} Tools: {(tools.Count > 0 ? string.Join(", ", tools) : "none")}");
@@ -708,9 +808,9 @@ Use CLI help to discover commands and flags when needed.
         }
 
         string? checksum = null;
-        if (artifact.Type == "skill")
+        if (artifact.Type == "skill" || artifact.Type == "template")
         {
-            await InstallSkillAsync(client, state, artifact);
+            await InstallDirectoryArtifactAsync(client, state, artifact);
         }
         else
         {
@@ -748,9 +848,9 @@ Use CLI help to discover commands and flags when needed.
                 if (state.GetArtifact(depEntry.Name, depEntry.Type) is not null) continue;
 
                 string? depChecksum = null;
-                if (depEntry.Type == "skill")
+                if (depEntry.Type == "skill" || depEntry.Type == "template")
                 {
-                    await InstallSkillAsync(client, state, depEntry);
+                    await InstallDirectoryArtifactAsync(client, state, depEntry);
                 }
                 else
                 {
@@ -768,17 +868,25 @@ Use CLI help to discover commands and flags when needed.
         }
     }
 
-    private static async Task InstallSkillAsync(ILibClient client, InstalledStateManager state, ArtifactEntry artifact)
+    private static async Task InstallDirectoryArtifactAsync(ILibClient client, InstalledStateManager state, ArtifactEntry artifact)
     {
-        var entries = await client.ListDirectoryAsync(artifact.Path.TrimEnd('/'));
-        var targetDir = Path.Combine(state.SkillsDir, artifact.Name);
+        var entries = await client.ListFilesAsync(artifact.Path.TrimEnd('/'));
+        var rootDir = state.GetArtifactDir(artifact.Type);
+        var targetDir = Path.Combine(rootDir, artifact.Name);
         Directory.CreateDirectory(targetDir);
 
         foreach (var entry in entries)
         {
             var content = await client.FetchFileAsync($"{artifact.Path.TrimEnd('/')}/{entry}");
-            if (content is not null)
-                await File.WriteAllTextAsync(Path.Combine(targetDir, entry), content);
+            if (content is null)
+                continue;
+
+            var targetPath = Path.Combine(targetDir, entry.Replace('/', Path.DirectorySeparatorChar));
+            var directory = Path.GetDirectoryName(targetPath);
+            if (!string.IsNullOrEmpty(directory))
+                Directory.CreateDirectory(directory);
+
+            await File.WriteAllTextAsync(targetPath, content);
         }
     }
 
@@ -836,11 +944,11 @@ Use CLI help to discover commands and flags when needed.
 
     private static void UninstallArtifact(InstalledStateManager state, string name, string type)
     {
-        if (type == "skill")
+        if (type == "skill" || type == "template")
         {
-            var skillDir = Path.Combine(state.SkillsDir, name);
-            if (Directory.Exists(skillDir))
-                Directory.Delete(skillDir, recursive: true);
+            var artifactDir = Path.Combine(state.GetArtifactDir(type), name);
+            if (Directory.Exists(artifactDir))
+                Directory.Delete(artifactDir, recursive: true);
         }
         else
         {

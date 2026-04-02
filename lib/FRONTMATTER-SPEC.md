@@ -7,7 +7,7 @@ This document defines the shared YAML frontmatter schema for all Linxmd artifact
 ```yaml
 ---
 name: artifact-name
-type: agent|skill|workflow|pack
+type: agent|skill|workflow|template|pack
 version: 2.1.0
 description: Short summary
 deps: []
@@ -22,7 +22,7 @@ lifecycle: {}
 
 `quickActions` expose context-aware prompt shortcuts.
 
-Note: `quickActions` are intended for `agent`, `skill`, and `workflow` artifacts. Packs are collection artifacts and should omit `quickActions`.
+Note: `quickActions` are intended for `agent`, `skill`, and `workflow` artifacts. Packs and templates should omit `quickActions`.
 
 ```yaml
 quickActions:
@@ -69,7 +69,7 @@ quickActions:
 
 Lifecycle hooks define prompts around install/remove/update operations.
 
-Note: `lifecycle` hooks are intended for `agent`, `skill`, and `workflow` artifacts. Packs should omit `lifecycle`.
+Note: `lifecycle` hooks are intended for `agent`, `skill`, and `workflow` artifacts. Packs and templates should omit `lifecycle`.
 
 ```yaml
 lifecycle:

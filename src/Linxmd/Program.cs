@@ -15,6 +15,7 @@ public static class Program
             CommandFactory.CreateAddCommand(),
             CommandFactory.CreateRemoveCommand(),
             CommandFactory.CreateListCommand(),
+            CommandFactory.CreateNewCommand(),
             CommandFactory.CreateSyncCommand(),
             CommandFactory.CreateStatusCommand(),
             CommandFactory.CreateInitCommand(),

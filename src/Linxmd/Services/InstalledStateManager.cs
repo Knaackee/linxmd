@@ -16,6 +16,7 @@ public sealed class InstalledStateManager
     public string AgentsDir => Path.Combine(LinxmdDir, "agents");
     public string SkillsDir => Path.Combine(LinxmdDir, "skills");
     public string WorkflowsDir => Path.Combine(LinxmdDir, "workflows");
+    public string TemplatesDir => Path.Combine(LinxmdDir, "templates");
     public string TasksDir => Path.Combine(LinxmdDir, "tasks");
     public string BacklogDir => Path.Combine(TasksDir, "backlog");
     public string InProgressDir => Path.Combine(TasksDir, "in-progress");
@@ -26,6 +27,7 @@ public sealed class InstalledStateManager
         Directory.Exists(AgentsDir) &&
         Directory.Exists(SkillsDir) &&
         Directory.Exists(WorkflowsDir) &&
+        Directory.Exists(TemplatesDir) &&
         Directory.Exists(TasksDir);
 
     public void EnsureDirectories()
@@ -33,6 +35,7 @@ public sealed class InstalledStateManager
         Directory.CreateDirectory(AgentsDir);
         Directory.CreateDirectory(SkillsDir);
         Directory.CreateDirectory(WorkflowsDir);
+        Directory.CreateDirectory(TemplatesDir);
         Directory.CreateDirectory(BacklogDir);
         Directory.CreateDirectory(InProgressDir);
         EnsureDefaultSources();
@@ -176,6 +179,7 @@ public sealed class InstalledStateManager
         "agent" => AgentsDir,
         "skill" => SkillsDir,
         "workflow" => WorkflowsDir,
+        "template" => TemplatesDir,
         "pack" => string.Empty, // packs are virtual — they install their members, not files
         _ => throw new ArgumentException($"Unknown type: {type}")
     };

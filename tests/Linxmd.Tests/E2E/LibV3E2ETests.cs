@@ -6,6 +6,7 @@ namespace Linxmd.Tests.E2E;
 /// <summary>
 /// E2E tests against the stable test library fixture under tests/Linxmd.Tests/TestLib.
 /// </summary>
+[Collection("CLI E2E")]
 public class LibV3E2ETests : LocalLibCliTestBase
 {
     public LibV3E2ETests()

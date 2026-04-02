@@ -1,14 +1,15 @@
 ﻿# Linxmd
 
-> Install reusable AI building blocks — Agents, Skills, and Workflows — into any project, with one CLI.
+> Install reusable AI building blocks — Agents, Skills, Workflows, and Templates — into any project, with one CLI.
 
-Linxmd is a lightweight package manager for AI workflow artifacts. Run `linxmd init` once, then `linxmd add` whatever you need. Every install is dependency-aware, version-pinned, and synced across Copilot, Claude Code, and OpenCode automatically.
+Linxmd is a lightweight package manager for AI workflow artifacts. Run `linxmd init` once, then `linxmd add` whatever you need. Every install is dependency-aware, version-pinned, and synced across Copilot, Claude Code, and OpenCode automatically. Templates can also be copied into your project with `linxmd new`.
 
 ## ✨ Features
 
-- 📦 **37 ready-to-use artifacts** — 7 [workflows](lib/README.md#-workflows), 13 [agents](lib/README.md#-agents), 13 [skills](lib/README.md#-skills), and 4 [packs](lib/README.md#-packs) in the box
+- 📦 **Reusable artifacts and templates** — browse the current shipped catalog in [lib/README.md](lib/README.md)
 - 🔗 **Dependency-safe installs** — blocked removals protect dependent workflows from breaking
 - 🔄 **One-command sync** — `linxmd sync` regenerates all tool wrappers in one step
+- 🧩 **File templates** — install template bundles and copy them into your project unchanged
 - 🌐 **Multi-source registry** — pull from GitHub, local paths, or your own fork
 - 🏷️ **Semantic versioning** — `@>=0.2.0` constraints keep everything compatible
 - 🤖 **Cross-tool** — syncs to GitHub Copilot (`.github/agents/`), Claude Code (`.claude/`), and OpenCode (`.opencode/`)
@@ -55,6 +56,7 @@ linxmd init-prompt [--copy]
 linxmd add [query-or-type:name] [--yes] [--source <id>]
 linxmd remove [name-or-type:name] [--yes]
 linxmd list [type|type:name] [--json]
+linxmd new [template|template:name] [--force]
 linxmd update [--yes]
 linxmd sync
 linxmd status
@@ -66,6 +68,8 @@ linxmd status
 linxmd add workflow:sdd-tdd --yes           # full TDD pipeline
 linxmd add agent:router --yes               # smart request router
 linxmd add skill:context-management --yes   # context handling
+linxmd add template:agent-core --yes        # install a file template
+linxmd new template:agent-core              # copy template files into the project
 linxmd remove agent:docs-writer --yes       # blocked if a workflow needs it
 linxmd list workflow
 linxmd list --json
@@ -91,6 +95,7 @@ Artifact structure and frontmatter specs:
 - Shared frontmatter schema (quick actions + lifecycle hooks): [`lib/FRONTMATTER-SPEC.md`](lib/FRONTMATTER-SPEC.md)
 - Agent artifact spec: [`lib/agents/SPEC.md`](lib/agents/SPEC.md)
 - Skill artifact spec: [`lib/skills/SPEC.md`](lib/skills/SPEC.md)
+- Template artifact spec: [`lib/templates/SPEC.md`](lib/templates/SPEC.md)
 - Workflow artifact spec: [`lib/workflows/SPEC.md`](lib/workflows/SPEC.md)
 
 ### 🔄 Workflows
@@ -210,6 +215,7 @@ your-project/
 │   │   └── linxmd-self-bootstrap/
 │   │       └── SKILL.md
 │   ├── workflows/
+│   ├── templates/
 │   ├── tasks/
 │   │   ├── backlog/
 │   │   └── in-progress/

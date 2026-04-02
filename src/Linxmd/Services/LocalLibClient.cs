@@ -45,4 +45,17 @@ public sealed class LocalLibClient : ILibClient
 
         return Task.FromResult<IReadOnlyList<string>>(files);
     }
+
+    public Task<IReadOnlyList<string>> ListFilesAsync(string path, CancellationToken ct = default)
+    {
+        var fullPath = Path.Combine(_basePath, path.Replace('/', Path.DirectorySeparatorChar));
+        if (!Directory.Exists(fullPath))
+            return Task.FromResult<IReadOnlyList<string>>([]);
+
+        var files = Directory.GetFiles(fullPath, "*", SearchOption.AllDirectories)
+            .Select(file => Path.GetRelativePath(fullPath, file).Replace('\\', '/'))
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<string>>(files);
+    }
 }

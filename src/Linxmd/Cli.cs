@@ -13,6 +13,7 @@ public static class Cli
     public static string AgentIcon => "🤖";
     public static string SkillIcon => "📦";
     public static string WorkflowIcon => "🔄";
+    public static string TemplateIcon => "🧩";
     public static string FolderIcon => "📁";
     public static string BacklogIcon => "📋";
     public static string InProgressIcon => "🔨";
@@ -23,6 +24,7 @@ public static class Cli
         "agent" => AgentIcon,
         "skill" => SkillIcon,
         "workflow" => WorkflowIcon,
+        "template" => TemplateIcon,
         "pack" => "🗂️",
         _ => "·"
     };

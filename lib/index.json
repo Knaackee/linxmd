@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-04-01T09:01:02Z",
+  "generated": "2026-04-02T10:34:53Z",
   "artifacts": [
     {
       "name": "planner",
@@ -136,6 +136,45 @@
         "context",
         "temporal",
         "recall"
+      ]
+    },
+    {
+      "name": "agent-core",
+      "type": "template",
+      "version": "2.1.0",
+      "description": "Copies an example agent artifact into lib/agents/.",
+      "path": "templates/agent-core/",
+      "deps": [],
+      "tags": [
+        "template",
+        "agent",
+        "authoring"
+      ]
+    },
+    {
+      "name": "skill-core",
+      "type": "template",
+      "version": "2.1.0",
+      "description": "Copies an example skill artifact into lib/skills/.",
+      "path": "templates/skill-core/",
+      "deps": [],
+      "tags": [
+        "template",
+        "skill",
+        "authoring"
+      ]
+    },
+    {
+      "name": "workflow-core",
+      "type": "template",
+      "version": "2.1.0",
+      "description": "Copies an example workflow artifact into lib/workflows/.",
+      "path": "templates/workflow-core/",
+      "deps": [],
+      "tags": [
+        "template",
+        "workflow",
+        "authoring"
       ]
     }
   ]

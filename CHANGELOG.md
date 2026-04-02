@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.11.0] - 2026-04-02
+
+### Added
+
+- New `template` artifact type with support for install, list, remove, and `linxmd new` file-copy flows
+- Template library spec under `lib/templates/SPEC.md`
+- Shipped example templates for agent, skill, and workflow authoring
+
+### Changed
+
+- `linxmd init` now creates `.linxmd/templates/` as part of the standard project structure
+- Library index generation now discovers template directories
+- CLI status and listing now display installed templates
+
+### Fixed
+
+- E2E coverage now validates template installation and copy behavior
+- CLI E2E tests now run serially to avoid cross-process flakiness from concurrent `dotnet run` invocations
+
 ## [0.10.0] - 2026-04-01
 
 ### Changed

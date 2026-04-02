@@ -65,6 +65,33 @@
       ]
     },
     {
+      "name": "agent-core",
+      "type": "template",
+      "version": "1.0.0",
+      "description": "Stable test agent template.",
+      "path": "templates/agent-core/",
+      "deps": [],
+      "tags": ["test", "template"]
+    },
+    {
+      "name": "skill-core",
+      "type": "template",
+      "version": "1.0.0",
+      "description": "Stable test skill template.",
+      "path": "templates/skill-core/",
+      "deps": [],
+      "tags": ["test", "template"]
+    },
+    {
+      "name": "workflow-core",
+      "type": "template",
+      "version": "1.0.0",
+      "description": "Stable test workflow template.",
+      "path": "templates/workflow-core/",
+      "deps": [],
+      "tags": ["test", "template"]
+    },
+    {
       "name": "context-management",
       "type": "skill",
       "version": "1.0.0",

@@ -4,5 +4,6 @@ public enum ArtifactType
 {
     Agent,
     Skill,
-    Workflow
+    Workflow,
+    Template
 }

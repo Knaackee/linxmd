@@ -29,6 +29,7 @@ public class InstalledStateManagerTests : IDisposable
         Directory.Exists(_manager.AgentsDir).Should().BeTrue();
         Directory.Exists(_manager.SkillsDir).Should().BeTrue();
         Directory.Exists(_manager.WorkflowsDir).Should().BeTrue();
+        Directory.Exists(_manager.TemplatesDir).Should().BeTrue();
         Directory.Exists(_manager.BacklogDir).Should().BeTrue();
         Directory.Exists(_manager.InProgressDir).Should().BeTrue();
     }
@@ -124,6 +125,7 @@ public class InstalledStateManagerTests : IDisposable
         _manager.GetArtifactDir("agent").Should().EndWith("agents");
         _manager.GetArtifactDir("skill").Should().EndWith("skills");
         _manager.GetArtifactDir("workflow").Should().EndWith("workflows");
+        _manager.GetArtifactDir("template").Should().EndWith("templates");
     }
 
     [Fact]
@@ -141,12 +143,14 @@ public class InstalledStateManagerTests : IDisposable
         _manager.AddArtifact("test-writer", "agent", "1.0.0");
         _manager.AddArtifact("feature", "skill", "1.0.0");
         _manager.AddArtifact("sdd-tdd", "workflow", "1.0.0");
+        _manager.AddArtifact("agent-core", "template", "1.0.0");
 
         var state = _manager.Load();
-        state.Artifacts.Should().HaveCount(3);
+        state.Artifacts.Should().HaveCount(4);
         state.Artifacts.Should().Contain(a => a.Type == "agent");
         state.Artifacts.Should().Contain(a => a.Type == "skill");
         state.Artifacts.Should().Contain(a => a.Type == "workflow");
+        state.Artifacts.Should().Contain(a => a.Type == "template");
     }
 
     [Fact]

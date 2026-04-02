@@ -3,6 +3,7 @@ using FluentAssertions;
 
 namespace Linxmd.Tests.E2E;
 
+[Collection("CLI E2E")]
 public class ComprehensiveCliE2ETests : LocalLibCliTestBase
 {
     public ComprehensiveCliE2ETests()
@@ -83,6 +84,7 @@ public class ComprehensiveCliE2ETests : LocalLibCliTestBase
         stdout.Should().Contain("add");
         stdout.Should().Contain("remove");
         stdout.Should().Contain("list");
+        stdout.Should().Contain("new");
         stdout.Should().Contain("sync");
         stdout.Should().Contain("status");
         stdout.Should().Contain("init");
@@ -101,6 +103,7 @@ public class ComprehensiveCliE2ETests : LocalLibCliTestBase
             "add --help",
             "remove --help",
             "list --help",
+            "new --help",
             "sync --help",
             "status --help",
             "update --help",
@@ -124,6 +127,7 @@ public class ComprehensiveCliE2ETests : LocalLibCliTestBase
             "add agent:test-writer --yes",
             "remove agent:test-writer --yes",
             "list",
+            "new template:agent-core",
             "sync",
             "update --yes"
         };
@@ -231,6 +235,7 @@ public class ComprehensiveCliE2ETests : LocalLibCliTestBase
         UseLocalSource();
         RunCli("add agent:test-writer --yes");
         RunCli("add skill:debugging --yes");
+        RunCli("add template:agent-core --yes");
 
         var (_, typeOut, typeErr) = RunCli("list agent");
         typeErr.Should().BeEmpty();
@@ -240,6 +245,41 @@ public class ComprehensiveCliE2ETests : LocalLibCliTestBase
         var (_, idOut, idErr) = RunCli("list skill:debugging");
         idErr.Should().BeEmpty();
         idOut.Should().Contain("debugging");
+
+        var (_, templateOut, templateErr) = RunCli("list template");
+        templateErr.Should().BeEmpty();
+        templateOut.Should().Contain("agent-core");
+    }
+
+    [Fact]
+    public void Template_CanBeInstalled_Copied_AndRemoved()
+    {
+        RunCli("init");
+        UseLocalSource();
+
+        var (_, addOut, addErr) = RunCli("add template:agent-core --yes");
+        addErr.Should().BeEmpty();
+        addOut.Should().Contain("Installed template 'agent-core'");
+
+        Directory.Exists(Path.Combine(TempDir, ".linxmd", "templates", "agent-core")).Should().BeTrue();
+        File.Exists(Path.Combine(TempDir, ".linxmd", "templates", "agent-core", "template.md")).Should().BeTrue();
+
+        var (_, newOut, newErr) = RunCli("new template:agent-core");
+        newErr.Should().BeEmpty();
+        newOut.Should().Contain("Copied template 'agent-core'");
+
+        File.Exists(Path.Combine(TempDir, "generated", "agent-core", "example-agent.md")).Should().BeTrue();
+
+        var (_, conflictOut, conflictErr) = RunCli("new template:agent-core");
+        (conflictOut + conflictErr).Should().Contain("Template copy blocked");
+
+        var (_, forceOut, forceErr) = RunCli("new template:agent-core --force");
+        forceErr.Should().BeEmpty();
+        forceOut.Should().Contain("Copied template 'agent-core'");
+
+        var (_, removeOut, removeErr) = RunCli("remove template:agent-core --yes");
+        removeErr.Should().BeEmpty();
+        removeOut.Should().Contain("Uninstalled template 'agent-core'");
     }
 
     [Fact]

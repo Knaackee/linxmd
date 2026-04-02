@@ -45,6 +45,7 @@ def main():
     patterns = [
         "agents/*.md",
         "skills/*/SKILL.md",
+        "templates/*/template.md",
         "workflows/*.md",
         "packs/*.md",
     ]
@@ -90,7 +91,7 @@ def main():
                 pack_artifacts = unique(pack_artifacts + synthesized)
 
             rel = os.path.relpath(f, lib).replace("\\", "/")
-            path = os.path.dirname(rel) + "/" if atype == "skill" else rel
+            path = os.path.dirname(rel) + "/" if atype in ("skill", "template") else rel
 
             entry = {
                 "name": name,
